@@ -5,7 +5,7 @@
 - Matías Martínez
 - Tomás Giraldo
 - David Bermúdez
-- Anderson
+- Jhon Anderson Marín 
 ---
 ##  Project Overview
 SphereLink allows verified members of an institution to:
