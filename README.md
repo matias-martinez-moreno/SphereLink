@@ -1,13 +1,3 @@
-# SphereLink
-
-SphereLink is a web application for managing organizational events. It allows members to create, view, and manage events, while staff users can oversee and moderate content.
-
-## Team Members
-- Matías Martínez
-- Tomás Giraldo
-- David Bermúdez
-- Jhon Anderson Marín
-
 ## How to Set Up and Work on This Project
 
 1.  **Clone the Repository**
