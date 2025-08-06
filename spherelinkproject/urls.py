@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('events.urls')),  # Añade esto para conectar las URLs de 'events'
+    path('', include('events.urls')),  # Esto conecta las URLs de events
 ]

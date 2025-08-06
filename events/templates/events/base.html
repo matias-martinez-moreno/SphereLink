@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}SphereLink{% endblock %}</title>
+    <style>
+      body {
+        margin: 0; font-family: Arial, sans-serif;
+        display: flex;
+      }
+      nav {
+        width: 220px;
+        background: #2c3e50;
+        color: white;
+        height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      nav a {
+        color: white;
+        display: block;
+        padding: 10px 0;
+        text-decoration: none;
+      }
+      nav a:hover {
+        background: #34495e;
+      }
+      main {
+        flex-grow: 1;
+        padding: 20px;
+      }
+    </style>
+</head>
+<body>
+  <nav>
+    <h2>SphereLink</h2>
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <a href="{% url 'create_event' %}">Create Event</a>
+    <a href="{% url 'profile' %}">My Profile</a>
+    <a href="{% url 'logout' %}">Logout</a>
+  </nav>
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+</body>
+</html>
