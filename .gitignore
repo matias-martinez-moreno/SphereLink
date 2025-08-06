@@ -1,0 +1,19 @@
+# Archivos Python
+*.pyc
+__pycache__/
+
+# Entorno virtual
+env/
+venv/
+
+# Archivos de la base de datos
+db.sqlite3
+
+# Archivos de configuración del entorno
+*.env
+
+# Archivos de VS Code
+.vscode/
+
+# Carpeta de medios (si subimos imágenes más adelante)
+media/
