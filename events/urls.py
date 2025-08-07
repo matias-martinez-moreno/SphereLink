@@ -8,4 +8,6 @@ urlpatterns = [
     path('create-event/', views.create_event_view, name='create_event'),
     path('profile/', views.profile_view, name='profile'),
     path('logout/', views.logout_view, name='logout'),
+    path('events/', views.events_list_view, name='events_list'),
+    path('event/<int:event_id>/', views.event_detail_view, name='event_detail'),
 ]
