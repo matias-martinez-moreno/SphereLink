@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Q
+from django.utils import timezone
 from .models import Event
 
 def login_view(request):
@@ -49,13 +50,11 @@ def logout_view(request):
     return HttpResponse("Logout Page (under construction)")
 
 def events_list_view(request):
-    events = Event.objects.all().order_by('-date')
+    events = Event.objects.filter(date__gte=timezone.now()).order_by('date')
     return render(request, 'events/events_list.html', {'events': events})
-
 def event_detail_view(request, event_id):
     try:
         event = Event.objects.get(id=event_id)
-        # Asegurar que tenemos todos los datos necesarios
         context = {
             'event': event,
             'event_types': Event.EVENT_TYPES,
