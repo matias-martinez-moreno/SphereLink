@@ -6,9 +6,9 @@
 <div class="container-fluid">
     <!-- Header -->
     <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="display-4 text-primary mb-3">Connect with Your Organization</h1>
-            <p class="lead text-muted">Discover and join amazing events in your community</p>
+        <div class="col-15">
+            <h1 class="display-4 text-primary mb-3">Hello, {{ request.user.get_full_name|default:request.user.username }}!</h1>
+            <p class="lead text-muted">Discover,create and join amazing events in your community</p>
         </div>
     </div>
 

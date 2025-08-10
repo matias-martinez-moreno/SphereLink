@@ -1,36 +1,57 @@
 {% extends 'events/base.html' %}
 
-{% block title %}My Events - SphereLink{% endblock %}
+{% block title %}Mis Eventos - SphereLink{% endblock %}
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="mb-4">My Registered Events</h2>
-
-    {% if registered_events %}
-        <div class="row row-cols-1 row-cols-md-2 g-4">
-            {% for event in registered_events %}
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ event.title }}</h5>
-                        <p class="card-text">{{ event.description|truncatewords:25 }}</p>
-                        <p><strong>Date:</strong> {{ event.formatted_date }}</p>
-                        <p><strong>Location:</strong> {{ event.location }}</p>
-                        <a href="{% url 'event_detail' event.id %}" class="btn btn-primary btn-sm mb-2">View Details</a>
-
-                        <!-- Botón para desinscribirse -->
-                        <form action="{% url 'unregister_event' event.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Unregister</button>
-                        </form>
+    <h4>
+        Hello, {{ request.user.get_full_name|default:request.user.username }}!
+        {% if request.user.is_superuser %}
+          (Admin)
+        {% else %}
+          (User)
+        {% endif %}
+      </h4>
+      
+    <h2 class="mb-4">Eventos que creaste</h2>
+    {% if created_events %}
+        <div class="list-group mb-4">
+            {% for event in created_events %}
+                <a href="{% url 'event_detail' event.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ event.title }}</h5>
+                        <small>{{ event.formatted_date }} - {{ event.time }}</small>
                     </div>
-                </div>
-            </div>
+                    <div>
+                        <a href="{% url 'edit_event' event.id %}" class="btn btn-sm btn-outline-primary me-2">Editar</a>
+                        <a href="{% url 'delete_event' event.id %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                    </div>
+                </a>
             {% endfor %}
         </div>
     {% else %}
-        <p>You have not registered for any events yet.</p>
-        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary mt-3">Go to Dashboard</a>
+        <p>No has creado ningún evento aún.</p>
     {% endif %}
+
+    <h2 class="mb-4">Eventos en los que estás inscrito</h2>
+    {% if registered_events %}
+        <div class="list-group">
+            {% for event in registered_events %}
+                <a href="{% url 'event_detail' event.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ event.title }}</h5>
+                        <small>{{ event.formatted_date }} - {{ event.time }}</small>
+                    </div>
+                    <div>
+                        <a href="{% url 'unregister_event' event.id %}" class="btn btn-sm btn-outline-warning">Desinscribirse</a>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No estás inscrito en ningún evento aún.</p>
+    {% endif %}
+
+    <a href="{% url 'create_event' %}" class="btn btn-primary mt-4">Crear nuevo evento</a>
 </div>
 {% endblock %}

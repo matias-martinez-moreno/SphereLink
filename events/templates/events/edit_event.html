@@ -1,0 +1,23 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Editar Evento - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Editar Evento: {{ event.title }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">Título</label>
+            {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+        <!-- Repite para todos los campos necesarios, igual que en create_event.html -->
+
+        <button type="submit" class="btn btn-primary">Actualizar Evento</button>
+        <a href="{% url 'my_events' %}" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

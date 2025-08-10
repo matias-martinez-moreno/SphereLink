@@ -1,8 +1,64 @@
 {% extends 'events/base.html' %}
 
-{% block title %}Create Event - SphereLink{% endblock %}
+{% block title %}Crear Evento - SphereLink{% endblock %}
 
 {% block content %}
-<h1>Create Event</h1>
-<p>This page is under construction.</p>
+<div class="container my-5">
+    <h2 class="mb-4">Crear Nuevo Evento</h2>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        
+        <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">Título</label>
+            {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Descripción</label>
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.date.id_for_label }}" class="form-label">Fecha y Hora</label>
+            {{ form.date }}
+            {{ form.date.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.duration.id_for_label }}" class="form-label">Duración (minutos)</label>
+            {{ form.duration }}
+            {{ form.duration.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.location.id_for_label }}" class="form-label">Ubicación</label>
+            {{ form.location }}
+            {{ form.location.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}" class="form-label">Imagen (opcional)</label>
+            {{ form.image }}
+            {{ form.image.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.requirements.id_for_label }}" class="form-label">Requisitos</label>
+            {{ form.requirements }}
+            {{ form.requirements.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.event_type.id_for_label }}" class="form-label">Tipo de Evento</label>
+            {{ form.event_type }}
+            {{ form.event_type.errors }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Crear Evento</button>
+        <a href="{% url 'my_events' %}" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
 {% endblock %}
