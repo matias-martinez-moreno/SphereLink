@@ -16,7 +16,7 @@ def dashboard_view(request):
     event_type = request.GET.get('type', '')
     
     # Filtrar eventos
-    events = Event.objects.all().order_by('-date')
+    events = Event.objects.all().order_by('date')
     
     if search_query:
         events = events.filter(
