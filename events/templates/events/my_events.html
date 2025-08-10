@@ -1,0 +1,36 @@
+{% extends 'events/base.html' %}
+
+{% block title %}My Events - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">My Registered Events</h2>
+
+    {% if registered_events %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for event in registered_events %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text">{{ event.description|truncatewords:25 }}</p>
+                        <p><strong>Date:</strong> {{ event.formatted_date }}</p>
+                        <p><strong>Location:</strong> {{ event.location }}</p>
+                        <a href="{% url 'event_detail' event.id %}" class="btn btn-primary btn-sm mb-2">View Details</a>
+
+                        <!-- Botón para desinscribirse -->
+                        <form action="{% url 'unregister_event' event.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Unregister</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have not registered for any events yet.</p>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary mt-3">Go to Dashboard</a>
+    {% endif %}
+</div>
+{% endblock %}
