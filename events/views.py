@@ -83,7 +83,7 @@ def my_events_view(request):
 def register_event_view(request, event_id):
     user = request.user
     if not user.is_authenticated:
-        messages.error(request, "Debes iniciar sesión para inscribirte en un evento.")
+        messages.error(request, "You need to log in")
         return redirect('login')
     
     event = get_object_or_404(Event, id=event_id)
@@ -92,11 +92,11 @@ def register_event_view(request, event_id):
     already_registered = event.registrations.filter(user=user).exists()
 
     if already_registered:
-        messages.info(request, "Ya estás inscrito en este evento.")
+        messages.info(request, "You are already registered for the event.")
     else:
         # Crear inscripción
         event.registrations.create(user=user)
-        messages.success(request, "Te has inscrito correctamente en el evento.")
+        messages.success(request, "You have successfully registered for the event.")
 
     return redirect('event_detail', event_id=event_id)
 
@@ -109,9 +109,9 @@ def unregister_event_view(request, event_id):
     try:
         registration = EventRegistration.objects.get(event=event, user=user)
         registration.delete()
-        messages.success(request, f"Te has desinscrito correctamente del evento '{event.title}'.")
+        messages.success(request, f"You have successfully unsubscribed from the event.'{event.title}'.")
     except EventRegistration.DoesNotExist:
-        messages.warning(request, "No estabas registrado en este evento.")
+        messages.warning(request, "You were not registered for this event.")
 
     return redirect('my_events')
 @login_required
@@ -125,7 +125,7 @@ def create_event_view(request):
             new_event.save()
             return redirect('my_events')
         else:
-            print(form.errors)  # <- Para depurar errores
+            print(form.errors)  
     else:
         form = EventForm()
 
@@ -135,16 +135,16 @@ def create_event_view(request):
 def edit_event_view(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
-    # Verificar que el usuario actual sea el creador del evento
+    
     if event.created_by != request.user:
-        messages.error(request, "No tienes permiso para editar este evento.")
+        messages.error(request, "You do not have permission to edit this event.")
         return redirect('my_events')
 
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             form.save()
-            messages.success(request, "Evento actualizado correctamente.")
+            messages.success(request, "Event successfully updated.")
             return redirect('my_events')
     else:
         form = EventForm(instance=event)
@@ -157,12 +157,12 @@ def delete_event_view(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
     if event.created_by != request.user:
-        messages.error(request, "No tienes permiso para eliminar este evento.")
+        messages.error(request, "You do not have permission to delete this event.")
         return redirect('my_events')
 
     if request.method == 'POST':
         event.delete()
-        messages.success(request, "Evento eliminado correctamente.")
+        messages.success(request, "Event successfully deleted.")
         return redirect('my_events')
 
     # Opcional: mostrar una confirmación antes de eliminar

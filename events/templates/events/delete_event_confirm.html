@@ -1,14 +1,14 @@
 {% extends 'events/base.html' %}
 
-{% block title %}Confirmar eliminación - SphereLink{% endblock %}
+{% block title %}Confirm deletion - SphereLink{% endblock %}
 
 {% block content %}
 <div class="container my-5">
-    <h2>¿Seguro que quieres eliminar el evento "{{ event.title }}"?</h2>
+    <h2>Are you sure you want to delete the event "{{ event.title }}"?</h2>
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a href="{% url 'my_events' %}" class="btn btn-secondary ms-2">Cancelar</a>
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url 'my_events' %}" class="btn btn-secondary ms-2">Cancel</a>
     </form>
 </div>
 {% endblock %}

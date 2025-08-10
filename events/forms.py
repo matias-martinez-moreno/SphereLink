@@ -18,5 +18,4 @@ class EventForm(forms.ModelForm):
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'requirements': forms.Textarea(attrs={'class': 'form-control'}),
             'event_type': forms.Select(attrs={'class': 'form-select'}),
-            # No mostramos is_official porque se asigna automáticamente en la vista
         }

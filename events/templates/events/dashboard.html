@@ -7,8 +7,8 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-15">
-            <h1 class="display-4 text-primary mb-3">Hello, {{ request.user.get_full_name|default:request.user.username }}!</h1>
-            <p class="lead text-muted">Discover,create and join amazing events in your community</p>
+            <h1 class="display-4 text-primary mb-3">Hello, {{ request.user.get_full_name|default:request.user.username }}</h1>
+            <p class="lead text-muted">Discover, Create and Join Amazing Events in Your Community</p>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
         <div class="col-md-6">
             <div class="card bg-primary text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Total Events</h5>
+                    <h5 class="card-title">Total Events Available</h5>
                     <h2 class="card-text">{{ total_events }}</h2>
                 </div>
             </div>
@@ -61,8 +61,8 @@
         <div class="col-md-6">
             <div class="card bg-info text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Quick Actions</h5>
-                    <a href="{% url 'create_event' %}" class="btn btn-light btn-sm">Create Event</a>
+                    <h5 class="card-title">Quick Action</h5>
+                    <a href="{% url 'create_event' %}" class="btn btn-light btn-sm">Create My Own Event</a>
                 </div>
             </div>
         </div>
@@ -121,7 +121,6 @@
                 <div class="text-center py-5">
                     <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
                     <h4 class="text-muted">No events found</h4>
-                    <p class="text-muted">Try adjusting your search or filters</p>
                     <a href="{% url 'create_event' %}" class="btn btn-primary">Create Event</a>
                 </div>
             {% endif %}
