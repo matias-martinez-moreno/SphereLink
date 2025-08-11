@@ -6,6 +6,10 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('events.urls')),  # Esto conecta las URLs de events
+    path('profiles/', include('profiles.urls')),
+    path('profile/', include('profiles.urls')),
+
+
 ]
 
 # Configuración para servir archivos de medios en desarrollo
