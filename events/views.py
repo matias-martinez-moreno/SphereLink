@@ -66,7 +66,6 @@ def event_detail_view(request, event_id):
         'user_registered': user_registered,
     }
     return render(request, 'events/event_detail.html', context)
-
 @login_required
 def my_events_view(request):
     user = request.user
@@ -101,7 +100,6 @@ def register_event_view(request, event_id):
     return redirect('event_detail', event_id=event_id)
 
 
-@login_required
 def unregister_event_view(request, event_id):
     user = request.user
     event = get_object_or_404(Event, id=event_id)
@@ -114,7 +112,7 @@ def unregister_event_view(request, event_id):
         messages.warning(request, "You were not registered for this event.")
 
     return redirect('my_events')
-@login_required
+
 def create_event_view(request):
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES)
@@ -152,7 +150,6 @@ def edit_event_view(request, event_id):
     return render(request, 'events/edit_event.html', {'form': form, 'event': event})
 
 
-@login_required
 def delete_event_view(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
