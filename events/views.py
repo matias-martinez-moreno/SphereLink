@@ -46,8 +46,8 @@ def create_event_view(request):
 
 def profile_view(request):
     return render(request, 'profiles/my_profile.html')
-
-
+def my_events_view(request):
+    return render(request, 'events/my_events.html')
 def logout_view(request):
     return HttpResponse("Logout Page (under construction)")
 
