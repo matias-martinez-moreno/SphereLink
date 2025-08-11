@@ -36,17 +36,19 @@
         }
         .btn-edit {
             display: block;
-            width: 100%;
+            width: 150px;         /* ancho fijo para que sea compacto */
+            margin: 20px auto 0;  /* centrado horizontal con margen arriba */
             padding: 10px;
-            background: #007BFF;
+            background: #007BFF;  /* azul bootstrap */
             color: white;
             text-align: center;
             border-radius: 8px;
             text-decoration: none;
-            margin-top: 20px;
+            font-weight: 600;
+            transition: background 0.3s ease;
         }
         .btn-edit:hover {
-            background: #0056b3;
+            background: #0056b3;  /* azul más oscuro al pasar el mouse */
         }
     </style>
 </head>
@@ -59,9 +61,9 @@
         <p><strong>Email:</strong> juan@example.com</p>
         <p><strong>Fecha de registro:</strong> 11/08/2025</p>
     </div>
-    {% if user.is_authenticated %}
-    <a href="{% url 'edit_profile' %}" class="btn btn-warning">Edit Profile</a>
-    {% endif %}
+    
+    <a href="{% url 'edit_profile' %}" class="btn-edit">Edit Profile</a>
+    
 
 </div>
 
