@@ -1,0 +1,73 @@
+{% extends "events/base.html" %}
+{% block title %}My Profile - SphereLink{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+        .profile-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .profile-info {
+            margin-top: 20px;
+        }
+        .profile-info p {
+            font-size: 16px;
+            margin: 8px 0;
+        }
+        .btn-edit {
+            display: block;
+            width: 150px;         /* ancho fijo para que sea compacto */
+            margin: 20px auto 0;  /* centrado horizontal con margen arriba */
+            padding: 10px;
+            background: #007BFF;  /* azul bootstrap */
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .btn-edit:hover {
+            background: #0056b3;  /* azul más oscuro al pasar el mouse */
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-container">
+    <h1>My Profile</h1>
+    <div class="profile-info">
+        <p><strong>Nombre:</strong> Juan Pérez</p>
+        <p><strong>Email:</strong> juan@eafit.edu.co</p>
+        <p><strong>Fecha de registro:</strong> 11/08/2025</p>
+    </div>
+    
+    <a href="{% url 'edit_profile' %}" class="btn-edit">Edit Profile</a>
+    
+
+</div>
+
+</body>
+</html>
+
+{% endblock %}
