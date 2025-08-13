@@ -8,7 +8,7 @@ A web application for managing organizational events. It allows members to creat
 - David Bermúdez
 - Jhon Anderson Marín
 
-##  Initial Setup
+## How to Set Up and Work on This Project
 
 1.  **Clone Repository**
     ```bash
