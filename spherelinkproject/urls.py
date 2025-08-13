@@ -8,8 +8,7 @@ urlpatterns = [
     path('', include('events.urls')),  # Esto conecta las URLs de events
     path('profiles/', include('profiles.urls')),
     path('profile/', include('profiles.urls')),
-
-
+    path('accounts/', include('django.contrib.auth.urls')) # Necesario para la autentificación
 ]
 
 # Configuración para servir archivos de medios en desarrollo

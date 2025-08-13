@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import Event
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
@@ -27,3 +29,12 @@ class EventAdmin(admin.ModelAdmin):
     )
     
     readonly_fields = ('created_at', 'updated_at')
+
+
+#previenir errores de registro duplicado
+admin.site.unregister(User)
+
+# Registar modelo
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    pass

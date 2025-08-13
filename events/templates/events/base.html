@@ -39,22 +39,23 @@
 
         nav {
             width: 220px;
-            background-color: #f0f0f0;
+            background-color: #0d6efd;
             padding: 20px;
             box-sizing: border-box;
         }
 
         nav a {
             display: block;
-            color: #333;
+            color: white;
             text-decoration: none;
             padding: 10px 12px;
             margin-bottom: 8px;
             border-radius: 4px;
+            transition: background-color 0.2s ease;
         }
 
         nav a:hover {
-            background-color: #e2e6ea;
+            background-color: #084298; /* Azul más oscuro */
         }
 
         main {
@@ -68,7 +69,6 @@
 <body>
     <div class="top-bar">
         <img src="{% static 'events/logo4.png' %}" alt="SphereLink Logo" height="40" class="me-2">
-
     </div>
 
     <div class="main-container">
