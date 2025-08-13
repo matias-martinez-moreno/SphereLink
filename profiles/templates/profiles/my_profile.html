@@ -2,72 +2,185 @@
 {% block title %}My Profile - SphereLink{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
-        .profile-container {
-            max-width: 500px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .profile-info {
-            margin-top: 20px;
-        }
-        .profile-info p {
-            font-size: 16px;
-            margin: 8px 0;
-        }
-        .btn-edit {
-            display: block;
-            width: 150px;         /* ancho fijo para que sea compacto */
-            margin: 20px auto 0;  /* centrado horizontal con margen arriba */
-            padding: 10px;
-            background: #007BFF;  /* azul bootstrap */
-            color: white;
-            text-align: center;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background 0.3s ease;
-        }
-        .btn-edit:hover {
-            background: #0056b3;  /* azul más oscuro al pasar el mouse */
-        }
-    </style>
-</head>
-<body>
-
-<div class="profile-container">
-    <h1>My Profile</h1>
-    <div class="profile-info">
-        <p><strong>Nombre:</strong> Juan Pérez</p>
-        <p><strong>Email:</strong> juan@eafit.edu.co</p>
-        <p><strong>Fecha de registro:</strong> 11/08/2025</p>
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="text-primary mb-2">My Profile</h2>
+            <p class="text-muted">Manage your personal information</p>
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                Edit Profile
+            </a>
+        </div>
     </div>
-    
-    <a href="{% url 'edit_profile' %}" class="btn-edit">Edit Profile</a>
-    
 
+    <div class="row">
+        <!-- Left Column - Profile Information -->
+        <div class="col-lg-8">
+            <!-- Personal Information Card -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <strong>Username:</strong> {{ request.user.username }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Email:</strong> {{ request.user.email|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>First Name:</strong> {{ request.user.first_name|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Last Name:</strong> {{ request.user.last_name|default:"Not provided" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biography Card -->
+            {% if profile.bio %}
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Biography</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ profile.bio }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Account Statistics Card -->
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-2">
+                            <h4 class="text-primary mb-1">{{ request.user.event_set.count }}</h4>
+                            <p class="text-muted mb-0">Events Created</p>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <h4 class="text-success mb-1">{{ request.user.registrations.count }}</h4>
+                            <p class="text-muted mb-0">Events Joined</p>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <h4 class="text-info mb-1">{{ request.user.date_joined|timesince }}</h4>
+                            <p class="text-muted mb-0">Member Since</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Profile Photo & Quick Actions -->
+        <div class="col-lg-4">
+            <!-- Profile Photo Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-camera me-2"></i>Profile Photo
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if profile.photo %}
+                        <img src="{{ profile.photo.url }}" alt="Profile Photo" 
+                             class="img-fluid rounded-circle mb-3" 
+                             style="width: 200px; height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 200px; height: 200px;">
+                            <i class="fas fa-user fa-4x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <p class="text-muted small">
+                        {% if profile.photo %}
+                            Photo uploaded on {{ profile.photo.uploaded_at|date:"M d, Y"|default:"Unknown date" }}
+                        {% else %}
+                            No profile photo uploaded yet
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+
+
+            <!-- Account Status Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>Account Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Account Active</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Email Verified</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-clock text-warning me-2"></i>
+                        <span>Member for {{ request.user.date_joined|timesince }}</span>
+                    </div>
+                    {% if request.user.is_staff %}
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        <span>Staff Member</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-</body>
-</html>
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.text-primary {
+    color: #1e3a8a !important;
+}
+
+.border-end {
+    border-right: 2px solid #e9ecef !important;
+}
+
+@media (max-width: 768px) {
+    .border-end {
+        border-right: none !important;
+        border-bottom: 2px solid #e9ecef !important;
+        padding-bottom: 1rem;
+    }
+}
+</style>
 {% endblock %}

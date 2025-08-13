@@ -3,60 +3,260 @@
 {% block title %}My Events - SphereLink{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="mb-4">Events you created</h2>
-    {% if created_events %}
-        <div class="row g-4">
-            {% for event in created_events %}
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div>
-                                <h5 class="card-title">{{ event.title }}</h5>
-                                <p class="card-text">
-                                    <small class="text-muted">{{ event.formatted_date }} - {{ event.time }}</small>
-                                </p>
-                            </div>
-                            <div class="mt-3">
-                                <a href="{% url 'event_detail' event.id %}" class="btn btn-sm btn-primary me-2">View</a>
-                                <a href="{% url 'edit_event' event.id %}" class="btn btn-sm btn-outline-primary me-2">Edit</a>
-                                <a href="{% url 'delete_event' event.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="text-primary mb-2">My Events</h2>
+            <p class="text-muted">Manage your created events and registrations</p>
         </div>
-    {% else %}
-        <p>You haven't created any events yet.</p>
-    {% endif %}
+    </div>
 
-    <hr class="my-5">
-
-    <h2 class="mb-4">Events you are already registered for</h2>
-    {% if registered_events %}
-        <div class="row g-4">
-            {% for event in registered_events %}
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div>
-                                <h5 class="card-title">{{ event.title }}</h5>
-                                <p class="card-text">
-                                    <small class="text-muted">{{ event.formatted_date }} - {{ event.time }}</small>
-                                </p>
-                            </div>
-                            <div class="mt-3">
-                                <a href="{% url 'event_detail' event.id %}" class="btn btn-sm btn-primary me-2">View</a>
-                                <a href="{% url 'unregister_event' event.id %}" class="btn btn-sm btn-outline-warning">Unsubscribe</a>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Events Created Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        Events You Created
+                        <span class="badge bg-light text-primary ms-2">{{ created_events.count }}</span>
+                    </h5>
                 </div>
-            {% endfor %}
+                <div class="card-body">
+                    {% if created_events %}
+                        <div class="row g-3">
+                            {% for event in created_events %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card mb-3">
+                                    <!-- Event Image -->
+                                    {% if event.image %}
+                                        <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" 
+                                             style="height: 120px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                             style="height: 120px;">
+                                            <i class="fas fa-calendar-alt fa-2x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ event.title }}</h6>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>{{ event.formatted_date }}<br>
+                                                <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                            </small>
+                                        </p>
+                                        
+                                        <div class="d-flex gap-1">
+                                            <a href="{% url 'event_detail' event.id %}" class="btn btn-primary btn-sm">
+                                                View
+                                            </a>
+                                            <a href="{% url 'edit_event' event.id %}" class="btn btn-warning btn-sm">
+                                                Edit
+                                            </a>
+                                            <a href="{% url 'delete_event' event.id %}" class="btn btn-danger btn-sm">
+                                                Delete
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <h5 class="text-muted mb-3">No events created yet</h5>
+                            <p class="text-muted mb-3">Create your first event!</p>
+                            <a href="{% url 'create_event' %}" class="btn btn-primary">
+                                Create Event
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    {% else %}
-        <p>You are not registered for any events yet.</p>
-    {% endif %}
+    </div>
+
+    <!-- Events Registered Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Events You're Registered For
+                        <span class="badge bg-light text-success ms-2">{{ registered_events.count }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if registered_events %}
+                        <div class="row g-4">
+                            {% for event in registered_events %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 event-card">
+                                    <!-- Event Image -->
+                                    {% if event.image %}
+                                        <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" 
+                                             style="height: 180px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                             style="height: 180px;">
+                                            <i class="fas fa-calendar-alt fa-2x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="card-body d-flex flex-column">
+                                        <!-- Event Header -->
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title text-primary mb-0">{{ event.title }}</h6>
+                                            <span class="badge bg-{{ event.event_type }}">{{ event.get_event_type_display }}</span>
+                                        </div>
+                                        
+                                        <!-- Event Details -->
+                                        <div class="mb-3">
+                                            <p class="card-text text-muted small mb-2">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                {{ event.formatted_date }}
+                                            </p>
+                                            <p class="card-text text-muted small mb-2">
+                                                <i class="fas fa-clock me-1"></i>
+                                                {{ event.time }}
+                                            </p>
+                                            <p class="card-text text-muted small">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ event.location }}
+                                            </p>
+                                        </div>
+                                        
+                                        <!-- Action Buttons -->
+                                        <div class="mt-auto">
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-primary btn-sm flex-fill">
+                                                    <i class="fas fa-eye me-1"></i>View
+                                                </a>
+                                                <a href="{% url 'unregister_event' event.id %}" class="btn btn-outline-warning btn-sm flex-fill">
+                                                    <i class="fas fa-user-minus me-1"></i>Unregister
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted mb-3">No events joined yet</h5>
+                            <p class="text-muted mb-4">Browse the dashboard and join events that interest you!</p>
+                            <a href="{% url 'dashboard' %}" class="btn btn-success">
+                                <i class="fas fa-search me-2"></i>Browse Events
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.event-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-img-top {
+    border-radius: 15px 15px 0 0;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+
+.badge.bg-sports {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+.badge.bg-wellness {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%) !important;
+}
+
+.badge.bg-academic {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    color: #212529 !important;
+}
+
+.badge.bg-other {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+}
+
+.text-primary {
+    color: #003364 !important;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #003364 0%, #004a8f 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #004a8f 0%, #0056b3 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+}
+
+.display-5 {
+    font-weight: 700;
+    color: #003364;
+}
+
+.lead {
+    font-weight: 400;
+    color: #6c757d;
+}
+</style>
 {% endblock %}

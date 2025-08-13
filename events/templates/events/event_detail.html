@@ -1,312 +1,300 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ event.title }} - SphereLink</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
-        }
-        
-        .top-bar {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-            color: white;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            padding: 0 30px;
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
-        }
-        
-        .top-bar h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .main-content {
-            padding: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .info-card {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .info-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .info-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: white;
-            font-size: 1.2rem;
-        }
-        
-        .info-content {
-            flex: 1;
-        }
-        
-        .description-box, .requirements-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #1e3a8a;
-        }
-        
-        .badge {
-            font-size: 0.9rem;
-            padding: 0.6em 1.2em;
-        }
-        
-        .badge.bg-sports {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
-        }
-        
-        .badge.bg-wellness {
-            background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%) !important;
-        }
-        
-        .badge.bg-academic {
-            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
-            color: #212529 !important;
-        }
-        
-        .badge.bg-other {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
-        }
-        
-        .text-primary {
-            color: #1e3a8a !important;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-            border: none;
-            padding: 15px 30px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            border-radius: 10px;
-        }
-        
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #1e40af 0%, #4338ca 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        
-        .shadow-lg {
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
-        }
-        
-        .breadcrumb-item a {
-            color: #1e3a8a;
-            font-weight: 500;
-        }
-        
-        .breadcrumb-item a:hover {
-            color: #1e40af;
-        }
-    </style>
-</head>
-<body>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <h1>SphereLink</h1>
-    </div>
-    
-    <!-- Main Content -->
-    <div class="main-content">
+{% extends 'events/base.html' %}
+{% block title %}{{ event.title }} - SphereLink{% endblock %}
 
-        <!-- Messages -->
-        {% if messages %}
-        <div class="mb-3">
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-primary mb-2">{{ event.title }}</h2>
+            <p class="text-muted">Event details</p>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="row mb-4">
+        <div class="col-12">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-info-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
             {% endfor %}
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
 
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none">Dashboard</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
-            </ol>
-        </nav>
-
-        <!-- Event Details -->
-        <div class="row">
-            <!-- Left Column - Image -->
-            <div class="col-lg-5 mb-4">
-                <div class="card shadow-lg">
-                    {% if event.image %}
-                        <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 400px; object-fit: cover;">
-                    {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
-                            <i class="fas fa-calendar-alt fa-4x text-muted"></i>
-                        </div>
-                    {% endif %}
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            {% if event.is_official %}
-                                <span class="badge bg-success fs-6">
-                                    <i class="fas fa-check-circle me-1"></i>Official Event
-                                </span>
-                            {% endif %}
-                            <span class="badge bg-{{ event.event_type }} fs-6">{{ event.get_event_type_display }}</span>
-                        </div>
+    <!-- Event Details -->
+    <div class="row">
+        <!-- Left Column - Image -->
+        <div class="col-lg-5 mb-4">
+            <div class="card shadow">
+                {% if event.image %}
+                    <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" 
+                         style="height: 400px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                         style="height: 400px;">
+                        <i class="fas fa-calendar-alt fa-4x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        {% if event.is_official %}
+                            <span class="badge bg-success fs-6">
+                                <i class="fas fa-check-circle me-1"></i>Official Event
+                            </span>
+                        {% endif %}
+                        <span class="badge event-type-badge fs-6">{{ event.get_event_type_display }}</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Right Column - Event Information -->
-            <div class="col-lg-7">
-                <div class="card shadow-lg h-100">
-                    <div class="card-body p-4">
-                        <!-- Title -->
-                        <h1 class="card-title text-primary mb-4">{{ event.title }}</h1>
-
-                        <!-- Event Details Grid -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <div class="info-card">
-                                    <div class="info-icon">
-                                        <i class="fas fa-calendar text-primary"></i>
-                                    </div>
-                                    <div class="info-content">
-                                        <small class="text-muted">Date</small>
-                                        <div class="fw-bold">{{ event.formatted_date }}</div>
-                                    </div>
+        <!-- Right Column - Event Information -->
+        <div class="col-lg-7">
+            <div class="card shadow h-100">
+                <div class="card-body p-4">
+                    <!-- Event Details Grid -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-calendar"></i>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="info-card">
-                                    <div class="info-icon">
-                                        <i class="fas fa-clock text-primary"></i>
-                                    </div>
-                                    <div class="info-content">
-                                        <small class="text-muted">Time</small>
-                                        <div class="fw-bold">{{ event.time }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="info-card">
-                                    <div class="info-icon">
-                                        <i class="fas fa-hourglass-half text-primary"></i>
-                                    </div>
-                                    <div class="info-content">
-                                        <small class="text-muted">Duration</small>
-                                        <div class="fw-bold">{{ event.duration }} minutes</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="info-card">
-                                    <div class="info-icon">
-                                        <i class="fas fa-map-marker-alt text-primary"></i>
-                                    </div>
-                                    <div class="info-content">
-                                        <small class="text-muted">Location</small>
-                                        <div class="fw-bold">{{ event.location }}</div>
-                                    </div>
+                                <div class="detail-content">
+                                    <small class="text-muted">Date</small>
+                                    <div class="fw-bold">{{ event.formatted_date }}</div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Description -->
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">
-                                <i class="fas fa-info-circle me-2"></i>Event Description
-                            </h5>
-                            <div class="description-box">
-                                <p class="mb-0">{{ event.description }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Requirements -->
-                        {% if event.requirements %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">
-                                <i class="fas fa-list-check me-2"></i>Requirements to Attend
-                            </h5>
-                            <div class="requirements-box">
-                                <p class="mb-0">{{ event.requirements }}</p>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Event Creator Info -->
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">
-                                <i class="fas fa-user me-2"></i>Organizer Information
-                            </h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <small class="text-muted">Organized by</small>
-                                    <div class="fw-bold">{{ event.created_by.username }}</div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-clock"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted">Created on</small>
-                                    <div class="fw-bold">{{ event.created_at|date:"M d, Y" }}</div>
+                                <div class="detail-content">
+                                    <small class="text-muted">Time</small>
+                                    <div class="fw-bold">{{ event.time }}</div>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-hourglass-half"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <small class="text-muted">Duration</small>
+                                    <div class="fw-bold">{{ event.duration }} minutes</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <small class="text-muted">Location</small>
+                                    <div class="fw-bold">{{ event.location }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <!-- Action Buttons -->
-                        <div class="d-grid gap-3 mt-5">
-                            {% if not user_registered %}
-                            <form method="POST" action="{% url 'register_event' event.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-user-plus me-2"></i>Register on this Event
-                                </button>
-                            </form>
-                            {% else %}
-                            <button type="button" class="btn btn-secondary btn-lg" disabled>
-                                <i class="fas fa-user-check me-2"></i>Already Registered
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Event Description
+                        </h5>
+                        <div class="content-box">
+                            <p class="mb-0">{{ event.description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Requirements -->
+                    {% if event.requirements %}
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-list-check me-2"></i>Requirements to Attend
+                        </h5>
+                        <div class="content-box">
+                            <p class="mb-0">{{ event.requirements }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Event Creator Info -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-user me-2"></i>Organizer Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">Organized by</small>
+                                <div class="fw-bold">{{ event.created_by.username }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Created on</small>
+                                <div class="fw-bold">{{ event.created_at|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-3 mt-5">
+                        {% if not user_registered %}
+                        <form method="POST" action="{% url 'register_event' event.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Register for this Event
                             </button>
-                            {% endif %}
-
-                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Return to Dashboard
-                            </a>
-                        </div>
-
+                        </form>
+                        {% else %}
+                        <button type="button" class="btn btn-secondary btn-lg" disabled>
+                            <i class="fas fa-user-check me-2"></i>Already Registered
+                        </button>
+                        {% endif %}
+                        
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.shadow {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 3px solid #003364;
+    transition: transform 0.2s ease;
+    min-height: 70px;
+}
+
+.detail-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.detail-icon {
+    width: 40px;
+    height: 40px;
+    background: #003364;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.detail-content {
+    flex: 1;
+}
+
+.detail-content small {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-bottom: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.detail-content .fw-bold {
+    font-size: 1rem;
+    color: #212529;
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+.content-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 3px solid #003364;
+}
+
+.badge {
+    font-size: 0.9rem;
+    padding: 0.6em 1.2em;
+    border-radius: 8px;
+}
+
+.event-type-badge {
+    background: #003364 !important;
+    color: white !important;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    color: white !important;
+}
+
+.text-primary {
+    color: #003364 !important;
+}
+
+.btn-primary {
+    background: #003364;
+    border: none;
+    padding: 15px 30px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #004a8f 0%, #0056b3 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 51, 100, 0.4);
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Asegurar que los iconos estén bien visibles */
+.fas, .fa {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    line-height: 1 !important;
+}
+</style>
+{% endblock %}

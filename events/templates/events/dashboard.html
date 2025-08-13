@@ -3,33 +3,29 @@
 {% block title %}Dashboard - SphereLink{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-15">
-            <h1 class="display-4 text-primary mb-3">Hello, {{ request.user.get_full_name|default:request.user.username }}</h1>
-            <p class="lead text-muted">Discover, Create and Join Amazing Events in Your Community</p>
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="mb-2" style="color: #003364;">Hello {{ request.user.get_full_name|default:request.user.username }}!</h2>
+            <p class="text-muted">Here are all the available events</p>
         </div>
     </div>
 
     <!-- Search and Filters Bar -->
-    <div class="row mb-4">
+    <div class="row mb-3">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <form method="GET" class="row g-3">
+                    <form method="GET" class="row g-2">
                         <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" class="form-control" name="search" 
-                                       placeholder="Search events..." value="{{ search_query }}">
-                            </div>
+                            <input type="text" class="form-control" name="search" 
+                                   placeholder="Search events..." 
+                                   value="{{ search_query }}">
                         </div>
                         <div class="col-md-4">
                             <select class="form-select" name="type">
-                                <option value="">All Types</option>
+                                <option value="">All types</option>
                                 {% for type_code, type_name in event_types %}
                                 <option value="{{ type_code }}" {% if selected_type == type_code %}selected{% endif %}>
                                     {{ type_name }}
@@ -38,9 +34,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-filter me-2"></i>Filter
-                            </button>
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
                         </div>
                     </form>
                 </div>
@@ -48,80 +42,78 @@
         </div>
     </div>
 
-    <!-- Statistics -->
-    <div class="row mb-4">
-        <div class="col-md-6">
+    <!-- Statistics Cards -->
+    <div class="row mb-3">
+        <div class="col-12">
             <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Events Available</h5>
-                    <h2 class="card-text">{{ total_events }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Quick Action</h5>
-                    <a href="{% url 'create_event' %}" class="btn btn-light btn-sm">Create My Own Event</a>
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ total_events }}</h3>
+                    <p class="mb-0">Total Events</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Events -->
+    <!-- Events Grid -->
     <div class="row">
         <div class="col-12">
             {% if events %}
-                <div class="row">
+                <div class="row g-3">
                     {% for event in events %}
-                    <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
-                        <div class="card h-100 shadow-sm event-card">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card mb-3 event-card">
+                            <!-- Event Image -->
                             {% if event.image %}
-                                <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px; object-fit: cover;">
+                                <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" 
+                                     style="height: 150px; object-fit: cover;">
                             {% else %}
-                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                    <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                     style="height: 150px;">
+                                    <i class="fas fa-calendar-alt fa-2x text-muted"></i>
                                 </div>
                             {% endif %}
+                            
+                            <!-- Event Content -->
                             <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="card-title text-primary mb-0">{{ event.title }}</h6>
-                                    <div class="d-flex align-items-center gap-2">
+                                <h5 class="card-title mb-2">{{ event.title }}</h5>
+                                
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>{{ event.formatted_date }}<br>
+                                        <i class="fas fa-clock me-1"></i>{{ event.time }}<br>
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                    </small>
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-secondary">{{ event.get_event_type_display }}</span>
                                         {% if event.is_official %}
-                                            <span class="badge bg-success">
+                                            <span class="badge bg-success" title="Official Event">
                                                 <i class="fas fa-check-circle me-1"></i>Official
                                             </span>
                                         {% endif %}
-                                        <span class="badge bg-{{ event.event_type }}">{{ event.get_event_type_display }}</span>
                                     </div>
+                                    <a href="{% url 'event_detail' event.id %}" class="btn btn-primary btn-sm">
+                                        View Details
+                                    </a>
                                 </div>
-                                <p class="card-text text-muted small">
-                                    <i class="fas fa-calendar me-1"></i>
-                                    {{ event.formatted_date }}
-                                </p>
-                                <p class="card-text text-muted small">
-                                    <i class="fas fa-clock me-1"></i>
-                                    {{ event.time }}
-                                </p>
-                                <p class="card-text text-muted small">
-                                    <i class="fas fa-map-marker-alt me-1"></i>
-                                    {{ event.location }}
-                                </p>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-primary btn-sm w-100">
-                                    View Details
-                                </a>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-                    <h4 class="text-muted">No events found</h4>
-                    <a href="{% url 'create_event' %}" class="btn btn-primary">Create Event</a>
+                <div class="text-center py-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="text-muted mb-3">No events found</h4>
+                            <p class="text-muted mb-3">Create the first event!</p>
+                            <a href="{% url 'create_event' %}" class="btn btn-primary">
+                                Create Event
+                            </a>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
         </div>
@@ -129,10 +121,24 @@
 </div>
 
 <style>
+.text-primary {
+    color: #003364 !important;
+}
+
+.btn-primary {
+    background-color: #003364;
+    border-color: #003364;
+}
+
+.btn-primary:hover {
+    background-color: #004a8f;
+    border-color: #004a8f;
+}
+
 .event-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: none;
     border-radius: 15px;
-    transition: all 0.3s ease;
     overflow: hidden;
 }
 
@@ -141,70 +147,31 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
 }
 
-.card-img-top {
-    border-radius: 15px 15px 0 0;
-}
-
 .badge {
     font-size: 0.7rem;
     padding: 0.4em 0.8em;
+    border-radius: 8px;
 }
 
-.badge.bg-sports {
-    background-color: #28a745 !important;
+.badge.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    color: white !important;
 }
 
-.badge.bg-wellness {
-    background-color: #17a2b8 !important;
+.badge.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+    color: white !important;
 }
 
-.badge.bg-academic {
-    background-color: #ffc107 !important;
-    color: #212529 !important;
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.3;
 }
 
-.badge.bg-other {
-    background-color: #6c757d !important;
-}
-
-.text-primary {
-    color: #1e3a8a !important;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-    border: none;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #1e40af 0%, #4338ca 100%);
-    transform: translateY(-1px);
-}
-
-.btn-outline-primary {
-    border-color: #1e3a8a;
-    color: #1e3a8a;
-}
-
-.btn-outline-primary:hover {
-    background: #1e3a8a;
-    border-color: #1e3a8a;
-}
-
-.card {
-    border: none;
-    border-radius: 15px;
-}
-
-.input-group-text {
-    background: #1e3a8a;
-    border-color: #1e3a8a;
-    color: white;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: #1e3a8a;
-    box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25);
+.gap-2 {
+    gap: 0.5rem !important;
 }
 </style>
 {% endblock %}

@@ -12,4 +12,8 @@ def create_user_profile(sender, instance, created, **kwargs):
 # Se ejecuta cada vez que se guarda un usuario
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    try:
+        instance.profile.save()
+    except Profile.DoesNotExist:
+        # Si el perfil no existe, lo creamos
+        Profile.objects.create(user=instance)

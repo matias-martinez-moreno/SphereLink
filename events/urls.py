@@ -2,10 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.login_view, name='login'),  # raíz es login
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('profile/', views.profile_view, name='profile'),
-    path('logout/', views.logout_view, name='logout'),
     path('events/', views.events_list_view, name='events_list'),
     path('event/<int:event_id>/', views.event_detail_view, name='event_detail'),
     path('my_events/', views.my_events_view, name='my_events'),
@@ -14,5 +12,4 @@ urlpatterns = [
     path('create_event/', views.create_event_view, name='create_event'),
     path('event/<int:event_id>/edit/', views.edit_event_view, name='edit_event'),
     path('event/<int:event_id>/delete/', views.delete_event_view, name='delete_event'),
-
 ]
