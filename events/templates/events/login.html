@@ -5,7 +5,11 @@
     <title>Login - SphereLink</title>
 </head>
 <body>
-    <h1>Login Page (under construction)</h1>
-    <p>This will be the login form.</p>
+    <h2> Login </h2>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Iniciar sesión</button>
+    </form>
 </body>
 </html>
