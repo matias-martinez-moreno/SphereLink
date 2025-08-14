@@ -35,3 +35,6 @@ Thumbs.db
 # Archivos temporales
 *.tmp
 *.temp
+
+# Excluir carpeta organizations temporalmente
+organizations/

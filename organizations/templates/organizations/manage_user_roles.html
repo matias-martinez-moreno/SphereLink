@@ -30,31 +30,25 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="text-center">
-                                <h4 class="text-primary mb-1">{{ user_roles.count }}</h4>
+                                <h4 class="text-primary mb-1">{{ total_users }}</h4>
                                 <p class="text-muted mb-0">Total Users</p>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center">
-                                <h4 class="text-success mb-1">
-                                    {{ user_roles.filter.is_active=True.count }}
-                                </h4>
+                                <h4 class="text-success mb-1">{{ active_users }}</h4>
                                 <p class="text-muted mb-0">Active Users</p>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center">
-                                <h4 class="text-warning mb-1">
-                                    {{ user_roles.filter.role='staff'|add:user_roles.filter.role='org_admin'|add:user_roles.filter.role='super_admin'|length }}
-                                </h4>
+                                <h4 class="text-warning mb-1">{{ staff_members }}</h4>
                                 <p class="text-muted mb-0">Staff Members</p>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center">
-                                <h4 class="text-info mb-1">
-                                    {{ user_roles.filter.role='member'|length }}
-                                </h4>
+                                <h4 class="text-info mb-1">{{ regular_members }}</h4>
                                 <p class="text-muted mb-0">Regular Members</p>
                             </div>
                         </div>

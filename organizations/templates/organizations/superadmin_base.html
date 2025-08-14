@@ -104,7 +104,7 @@
 </head>
 <body>
   <div class="top-bar">
-    <img src="{% static 'events/logo4.png' %}" alt="SphereLink Logo" height="60" class="me-2" style="vertical-align: middle;">
+    <img src="{% static 'events/logo.png' %}" alt="SphereLink Logo" height="60" class="me-2" style="vertical-align: middle;">
     <span class="admin-badge">SUPER ADMIN</span>
   </div>
   
@@ -113,7 +113,7 @@
       <a href="{% url 'organizations:organization_list' %}">
         <i class="bi bi-building me-2"></i>Organizations
       </a>
-      <a href="{% url 'my_profile' %}">
+      <a href="{% url 'profiles:my_profile' %}">
         <i class="bi bi-person-fill me-2"></i>My Profile
       </a>
       <a href="{% url 'registration:logout' %}">

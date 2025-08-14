@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.db import transaction
+from django.db import transaction, models
 from django.utils import timezone
 from .models import Organization, UserRole, OrganizationInvitation
 from .forms import OrganizationForm, UserRoleForm, OrganizationInvitationForm, BulkInviteForm
@@ -19,12 +19,34 @@ def is_staff_member(user):
     """Check if user is a staff member"""
     return user.organization_roles.filter(role='staff', is_active=True).exists()
 
+def can_manage_users(user, organization):
+    """Check if user can manage users in the given organization"""
+    if is_super_admin(user):
+        return True
+    
+    # Check if user is org_admin of this specific organization
+    return user.organization_roles.filter(
+        organization=organization,
+        role='org_admin',
+        is_active=True
+    ).exists()
+
 @login_required
 @user_passes_test(is_super_admin)
 def organization_list(request):
     organizations = Organization.objects.all().order_by('-created_at')
+    
+    # Obtener información sobre los permisos del usuario
+    user_permissions = {}
+    for org in organizations:
+        user_permissions[org.id] = {
+            'can_manage_users': can_manage_users(request.user, org),
+            'can_edit': is_super_admin(request.user),
+        }
+    
     return render(request, 'organizations/organization_list.html', {
-        'organizations': organizations
+        'organizations': organizations,
+        'user_permissions': user_permissions
     })
 
 @login_required
@@ -76,9 +98,13 @@ def organization_detail(request, org_id):
     })
 
 @login_required
-@user_passes_test(is_super_admin)
 def manage_user_roles(request, org_id):
     organization = get_object_or_404(Organization, id=org_id)
+    
+    # Verificar permisos
+    if not can_manage_users(request.user, organization):
+        messages.error(request, "No tienes permisos para gestionar usuarios en esta organización.")
+        return redirect('organizations:organization_list')
     
     if request.method == 'POST':
         form = UserRoleForm(request.POST)
@@ -94,10 +120,20 @@ def manage_user_roles(request, org_id):
     
     user_roles = UserRole.objects.filter(organization=organization).select_related('user')
     
+    # Calcular estadísticas
+    total_users = user_roles.count()
+    active_users = user_roles.filter(is_active=True).count()
+    staff_members = user_roles.filter(role__in=['staff', 'org_admin', 'super_admin']).count()
+    regular_members = user_roles.filter(role='member').count()
+    
     return render(request, 'organizations/manage_user_roles.html', {
         'organization': organization,
         'form': form,
-        'user_roles': user_roles
+        'user_roles': user_roles,
+        'total_users': total_users,
+        'active_users': active_users,
+        'staff_members': staff_members,
+        'regular_members': regular_members,
     })
 
 @login_required

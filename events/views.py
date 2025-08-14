@@ -39,7 +39,7 @@ def dashboard_view(request):
 
 def profile_view(request):
     # Redirigir al perfil real en la app de profiles
-    return redirect('my_profile')
+    return redirect('profiles:my_profile')
 
 def events_list_view(request):
     events = Event.objects.filter(date__gte=timezone.now()).order_by('date')

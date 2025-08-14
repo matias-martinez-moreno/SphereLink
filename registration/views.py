@@ -33,7 +33,12 @@ def login_view(request):
                 org_name = role.organization.name
                 
                 messages.success(request, f"¡Bienvenido de vuelta, {user.username}! Acceso como {role_name} en {org_name}")
-                return redirect('/events/dashboard/')
+                
+                # Redirigir según el rol
+                if role.role == 'super_admin':
+                    return redirect('organizations:organization_list')
+                else:
+                    return redirect('/events/dashboard/')
             else:
                 # Usuario no tiene acceso a ninguna organización
                 messages.error(request, "Tu cuenta no tiene acceso a ninguna organización activa. Contacta al administrador.")

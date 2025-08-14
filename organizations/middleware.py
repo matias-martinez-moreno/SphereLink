@@ -18,7 +18,8 @@ class SuperAdminRedirectMiddleware:
             ).exists()
             
             # If super admin is trying to access event-related pages, redirect to organizations
-            if is_super_admin:
+            # But only if they're not already on an organization page
+            if is_super_admin and not request.path.startswith('/organizations/'):
                 event_urls = [
                     '/events/dashboard/',
                     '/events/create_event/',
