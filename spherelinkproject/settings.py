@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'events',
     'profiles',
     'registration',
+    'organizations',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'organizations.middleware.SuperAdminRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'spherelinkproject.urls'

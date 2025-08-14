@@ -1,0 +1,241 @@
+{% extends 'organizations/superadmin_base.html' %}
+
+{% block title %}Bulk Invite Users - SphereLink Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-danger mb-2">
+                <i class="fas fa-users me-2"></i>Bulk User Invitation
+            </h2>
+            <p class="text-muted">Invite multiple users to organizations by email domain</p>
+        </div>
+    </div>
+
+    <!-- Bulk Invite Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope-paper me-2"></i>Invite Users by Institution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Please correct the following errors:
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Organization Selection -->
+                        <div class="mb-4">
+                            <label for="{{ form.organization.id_for_label }}" class="form-label">
+                                <i class="fas fa-building me-2"></i>Select Organization *
+                            </label>
+                            {{ form.organization }}
+                            {% if form.organization.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.organization.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email Domain -->
+                        <div class="mb-4">
+                            <label for="{{ form.email_domain.id_for_label }}" class="form-label">
+                                <i class="fas fa-at me-2"></i>Email Domain *
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                {{ form.email_domain }}
+                            </div>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Example: eafit.edu.co, mit.edu, stanford.edu
+                            </div>
+                            {% if form.email_domain.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email_domain.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Role Assignment -->
+                        <div class="mb-4">
+                            <label for="{{ form.role.id_for_label }}" class="form-label">
+                                <i class="fas fa-user-tag me-2"></i>Assign Role *
+                            </label>
+                            {{ form.role }}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Member:</strong> Basic access to events<br>
+                                <strong>Staff:</strong> Can create and manage events<br>
+                                <strong>Organization Admin:</strong> Full control of organization
+                            </div>
+                            {% if form.role.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.role.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Send Invitations
+                            </button>
+                            <a href="{% url 'organizations:organization_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Instructions Card -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>How It Works
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li class="mb-2">
+                            <strong>Select Organization:</strong> Choose which organization to invite users to
+                        </li>
+                        <li class="mb-2">
+                            <strong>Enter Email Domain:</strong> Specify the institution's email domain (e.g., @eafit.edu.co)
+                        </li>
+                        <li class="mb-2">
+                            <strong>Choose Role:</strong> Assign the appropriate role for all users from that institution
+                        </li>
+                        <li class="mb-0">
+                            <strong>Automatic Assignment:</strong> All existing users with that email domain will be automatically assigned to the organization
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Recent Invitations -->
+            {% if recent_invitations %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Invitations
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Organization</th>
+                                    <th>Domain</th>
+                                    <th>Role</th>
+                                    <th>Users Added</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invitation in recent_invitations %}
+                                <tr>
+                                    <td>{{ invitation.organization.name }}</td>
+                                    <td>@{{ invitation.email_domain }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ invitation.role }}">
+                                            {{ invitation.get_role_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ invitation.users_count }}</td>
+                                    <td>{{ invitation.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.btn-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    border-color: #c82333;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+
+.badge.bg-member {
+    background: #6c757d !important;
+}
+
+.badge.bg-staff {
+    background: #17a2b8 !important;
+}
+
+.badge.bg-org_admin {
+    background: #ffc107 !important;
+    color: #212529 !important;
+}
+</style>
+{% endblock %}

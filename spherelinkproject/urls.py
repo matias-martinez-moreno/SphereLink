@@ -9,6 +9,7 @@ urlpatterns = [
     path('', include('registration.urls')),  # Login en la raíz
     path('events/', include('events.urls')),  # Events en /events/
     path('profiles/', include('profiles.urls')),  # Profiles en /profiles/
+    path('organizations/', include('organizations.urls')),  # Organizations en /organizations/
 ]
 
 # Configuración para servir archivos de medios en desarrollo

@@ -1,0 +1,239 @@
+{% extends 'organizations/superadmin_base.html' %}
+
+{% block title %}My Profile - SphereLink Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-danger mb-2">
+                <i class="fas fa-user me-2"></i>My Profile
+            </h2>
+            <p class="text-muted">Personal information and account details</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Profile Information -->
+        <div class="col-lg-8">
+            <!-- Personal Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Username</label>
+                            <p class="mb-0 fw-bold">{{ request.user.username }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Email</label>
+                            <p class="mb-0 fw-bold">{{ request.user.email|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">First Name</label>
+                            <p class="mb-0 fw-bold">{{ request.user.first_name|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Last Name</label>
+                            <p class="mb-0 fw-bold">{{ request.user.last_name|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biography Card -->
+            {% if profile.bio %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-align-left me-2"></i>Biography
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ profile.bio }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Account Statistics Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Account Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <h4 class="text-primary mb-1">{{ request.user.date_joined|timesince }}</h4>
+                            <p class="text-muted mb-0">Member Since</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h4 class="text-success mb-1">
+                                {% for role in request.user.organization_roles.all %}
+                                    {% if role.role == 'super_admin' %}
+                                        Super Admin
+                                        {% break %}
+                                    {% endif %}
+                                {% endfor %}
+                            </h4>
+                            <p class="text-muted mb-0">Current Role</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h4 class="text-info mb-1">
+                                {{ request.user.organization_roles.count }}
+                            </h4>
+                            <p class="text-muted mb-0">Organizations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Profile Photo & Quick Actions -->
+        <div class="col-lg-4">
+            <!-- Profile Photo Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-camera me-2"></i>Profile Photo
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if profile.photo %}
+                        <img src="{{ profile.photo.url }}" alt="Profile Photo" 
+                             class="img-fluid rounded-circle mb-3" 
+                             style="width: 200px; height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 200px; height: 200px;">
+                            <i class="fas fa-user fa-4x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <p class="text-muted small">
+                        {% if profile.photo %}
+                            Photo uploaded on {{ profile.photo.uploaded_at|date:"M d, Y"|default:"Unknown date" }}
+                        {% else %}
+                            No profile photo uploaded yet
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Contact Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-address-book me-2"></i>Contact Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Email</label>
+                        <p class="mb-0 fw-bold">{{ request.user.email|default:"Not provided" }}</p>
+                    </div>
+                    {% if profile.phone %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Phone</label>
+                        <p class="mb-0 fw-bold">{{ profile.phone }}</p>
+                    </div>
+                    {% endif %}
+                    {% if profile.address %}
+                    <div class="mb-0">
+                        <label class="form-label text-muted small">Address</label>
+                        <p class="mb-0 fw-bold">{{ profile.address }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Account Status Card -->
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>Account Status
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Account Active</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Super Admin Role</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-clock text-warning me-2"></i>
+                        <span>Member for {{ request.user.date_joined|timesince }}</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-star text-danger me-2"></i>
+                        <span>System Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Button -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-edit me-2"></i>Edit Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.fw-bold {
+    font-weight: 600 !important;
+}
+
+.rounded-circle {
+    border: 4px solid #f8f9fa;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
