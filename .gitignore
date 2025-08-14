@@ -36,5 +36,4 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Excluir carpeta organizations temporalmente
-organizations/
+
