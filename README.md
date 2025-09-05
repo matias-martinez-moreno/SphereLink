@@ -1,12 +1,5 @@
 # SphereLink
-
 A web application for managing organizational events. It allows members to create, view, and manage events, while staff users can oversee and moderate content.
-
-## Team Members
-- Matías Martínez
-- Tomás Giraldo
-- David Bermúdez
-- Jhon Anderson Marín
 
 ##  Initial Setup
 
@@ -22,9 +15,7 @@ A web application for managing organizational events. It allows members to creat
     
     # On Windows
     env\Scripts\activate
-    
-    # On macOS/Linux
-    source env/bin/activate
+
     ```
 
 3.  **Install Dependencies**
@@ -90,7 +81,7 @@ A web application for managing organizational events. It allows members to creat
     git push origin development
     ```
 
-7.  **Delete Local Branch (Optional)**
+7.  **Delete Local Branch**
     ```bash
     git branch -d feature/your-feature-name
     ```
