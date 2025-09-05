@@ -1,0 +1,187 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Dashboard - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">Hello {{ request.user.get_full_name|default:request.user.username }}!</h2>
+            {% if is_super_admin %}
+                <p class="text-muted">Here are all the available events across all organizations</p>
+            {% elif user_organization %}
+                <p class="text-muted">Here are the available events in <strong>{{ user_organization.name }}</strong></p>
+            {% else %}
+                <p class="text-muted">Here are the available community events (no organization assigned)</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Search and Filters Bar -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-2">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="search" 
+                                   placeholder="Search events..." 
+                                   value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" name="type">
+                                <option value="">All types</option>
+                                {% for type_code, type_name in event_types %}
+                                <option value="{{ type_code }}" {% if selected_type == type_code %}selected{% endif %}>
+                                    {{ type_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-dark w-100">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ total_events }}</h3>
+                    {% if is_super_admin %}
+                        <p class="mb-0">Total Events (All Organizations)</p>
+                    {% elif user_organization %}
+                        <p class="mb-0">Total Events in {{ user_organization.name }}</p>
+                    {% else %}
+                        <p class="mb-0">Total Community Events</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row">
+        <div class="col-12">
+            {% if events %}
+                <div class="row g-3">
+                    {% for event in events %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card mb-3 event-card">
+                            <!-- Event Image -->
+                            {% if event.image %}
+                                <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" 
+                                     style="height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                     style="height: 150px;">
+                                    <i class="fas fa-calendar-alt fa-2x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Event Content -->
+                            <div class="card-body">
+                                <h5 class="card-title mb-2">{{ event.title }}</h5>
+                                
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>{{ event.formatted_date }}<br>
+                                        <i class="fas fa-clock me-1"></i>{{ event.time }}<br>
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                    </small>
+                                </p>
+                                
+                                <!-- Capacity and Registration Info -->
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i>
+                                        {{ event.current_registrations }}/{{ event.max_capacity }} participants
+                                        {% if event.is_full %}
+                                            <span class="badge bg-danger ms-1">Full</span>
+                                        {% else %}
+                                            <span class="badge bg-success ms-1">{{ event.available_spots }} spots left</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-secondary">{{ event.get_event_type_display }}</span>
+                                        {% if event.is_official %}
+                                            <span class="badge bg-success" title="Official Event">
+                                                <i class="fas fa-check-circle me-1"></i>Official
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'events:event_detail' event.id %}" class="btn btn-primary btn-sm">
+                                            View Details
+                                        </a>
+                                        {% if is_staff_user %}
+                                            <a href="{% url 'events:delete_event' event.id %}" class="btn btn-danger btn-sm" 
+                                               title="Delete Event (Staff Only)">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="text-muted mb-3">No events found</h4>
+                            <p class="text-muted mb-3">Create the first event!</p>
+                            <a href="{% url 'events:create_event' %}" class="btn btn-dark">
+                                Create Event
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Additional styles specific to dashboard */
+.event-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.3;
+}
+
+.gap-2 {
+    gap: 0.5rem !important;
+}
+</style>
+{% endblock %}

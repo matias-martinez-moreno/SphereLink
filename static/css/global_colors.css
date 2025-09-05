@@ -1,0 +1,350 @@
+/* ========================================
+   SPHERELINK GLOBAL COLOR PALETTE
+   ======================================== */
+
+:root {
+    /* Primary Colors - Based on Logo */
+    --primary-dark: #143c65;
+    --primary-darker: #040e39;
+    --primary-medium: #586884;
+    --primary-light: #849cb4;
+    --accent-blue: #84a4b0;
+    --accent-dark: #46688c;
+    
+    /* Text Colors */
+    --text-light: #ffffff;
+    --text-muted: #e8f4f8;
+    --text-dark: #040e39;
+    
+    /* Shadow Colors */
+    --shadow-color: rgba(20, 60, 101, 0.2);
+    --shadow-light: rgba(20, 60, 101, 0.1);
+    --shadow-medium: rgba(20, 60, 101, 0.3);
+    --shadow-dark: rgba(20, 60, 101, 0.4);
+}
+
+/* ========================================
+   BACKGROUND COLORS - SIMPLIFIED FOR CONSISTENCY
+   ======================================== */
+.bg-primary {
+    background-color: var(--primary-dark) !important;
+}
+
+.bg-secondary {
+    background-color: var(--primary-medium) !important;
+}
+
+.bg-success {
+    background-color: var(--accent-dark) !important;
+}
+
+.bg-info {
+    background-color: var(--accent-blue) !important;
+}
+
+.bg-warning {
+    background-color: var(--primary-light) !important;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Simplified dark background for card headers */
+.bg-dark {
+    background-color: var(--primary-dark) !important;
+}
+
+/* ========================================
+   TEXT COLORS - SIMPLIFIED
+   ======================================== */
+.text-primary {
+    color: var(--primary-dark) !important;
+}
+
+.text-secondary {
+    color: var(--primary-medium) !important;
+}
+
+.text-success {
+    color: var(--accent-dark) !important;
+}
+
+.text-info {
+    color: var(--accent-blue) !important;
+}
+
+.text-warning {
+    color: var(--primary-light) !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* ========================================
+   BUTTON COLORS - SIMPLIFIED FOR STAFF/MEMBER
+   ======================================== */
+.btn-primary {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-dark) !important;
+    border-color: var(--accent-dark) !important;
+}
+
+.btn-secondary {
+    background-color: var(--primary-medium) !important;
+    border-color: var(--primary-medium) !important;
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+}
+
+.btn-success {
+    background-color: var(--accent-dark) !important;
+    border-color: var(--accent-dark) !important;
+}
+
+.btn-success:hover {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+}
+
+.btn-info {
+    background-color: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+    color: var(--text-dark) !important;
+}
+
+.btn-info:hover {
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-light) !important;
+    color: var(--text-dark) !important;
+}
+
+.btn-warning {
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-light) !important;
+    color: var(--text-dark) !important;
+}
+
+.btn-warning:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: var(--text-light) !important;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.btn-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+/* Simplified dark button for consistency */
+.btn-dark {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+.btn-dark:hover {
+    background-color: var(--accent-dark) !important;
+    border-color: var(--accent-dark) !important;
+}
+
+/* ========================================
+   OUTLINE BUTTON COLORS - SIMPLIFIED
+   ======================================== */
+.btn-outline-primary {
+    color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: var(--text-light);
+}
+
+.btn-outline-info {
+    color: var(--primary-medium);
+    border-color: var(--primary-medium);
+    background: transparent;
+}
+
+.btn-outline-info:hover {
+    background-color: var(--primary-medium);
+    border-color: var(--primary-medium);
+    color: var(--text-light);
+}
+
+.btn-outline-success {
+    color: var(--accent-dark);
+    border-color: var(--accent-dark);
+    background: transparent;
+}
+
+.btn-outline-success:hover {
+    background-color: var(--accent-dark);
+    border-color: var(--accent-dark);
+    color: var(--text-light);
+}
+
+.btn-outline-warning {
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    background: transparent;
+}
+
+.btn-outline-warning:hover {
+    background-color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: var(--text-dark);
+}
+
+.btn-outline-danger {
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+    color: var(--text-dark);
+}
+
+/* Simplified outline dark button */
+.btn-outline-dark {
+    color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    background: transparent;
+}
+
+.btn-outline-dark:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: var(--text-light);
+}
+
+/* ========================================
+   BADGE COLORS - SIMPLIFIED FOR CONSISTENCY
+   ======================================== */
+.badge.bg-super_admin {
+    background: var(--primary-dark) !important;
+}
+
+.badge.bg-org_admin {
+    background: var(--accent-dark) !important;
+}
+
+.badge.bg-staff {
+    background: var(--accent-blue) !important;
+    color: var(--text-dark) !important;
+}
+
+.badge.bg-member {
+    background: var(--primary-light) !important;
+    color: var(--text-dark) !important;
+}
+
+/* Simplified event type badges - use fewer colors */
+.badge.bg-sports {
+    background: var(--accent-dark) !important;
+}
+
+.badge.bg-wellness {
+    background: var(--accent-blue) !important;
+}
+
+.badge.bg-academic {
+    background: var(--primary-light) !important;
+    color: var(--text-dark) !important;
+}
+
+.badge.bg-other {
+    background: var(--primary-medium) !important;
+}
+
+/* Simplified status badges */
+.badge.bg-success {
+    background: #28a745 !important;
+}
+
+.badge.bg-danger {
+    background: #dc3545 !important;
+}
+
+.badge.bg-secondary {
+    background: var(--primary-medium) !important;
+}
+
+.badge.bg-light {
+    background: var(--primary-light) !important;
+    color: var(--text-dark) !important;
+}
+
+/* ========================================
+   FORM ELEMENTS
+   ======================================== */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-dark);
+    box-shadow: 0 0 0 0.2rem rgba(20, 60, 101, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+/* ========================================
+   CARD INTERACTIONS
+   ======================================== */
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px var(--shadow-medium) !important;
+}
+
+.card-body {
+    transition: all 0.3s ease;
+}
+
+.card:hover .card-body {
+    background-color: #f8f9fa;
+}
+
+/* ========================================
+   BUTTON INTERACTIONS
+   ======================================== */
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px var(--shadow-dark);
+}

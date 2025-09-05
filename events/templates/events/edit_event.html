@@ -1,0 +1,329 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Edit Event - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">Edit Event</h2>
+            <p class="text-muted">Update "{{ event.title }}"</p>
+            <a href="{% url 'events:my_events' %}" class="btn btn-secondary btn-sm">
+                ← Back to My Events
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Edit Event Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Please correct the following errors:
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Title Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="fas fa-heading me-2"></i>Event Title
+                            </label>
+
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>Event Description
+                            </label>
+
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Date and Time Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.date.id_for_label }}" class="form-label">
+                                <i class="fas fa-calendar-alt me-2"></i>Date and Time
+                            </label>
+
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.date.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Duration Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.duration.id_for_label }}" class="form-label">
+                                <i class="fas fa-hourglass-half me-2"></i>Duration (minutes)
+                            </label>
+
+                            {{ form.duration }}
+                            {% if form.duration.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.duration.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Max Capacity Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.max_capacity.id_for_label }}" class="form-label">
+                                <i class="fas fa-users me-2"></i>Maximum Capacity
+                            </label>
+
+                            {{ form.max_capacity }}
+                            {% if form.max_capacity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.max_capacity.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Location Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.location.id_for_label }}" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Location
+                            </label>
+
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.location.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Event Type Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.event_type.id_for_label }}" class="form-label">
+                                <i class="fas fa-tags me-2"></i>Event Type
+                            </label>
+
+                            {{ form.event_type }}
+                            {% if form.event_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.event_type.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Image Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">
+                                <i class="fas fa-image me-2"></i>Event Image (Optional)
+                            </label>
+
+                            
+                            <!-- Current Image Display -->
+                            {% if event.image %}
+                            <div class="mb-3">
+                                <p class="text-muted small mb-2">Current image:</p>
+                                <img src="{{ event.image.url }}" alt="Current Event Image" 
+                                     class="img-thumbnail" style="max-width: 200px; height: auto;">
+                            </div>
+                            {% endif %}
+                            
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.image.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Requirements Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.requirements.id_for_label }}" class="form-label">
+                                <i class="fas fa-list-check me-2"></i>Requirements (Optional)
+                            </label>
+
+                            {{ form.requirements }}
+                            {% if form.requirements.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.requirements.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Official Event Field (Staff Only) -->
+                        {% if form.is_official %}
+                        <div class="mb-4">
+                            <label for="{{ form.is_official.id_for_label }}" class="form-label">
+                                <i class="fas fa-star me-2 text-warning"></i>Official Event Status
+                            </label>
+
+                            <div class="form-check">
+                                {{ form.is_official }}
+                                <label class="form-check-label" for="{{ form.is_official.id_for_label }}">
+                                    Mark as Official Event
+                                </label>
+                            </div>
+                            {% if form.is_official.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.is_official.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3 mt-5">
+                            <button type="submit" class="btn btn-dark btn-lg flex-fill">
+                                <i class="fas fa-save me-2"></i>Update Event
+                            </button>
+                            <a href="{% url 'events:my_events' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Current Event Info -->
+            <div class="card mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Current Event Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Created:</strong> {{ event.created_at|date:"M d, Y - g:i A" }}</p>
+                            <p><strong>Last Updated:</strong> {{ event.updated_at|date:"M d, Y - g:i A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Event Type:</strong> <span class="badge bg-{{ event.event_type }}">{{ event.get_event_type_display }}</span></p>
+                            <p><strong>Status:</strong> 
+                                {% if event.is_official %}
+                                    <span class="badge bg-success">Official Event</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Community Event</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #143c65;
+    box-shadow: 0 0 0 0.2rem rgba(20, 60, 101, 0.25);
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.text-primary {
+    color: #143c65 !important;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.display-5 {
+    font-weight: 700;
+    color: #143c65;
+}
+
+.lead {
+    font-weight: 400;
+    color: #6c757d;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.5em 1em;
+    border-radius: 8px;
+}
+
+/* Additional styles specific to edit_event */
+</style>
+{% endblock %}

@@ -1,0 +1,259 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Event Registrations - {{ event.title }} - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">
+                <i class="fas fa-users me-2"></i>Event Registrations
+            </h2>
+            <p class="text-muted">Manage registrations for "{{ event.title }}"</p>
+            <a href="{% url 'events:my_events' %}" class="btn btn-secondary btn-sm">
+                ← Back to My Events
+            </a>
+        </div>
+    </div>
+
+    <!-- Event Summary Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Event Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">{{ event.title }}</h6>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-calendar me-1"></i>{{ event.formatted_date }} at {{ event.time }}
+                            </p>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <h4 class="text-success mb-1">{{ total_registrations }}</h4>
+                                    <small class="text-muted">Registered</small>
+                                </div>
+                                <div class="col-4">
+                                    <h4 class="text-info mb-1">{{ available_spots }}</h4>
+                                    <small class="text-muted">Available</small>
+                                </div>
+                                <div class="col-4">
+                                    <h4 class="text-primary mb-1">{{ event.max_capacity }}</h4>
+                                    <small class="text-muted">Capacity</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">Registration Progress</small>
+                            <small class="text-muted">{{ registration_percentage|floatformat:1 }}%</small>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar {% if is_full %}bg-danger{% else %}bg-success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ registration_percentage }}%"
+                                 aria-valuenow="{{ registration_percentage }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        {% if is_full %}
+                            <small class="text-danger mt-1">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Event is full!
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registrations List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Registered Participants
+                        <span class="badge bg-light text-primary ms-2">{{ registrations.count }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if registrations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Participant</th>
+                                        <th>Email</th>
+                                        <th>Registration Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for registration in registrations %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-2">
+                                                    {% if registration.user.profile.photo %}
+                                                        <img src="{{ registration.user.profile.photo.url }}" 
+                                                             alt="{{ registration.user.get_full_name|default:registration.user.username }}"
+                                                             class="rounded-circle" 
+                                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                                             style="width: 32px; height: 32px;">
+                                                            <i class="fas fa-user text-white"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <strong>{{ registration.user.get_full_name|default:registration.user.username }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">@{{ registration.user.username }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if registration.user.email %}
+                                                <a href="mailto:{{ registration.user.email }}" class="text-decoration-none">
+                                                    {{ registration.user.email }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">No email</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ registration.registered_at|date:"M d, Y" }}
+                                                <br>
+                                                {{ registration.registered_at|time:"g:i A" }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'profiles:view_user_profile' registration.user.id %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i> View Profile
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted mb-3">No registrations yet</h5>
+                            <p class="text-muted mb-4">Share your event to get participants!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    {% if registrations %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-download me-2"></i>Export Options
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Download the list of participants for your records.</p>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-dark btn-sm" onclick="exportToCSV()">
+                            <i class="fas fa-file-csv me-2"></i>Export to CSV
+                        </button>
+                        <button class="btn btn-outline-dark btn-sm" onclick="printRegistrations()">
+                            <i class="fas fa-print me-2"></i>Print List
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.text-primary {
+    color: #003364 !important;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.avatar-sm img {
+    border: 2px solid #e9ecef;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+</style>
+
+<script>
+function exportToCSV() {
+    // Implementar exportación a CSV
+    alert('CSV export functionality will be implemented here.');
+}
+
+function printRegistrations() {
+    window.print();
+}
+</script>
+{% endblock %}

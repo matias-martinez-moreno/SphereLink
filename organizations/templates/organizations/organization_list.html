@@ -1,0 +1,550 @@
+{% extends 'organizations/superadmin_base.html' %}
+
+{% block title %}Organizations - SphereLink Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">
+                <i class="fas fa-building me-2"></i>Organizations
+            </h2>
+            <p class="text-muted">Manage all organizations in the system</p>
+        </div>
+    </div>
+
+    <!-- System Statistics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white text-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>System Statistics
+                    </h5>
+                </div>
+                <div class="card-body py-3">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-2">
+                            <div class="stat-item">
+                                <h3 class="text-primary mb-1">{{ total_organizations }}</h3>
+                                <p class="text-muted mb-0 small">Total Organizations</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="stat-item">
+                                <h3 class="text-success mb-1">{{ active_organizations }}</h3>
+                                <p class="text-muted mb-0 small">Active Organizations</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="stat-item">
+                                <h3 class="text-warning mb-1">{{ inactive_organizations }}</h3>
+                                <p class="text-muted mb-0 small">Inactive Organizations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Search Bar -->
+                    <form method="get" class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control" name="search" 
+                                   placeholder="Search organizations by name, description, or email..." 
+                                   value="{{ request.GET.search }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Clear Search -->
+                    {% if request.GET.search %}
+                    <div class="mt-3">
+                        <a href="{% url 'organizations:organization_list' %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-times me-1"></i>Clear Search
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Info -->
+    {% if request.GET.search %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-search me-2"></i>
+                <strong>Search Results:</strong> 
+                Found {{ organizations.count }} organization(s) matching "{{ request.GET.search }}"
+                <a href="{% url 'organizations:organization_list' %}" class="float-end">
+                    <i class="fas fa-times me-1"></i>Clear Search
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Organizations List -->
+    <div class="row">
+        <div class="col-12">
+            {% if organizations %}
+                <div class="row g-4">
+                    {% for organization in organizations %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                                                         <div class="card-header bg-primary text-white">
+                                 <h5 class="mb-0">
+                                     <i class="fas fa-building me-2"></i>{{ organization.name }}
+                                 </h5>
+                             </div>
+                            <div class="card-body d-flex flex-column">
+                                <!-- Organization Info -->
+                                <div class="mb-3">
+                                    {% if organization.description %}
+                                        <p class="card-text">{{ organization.description|truncatewords:20 }}</p>
+                                    {% else %}
+                                        <p class="text-muted">No description available</p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Organization Details -->
+                                <div class="mb-3">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <h6 class="text-primary mb-1">{{ organization.user_roles.count }}</h6>
+                                            <small class="text-muted">Users</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <h6 class="text-success mb-1">
+                                                {% if organization.is_active %}
+                                                    <i class="fas fa-check-circle text-success"></i>
+                                                {% else %}
+                                                    <i class="fas fa-times-circle text-danger"></i>
+                                                {% endif %}
+                                            </h6>
+                                            <small class="text-muted">Status</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Info -->
+                                {% if organization.email or organization.phone %}
+                                <div class="mb-3">
+                                    {% if organization.email %}
+                                        <p class="mb-1">
+                                            <i class="fas fa-envelope me-2 text-muted"></i>
+                                            <small>{{ organization.email }}</small>
+                                        </p>
+                                    {% endif %}
+                                    {% if organization.phone %}
+                                        <p class="mb-0">
+                                            <i class="fas fa-phone me-2 text-muted"></i>
+                                            <small>{{ organization.phone }}</small>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Action Buttons -->
+                                <div class="mt-auto">
+                                    <div class="d-grid gap-2">
+                                        <!-- Edit Organization Details -->
+                                        <a href="{% url 'organizations:edit_organization' organization.id %}" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit me-1"></i>Edit Organization Details
+                                        </a>
+                                        
+                                        <!-- Manage Users -->
+                                        <a href="{% url 'organizations:manage_user_roles' organization.id %}" 
+                                           class="btn btn-info btn-sm">
+                                            <i class="fas fa-users me-1"></i>Manage Users
+                                        </a>
+                                        
+                                        <!-- Create User -->
+                                        <a href="{% url 'organizations:create_user' organization.id %}" 
+                                           class="btn btn-success btn-sm">
+                                            <i class="fas fa-user-plus me-1"></i>Create User
+                                        </a>
+                                        
+                                        <!-- Bulk Invite -->
+                                        <a href="{% url 'organizations:bulk_invite' %}" 
+                                           class="btn btn-warning btn-sm">
+                                            <i class="fas fa-users me-1"></i>Bulk Invite
+                                        </a>
+                                        
+                                        <!-- Delete Organization -->
+                                        <a href="{% url 'organizations:delete_organization' organization.id %}" 
+                                           class="btn btn-danger btn-sm"
+                                           title="Delete Organization">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="card">
+                        <div class="card-body">
+                            <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted mb-3">No organizations created yet</h4>
+                            <p class="text-muted mb-4">Create your first organization to get started!</p>
+                                                         <a href="{% url 'organizations:create_organization' %}" class="btn btn-primary btn-lg">
+                                 <i class="fas fa-plus me-2"></i>Create Organization
+                             </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(20, 60, 101, 0.2) !important;
+}
+
+.card-body {
+    transition: all 0.3s ease;
+}
+
+.card:hover .card-body {
+    background-color: #f8f9fa;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(20, 60, 101, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(20, 60, 101, 0.4);
+}
+
+/* Custom button colors for organization cards using new palette - SOLID COLORS */
+.btn-outline-primary {
+    color: #143c65;
+    border-color: #143c65;
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: #143c65;
+    border-color: #143c65;
+    color: white;
+}
+
+.btn-outline-info {
+    color: #586884;
+    border-color: #586884;
+    background: transparent;
+}
+
+.btn-outline-info:hover {
+    background-color: #586884;
+    border-color: #586884;
+    color: white;
+}
+
+.btn-outline-success {
+    color: #46688c;
+    border-color: #46688c;
+    background: transparent;
+}
+
+.btn-outline-success:hover {
+    background-color: #46688c;
+    border-color: #46688c;
+    color: white;
+}
+
+.btn-outline-warning {
+    color: #84a4b0;
+    border-color: #84a4b0;
+    background: transparent;
+}
+
+.btn-outline-warning:hover {
+    background-color: #84a4b0;
+    border-color: #84a4b0;
+    color: #040e39;
+}
+
+.btn-outline-danger {
+    color: #849cb4;
+    border-color: #849cb4;
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    background-color: #849cb4;
+    border-color: #849cb4;
+    color: #040e39;
+}
+
+/* Colores consistentes para toda la aplicación */
+.bg-primary {
+    background-color: #143c65 !important;
+}
+
+.bg-secondary {
+    background-color: #586884 !important;
+}
+
+.bg-success {
+    background-color: #46688c !important;
+}
+
+.bg-info {
+    background-color: #84a4b0 !important;
+}
+
+.bg-warning {
+    background-color: #849cb4 !important;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.text-primary {
+    color: #143c65 !important;
+}
+
+.text-secondary {
+    color: #586884 !important;
+}
+
+.text-success {
+    color: #46688c !important;
+}
+
+.text-info {
+    color: #84a4b0 !important;
+}
+
+.text-warning {
+    color: #849cb4 !important;
+}
+
+.btn-primary {
+    background-color: #143c65 !important;
+    border-color: #143c65 !important;
+}
+
+.btn-primary:hover {
+    background-color: #46688c !important;
+    border-color: #46688c !important;
+}
+
+.btn-secondary {
+    background-color: #586884 !important;
+    border-color: #586884 !important;
+}
+
+.btn-secondary:hover {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+}
+
+.btn-success {
+    background-color: #46688c !important;
+    border-color: #46688c !important;
+}
+
+.btn-success:hover {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+}
+
+.btn-info {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+    color: #040e39 !important;
+}
+
+.btn-info:hover {
+    background-color: #849cb4 !important;
+    border-color: #849cb4 !important;
+    color: #040e39 !important;
+}
+
+.btn-warning {
+    background-color: #849cb4 !important;
+    border-color: #849cb4 !important;
+    color: #040e39 !important;
+}
+
+.btn-warning:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.btn-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-radius: 10px 0 0 10px;
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 10px 10px 0;
+}
+
+/* System Statistics Styling */
+.stat-item {
+    padding: 20px 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    background-color: #f8f9fa;
+}
+
+.stat-item h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Search Bar Styling */
+.input-group {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.input-group-text {
+    border: none;
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.form-control {
+    border: none;
+    padding: 12px 16px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #143c65;
+}
+
+
+
+.btn-outline-info {
+    border-color: #84a4b0;
+    color: #84a4b0;
+}
+
+.btn-outline-info:hover {
+    background-color: #84a4b0;
+    border-color: #84a4b0;
+    color: #040e39;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left: 4px solid #17a2b8;
+}
+
+/* System Statistics Styling - Updated for smaller size */
+.stat-item {
+    padding: 15px 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    background-color: #f8f9fa;
+}
+
+.stat-item h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-item p {
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+</style>
+
+
+{% endblock %}

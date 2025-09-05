@@ -1,0 +1,40 @@
+# Archivos Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Entorno virtual
+env/
+venv/
+ENV/
+
+# Archivos de configuración del entorno
+*.env
+.env.local
+
+# Archivos de VS Code
+.vscode/
+
+# Carpetas de archivos estáticos y medios
+staticfiles/
+media/
+event_images/
+
+# Base de datos
+db.sqlite3
+*.sqlite3
+*.db
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.temp
+
+

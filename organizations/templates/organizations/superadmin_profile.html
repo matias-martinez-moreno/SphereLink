@@ -1,0 +1,155 @@
+{% extends 'organizations/superadmin_base.html' %}
+
+{% block title %}Super Admin Profile - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">
+                <i class="fas fa-user-shield me-2"></i>Super Admin Profile
+            </h2>
+            <p class="text-muted">Your super administrator account information</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Personal Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Username:</strong> {{ request.user.username }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Email:</strong> {{ request.user.email|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>First Name:</strong> {{ request.user.first_name|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Last Name:</strong> {{ request.user.last_name|default:"Not provided" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account & Role Information Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-shield me-2"></i>Account & Role Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Account Status Section -->
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2 text-uppercase small">
+                            <i class="fas fa-shield-alt me-1"></i>Account Status
+                        </h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Account Active</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Email Verified</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-clock text-warning me-2"></i>
+                            <span>Member for {{ request.user.date_joined|timesince }}</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            <span>Staff Member</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Divider -->
+                    <hr class="my-3">
+                    
+                    <!-- Role & Organization Section -->
+                    <div>
+                        <h6 class="text-muted mb-2 text-uppercase small">
+                            <i class="fas fa-user-tag me-1"></i>Role & Organization
+                        </h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-crown text-warning me-2"></i>
+                            <span><strong>Role:</strong> Super Administrator</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-globe me-2 text-info"></i>
+                            <span><strong>Organization:</strong> System-wide Access</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-shield-alt text-success me-2"></i>
+                            <span>Full System Administrator</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Colores serenos usando la paleta del logo */
+.bg-primary {
+    background-color: #143c65 !important;
+}
+
+.bg-info {
+    background-color: #586884 !important;
+}
+
+.bg-warning {
+    background-color: #84a4b0 !important;
+    color: #040e39 !important;
+}
+
+.text-primary {
+    color: #143c65 !important;
+}
+
+.text-info {
+    color: #586884 !important;
+}
+</style>
+{% endblock %}

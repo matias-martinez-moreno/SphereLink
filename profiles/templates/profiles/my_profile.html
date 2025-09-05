@@ -1,0 +1,232 @@
+{% extends "events/base.html" %}
+{% block title %}My Profile - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">My Profile</h2>
+            <p class="text-muted">Manage your personal information</p>
+            <a href="{% url 'profiles:edit_profile' %}" class="btn btn-primary">
+                Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Profile Information -->
+        <div class="col-lg-8">
+            <!-- Personal Information Card -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <strong>Username:</strong> {{ request.user.username }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Email:</strong> {{ request.user.email|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>First Name:</strong> {{ request.user.first_name|default:"Not provided" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Last Name:</strong> {{ request.user.last_name|default:"Not provided" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biography Card -->
+            {% if profile.bio %}
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Biography</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ profile.bio }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Account Statistics Card -->
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-2">
+                            <h4 class="text-primary mb-1">{{ request.user.event_set.count }}</h4>
+                            <p class="text-muted mb-0">Events Created</p>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <h4 class="text-success mb-1">{{ request.user.registrations.count }}</h4>
+                            <p class="text-muted mb-0">Events Joined</p>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <h4 class="text-info mb-1">{{ request.user.date_joined|timesince }}</h4>
+                            <p class="text-muted mb-0">Member Since</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Account & Role Information -->
+        <div class="col-lg-4">
+            <!-- Profile Photo Card -->
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    {% if profile.photo %}
+                        <img src="{{ profile.photo.url }}" alt="Profile Photo" 
+                             class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-4x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <h5 class="mb-1">{{ request.user.get_full_name|default:request.user.username }}</h5>
+                    <p class="text-muted mb-0">{{ request.user.email|default:"No email provided" }}</p>
+                </div>
+            </div>
+
+            <!-- Account & Role Information Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-shield me-2"></i>Account & Role Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Account Status Section -->
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2 text-uppercase small">
+                            <i class="fas fa-shield-alt me-1"></i>Account Status
+                        </h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Account Active</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Email Verified</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-clock text-warning me-2"></i>
+                            <span>Member for {{ request.user.date_joined|timesince }}</span>
+                        </div>
+                        {% if request.user.is_staff %}
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            <span>Staff Member</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Divider -->
+                    <hr class="my-3">
+                    
+                    <!-- Role & Organization Section -->
+                    <div>
+                        <h6 class="text-muted mb-2 text-uppercase small">
+                            <i class="fas fa-user-tag me-1"></i>Role & Organization
+                        </h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-user-shield me-2 text-primary"></i>
+                            <span><strong>Role:</strong> {{ user_role_info.role }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-building me-2 text-info"></i>
+                            <span><strong>Organization:</strong> {{ user_role_info.organization }}</span>
+                        </div>
+                        {% if user_role_info.is_superuser %}
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-crown text-warning me-2"></i>
+                            <span>System Administrator</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.text-primary {
+    color: #143c65 !important;
+}
+
+.bg-primary {
+    background-color: #143c65 !important;
+}
+
+.bg-info {
+    background-color: #586884 !important;
+}
+
+.bg-success {
+    background-color: #46688c !important;
+}
+
+.bg-warning {
+    background-color: #84a4b0 !important;
+    color: #040e39 !important;
+}
+
+.border-end {
+    border-right: 2px solid #e9ecef !important;
+}
+
+/* Estilos para el cajón combinado */
+.card-header h6 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+hr {
+    border-color: #e9ecef;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .border-end {
+        border-right: none !important;
+        border-bottom: 2px solid #e9ecef !important;
+        padding-bottom: 1rem;
+    }
+}
+</style>
+{% endblock %}

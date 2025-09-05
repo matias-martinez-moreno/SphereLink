@@ -1,0 +1,441 @@
+{% extends 'organizations/superadmin_base.html' %}
+
+{% block title %}Manage Users - {{ organization.name }} - SphereLink Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">
+                <i class="fas fa-users me-2"></i>User Management
+            </h2>
+            <p class="text-muted">Manage users in {{ organization.name }}</p>
+            <a href="{% url 'organizations:organization_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Organizations
+            </a>
+        </div>
+    </div>
+
+    <!-- Organization Info Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>{{ organization.name }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-primary mb-1">{{ total_users }}</h4>
+                                <p class="text-muted mb-0">Total Users</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-warning mb-1">{{ staff_members }}</h4>
+                                <p class="text-muted mb-0">Staff Members</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-info mb-1">{{ regular_members }}</h4>
+                                <p class="text-muted mb-0">Regular Members</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Users Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Current Users
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% csrf_token %}
+                    {% if user_roles %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user_role in user_roles %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-2">
+                                                    {% if user_role.user.profile.photo %}
+                                                        <img src="{{ user_role.user.profile.photo.url }}" 
+                                                             alt="Avatar" class="rounded-circle" 
+                                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
+                                                             style="width: 32px; height: 32px;">
+                                                            <i class="fas fa-user text-white"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <strong>{{ user_role.user.username }}</strong>
+                                                    {% if user_role.user.get_full_name %}
+                                                        <br><small class="text-muted">{{ user_role.user.get_full_name }}</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ user_role.user.email }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ user_role.role }}">
+                                                {{ user_role.get_role_display }}
+                                            </span>
+                                        </td>
+
+                                                                                <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                        onclick="editUserRole('{{ user_role.id }}', '{{ user_role.role }}')"
+                                                        title="Edit Role">
+                                                    <i class="fas fa-edit me-1"></i>Edit Role
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                        onclick="deleteUserRole('{{ user_role.id }}')"
+                                                        title="Remove User">
+                                                    <i class="fas fa-trash me-1"></i>Delete User
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted mb-3">No users assigned yet</h5>
+                            <p class="text-muted mb-3">Users can be added through the organization management</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Role Modal -->
+<div class="modal fade" id="editUserRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserRoleForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" id="editUserRoleId" name="user_role_id">
+                    <input type="hidden" name="action" value="edit_role">
+                    
+                                            <div class="mb-3">
+                            <label for="editRole" class="form-label">Role</label>
+                            <select class="form-select" id="editRole" name="role" required>
+                                <option value="member">Member</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                        </div>
+                    
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" form="editUserRoleForm" class="btn btn-dark">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #143c65;
+    box-shadow: 0 0 0 0.2rem rgba(20, 60, 101, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #143c65;
+    border-color: #143c65;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+
+.badge.bg-member {
+    background: #849cb4 !important;
+    color: #040e39 !important;
+}
+
+.badge.bg-staff {
+    background: #84a4b0 !important;
+    color: #040e39 !important;
+}
+
+.badge.bg-org_admin {
+    background: #46688c !important;
+}
+
+.badge.bg-super_admin {
+    background: #143c65 !important;
+}
+
+/* Colores consistentes para toda la aplicación */
+.bg-primary {
+    background-color: #143c65 !important;
+}
+
+.bg-secondary {
+    background-color: #586884 !important;
+}
+
+.bg-success {
+    background-color: #46688c !important;
+}
+
+.bg-info {
+    background-color: #84a4b0 !important;
+}
+
+.bg-warning {
+    background-color: #849cb4 !important;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.text-primary {
+    color: #143c65 !important;
+}
+
+.text-secondary {
+    color: #586884 !important;
+}
+
+.text-success {
+    color: #46688c !important;
+}
+
+.text-info {
+    color: #84a4b0 !important;
+}
+
+.text-warning {
+    color: #849cb4 !important;
+}
+
+.btn-primary {
+    background-color: #143c65 !important;
+    border-color: #143c65 !important;
+}
+
+.btn-primary:hover {
+    background-color: #46688c !important;
+    border-color: #46688c !important;
+}
+
+.btn-secondary {
+    background-color: #586884 !important;
+    border-color: #586884 !important;
+}
+
+.btn-secondary:hover {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+}
+
+.btn-success {
+    background-color: #46688c !important;
+    border-color: #46688c !important;
+}
+
+.btn-success:hover {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+}
+
+.btn-info {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+    color: #040e39 !important;
+}
+
+.btn-info:hover {
+    background-color: #849cb4 !important;
+    border-color: #849cb4 !important;
+    color: #040e39 !important;
+}
+
+.btn-warning {
+    background-color: #849cb4 !important;
+    border-color: #849cb4 !important;
+    color: #040e39 !important;
+}
+
+.btn-warning:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.btn-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+.table {
+    font-size: 0.9rem;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+
+.table th {
+    padding: 15px 8px;
+    font-weight: 600;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.avatar-sm {
+    flex-shrink: 0;
+}
+
+/* Button group styling */
+.btn-group {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-group .btn {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.btn-group .btn:first-child {
+    border-radius: 8px 0 0 8px;
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.btn-group .btn:not(:first-child):not(:last-child) {
+    border-radius: 0;
+}
+</style>
+
+<script>
+function editUserRole(userRoleId, currentRole) {
+    document.getElementById('editUserRoleId').value = userRoleId;
+    document.getElementById('editRole').value = currentRole;
+    new bootstrap.Modal(document.getElementById('editUserRoleModal')).show();
+}
+
+function deleteUserRole(userRoleId) {
+    if (confirm('Are you sure you want to remove this user from the organization?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href;
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        const userRoleInput = document.createElement('input');
+        userRoleInput.type = 'hidden';
+        userRoleInput.name = 'user_role_id';
+        userRoleInput.value = userRoleId;
+        form.appendChild(userRoleInput);
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'delete_user';
+        form.appendChild(actionInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

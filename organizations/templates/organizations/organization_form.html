@@ -1,0 +1,304 @@
+{% extends 'organizations/superadmin_base.html' %}
+
+{% block title %}{{ title }} - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">{{ title }}</h2>
+            <p class="text-muted">Configure the organization details</p>
+            <a href="{% url 'organizations:organization_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Organizations
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>Organization Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Please correct the following errors:
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Basic Information -->
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-building me-2"></i>Organization Name *
+                                    </label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.name.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.is_active.id_for_label }}" class="form-label">
+                                        <i class="fas fa-toggle-on me-2"></i>Status
+                                    </label>
+                                    <div class="form-check">
+                                        {{ form.is_active }}
+                                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            Active Organization
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-2"></i>Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Logo -->
+                        <div class="mb-3">
+                            <label for="{{ form.logo.id_for_label }}" class="form-label">
+                                <i class="fas fa-image me-2"></i>Organization Logo
+                            </label>
+                            {% if organization and organization.logo %}
+                            <div class="mb-2">
+                                <p class="text-muted small">Current logo:</p>
+                                <img src="{{ organization.logo.url }}" alt="Current Logo" 
+                                     class="img-thumbnail" style="max-width: 150px; height: auto;">
+                            </div>
+                            {% endif %}
+                            {{ form.logo }}
+                            {% if form.logo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.logo.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Contact Information -->
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-address-book me-2"></i>Contact Information
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.website.id_for_label }}" class="form-label">
+                                        <i class="fas fa-globe me-2"></i>Website
+                                    </label>
+                                    {{ form.website }}
+                                    {% if form.website.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.website.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.email.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                        <i class="fas fa-phone me-2"></i>Phone
+                                    </label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.phone.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="mb-4">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Address
+                            </label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.address.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Staff User Creation (Only when creating new organization) -->
+                        {% if is_creating %}
+                        <div class="card mt-4">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-user-plus me-2"></i>Create First Staff User
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">
+                                    Create the first staff user for this organization. This user will have staff privileges 
+                                    and can manage events and users within the organization.
+                                </p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="staff_username" class="form-label">Username *</label>
+                                        <input type="text" class="form-control" id="staff_username" name="staff_username" 
+                                               placeholder="Enter username" required>
+                
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="staff_email" class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="staff_email" name="staff_email" 
+                                               placeholder="Enter email address" required>
+                
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="staff_first_name" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="staff_first_name" name="staff_first_name" 
+                                               placeholder="Enter first name">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="staff_last_name" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="staff_last_name" name="staff_last_name" 
+                                               placeholder="Enter last name">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="staff_password" class="form-label">Password *</label>
+                                    <input type="password" class="form-control" id="staff_password" name="staff_password" 
+                                           placeholder="Enter password" required>
+            
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <strong>Note:</strong> This user will automatically be assigned the 'Staff' role 
+                                        in the organization and will have permission to create and manage events.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-dark btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                {% if organization %}Update Organization{% else %}Create Organization{% endif %}
+                            </button>
+                            <a href="{% url 'organizations:organization_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-primary {
+    color: #143c65 !important;
+}
+
+.btn-primary {
+    background: #143c65;
+    border-color: #143c65;
+}
+
+.btn-primary:hover {
+    background: #46688c;
+    border-color: #46688c;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #143c65;
+    box-shadow: 0 0 0 0.2rem rgba(20, 60, 101, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #143c65;
+    border-color: #143c65;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends 'organizations/superadmin_base.html' %}
+
+{% block title %}Bulk Invite Users - SphereLink Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-primary mb-2">
+                <i class="fas fa-users me-2"></i>Bulk Invite Users
+            </h2>
+            <p class="text-muted">Invite multiple users to organizations at once</p>
+            <a href="{% url 'organizations:organization_list' %}" class="btn btn-secondary btn-sm">
+                ← Back to Organizations
+            </a>
+        </div>
+    </div>
+
+    <!-- Coming Soon Message -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card text-center">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Coming Soon
+                    </h5>
+                </div>
+                <div class="card-body py-5">
+                    <i class="fas fa-users fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">Bulk User Invitation</h3>
+                    <p class="text-muted mb-4">
+                        This feature will allow you to invite multiple users to organizations at once, 
+                        making it easier to manage large-scale user onboarding.
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Feature in Development:</strong> Bulk invitation functionality will be available in the next update.
+                    </div>
+                                                <a href="{% url 'organizations:organization_list' %}" class="btn btn-dark btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Organizations
+                            </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.text-primary {
+    color: #143c65 !important;
+}
+
+/* Colores consistentes para toda la aplicación */
+.bg-primary {
+    background-color: #143c65 !important;
+}
+
+.bg-secondary {
+    background-color: #586884 !important;
+}
+
+.bg-success {
+    background-color: #46688c !important;
+}
+
+.bg-info {
+    background-color: #84a4b0 !important;
+}
+
+.bg-warning {
+    background-color: #849cb4 !important;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.text-secondary {
+    color: #586884 !important;
+}
+
+.text-success {
+    color: #46688c !important;
+}
+
+.text-info {
+    color: #84a4b0 !important;
+}
+
+.text-warning {
+    color: #849cb4 !important;
+}
+
+.btn-primary {
+    background-color: #143c65 !important;
+    border-color: #143c65 !important;
+}
+
+.btn-primary:hover {
+    background-color: #46688c !important;
+    border-color: #46688c !important;
+}
+
+.btn-secondary {
+    background-color: #586884 !important;
+    border-color: #586884 !important;
+}
+
+.btn-secondary:hover {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+}
+
+.btn-success {
+    background-color: #46688c !important;
+    border-color: #46688c !important;
+}
+
+.btn-success:hover {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+}
+
+.btn-info {
+    background-color: #84a4b0 !important;
+    border-color: #84a4b0 !important;
+    color: #040e39 !important;
+}
+
+.btn-info:hover {
+    background-color: #849cb4 !important;
+    border-color: #849cb4 !important;
+    color: #040e39 !important;
+}
+
+.btn-warning {
+    background-color: #849cb4 !important;
+    border-color: #849cb4 !important;
+    color: #040e39 !important;
+}
+
+.btn-warning:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.btn-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Confirm deletion - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Event Deletion
+            </h2>
+            <p class="text-muted">This action cannot be undone</p>
+            <a href="{% url 'events:my_events' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to My Events
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trash me-2"></i>Delete Event: "{{ event.title }}"
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This action will permanently delete the event and all its registrations.
+                    </div>
+                    
+                    <!-- Event Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Event Details:</h6>
+                            <p><strong>Date:</strong> {{ event.formatted_date }}</p>
+                            <p><strong>Time:</strong> {{ event.time }}</p>
+                            <p><strong>Location:</strong> {{ event.location }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Statistics:</h6>
+                            <p><strong>Registrations:</strong> {{ event.current_registrations }}/{{ event.max_capacity }}</p>
+                            <p><strong>Event Type:</strong> {{ event.get_event_type_display }}</p>
+                            <p><strong>Created:</strong> {{ event.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmation Form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'events:my_events' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete Event Permanently
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+</style>
+{% endblock %}
