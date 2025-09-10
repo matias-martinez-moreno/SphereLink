@@ -112,3 +112,4 @@ To ensure all team members use the same package versions, follow this process wh
 
 3.  **Commit the `requirements.txt` File**
     Add the updated `requirements.txt` file to your commit. This ensures everyone on the team will install the new dependency when they set up the project or pull the latest changes.
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/matias-martinez-moreno/SphereLink)
