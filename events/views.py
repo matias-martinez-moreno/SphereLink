@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+import csv
 from django.db.models import Q
 from django.utils import timezone
 from .models import Event, EventRegistration
@@ -110,6 +111,7 @@ def event_detail_view(request, event_id):
     context = {
         'event': event,
         'event_types': Event.EVENT_TYPES,
+        'is_staff_user': _is_staff_user(request.user),
         'user_registered': user_registered,
     }
     return render(request, 'events/event_detail.html', context)
@@ -148,6 +150,11 @@ def register_event_view(request, event_id):
         return redirect('login')
     
     event = get_object_or_404(Event, id=event_id)
+
+    # Verificar que el evento no haya expirado
+    if event.date < timezone.now():
+        messages.error(request, "This event has already passed and you cannot register for it.")
+        return redirect('events:event_detail', event_id=event_id)
 
     # Verificar si ya está registrado para evitar duplicados
     already_registered = event.registrations.filter(user=user).exists()
@@ -342,3 +349,34 @@ def event_registrations_view(request, event_id):
         'registration_percentage': event.registration_percentage,
     }
     return render(request, 'events/event_registrations.html', context)
+@login_required
+def export_attendees_csv(request, event_id):
+    """
+    Export a CSV file of all registered attendees for an event.
+    - Only accessible to the event creator or staff users.
+    - The CSV contains 'Name' and 'Email' of each registered user.
+    """
+    event = get_object_or_404(Event, id=event_id)
+    user = request.user
+
+    # Permission check: must be creator or staff
+    if not (event.created_by == user or _is_staff_user(user)):
+        messages.error(request, "You don't have permission to export attendees for this event.")
+        return redirect('events:event_detail', event_id=event.id)
+
+    # Set up the HTTP response for CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{event.title}_attendees.csv"'
+
+    # Create a CSV writer
+    writer = csv.writer(response)
+
+    # Write the header row
+    writer.writerow(['Name', 'Email'])
+
+    # Write data rows
+    registrations = event.registrations.select_related('user').all()
+    for registration in registrations:
+        writer.writerow([registration.user.get_full_name(), registration.user.email])
+
+    return response

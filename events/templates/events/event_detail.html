@@ -161,6 +161,11 @@
                         </button>
                         {% endif %}
                         
+                        {% if user.is_authenticated and (event.created_by == user or is_staff_user) %}
+                        <a href="{% url 'events:export_attendees' event.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-file-csv me-2"></i>Export Attendees
+                        </a>
+                        {% endif %}
                         <a href="{% url 'events:dashboard' %}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                         </a>

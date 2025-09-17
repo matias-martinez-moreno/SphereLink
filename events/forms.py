@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import Event
 
 class EventForm(forms.ModelForm):
@@ -45,6 +46,16 @@ class EventForm(forms.ModelForm):
         # Esto controla qué usuarios pueden marcar eventos como oficiales
         if not user or not self._is_staff_user(user):
             self.fields.pop('is_official', None)
+    def clean_date(self):
+        """
+        Validación para la fecha del evento
+        - No puede ser una fecha en el pasado
+        """
+        date = self.cleaned_data.get('date')
+        if date and date < timezone.now():
+            raise forms.ValidationError("The event date cannot be in the past.")
+        return date
+
     
     def clean_max_capacity(self):
         """
