@@ -69,3 +69,40 @@ class BulkInviteForm(forms.Form):
         if domain.startswith('@'):
             domain = domain[1:]
         return domain.lower()
+
+class CSVBulkInviteForm(forms.Form):
+    ROLE_CHOICES = [
+        ('member', 'Member'),
+        ('staff', 'Staff'),
+        ('org_admin', 'Organization Admin'),
+    ]
+    
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.filter(is_active=True),
+        empty_label="Select an organization",
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text="Select the organization to invite users to"
+    )
+    
+    csv_file = forms.FileField(
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.csv'
+        }),
+        help_text="Upload a CSV file with email addresses in the first column"
+    )
+    
+    default_role = forms.ChoiceField(
+        choices=ROLE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        initial='member',
+        help_text="Default role for all invited users"
+    )
+    
+    def clean_csv_file(self):
+        file = self.cleaned_data['csv_file']
+        if not file.name.endswith('.csv'):
+            raise forms.ValidationError('Please upload a CSV file.')
+        if file.size > 5 * 1024 * 1024:  # 5MB limit
+            raise forms.ValidationError('File size must be less than 5MB.')
+        return file

@@ -15,5 +15,6 @@ urlpatterns = [
     path('accept_invitation/<str:token>/', views.accept_invitation, name='accept_invitation'),
     path('user_management/', views.user_management, name='user_management'),
     path('bulk_invite/', views.bulk_invite_confirm_view, name='bulk_invite'),  # Esta sí tiene _view
+    path('csv_bulk_invite/', views.csv_bulk_invite, name='csv_bulk_invite'),
     path('profile/', views.superadmin_profile, name='superadmin_profile'),
 ]

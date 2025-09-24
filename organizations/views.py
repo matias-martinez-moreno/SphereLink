@@ -7,8 +7,12 @@ from django.db.models import Q, Count
 from django.http import JsonResponse
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
+import csv
+import io
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from .models import Organization, UserRole, OrganizationInvitation
-from .forms import OrganizationForm, UserRoleForm, OrganizationInvitationForm, BulkInviteForm
+from .forms import OrganizationForm, UserRoleForm, OrganizationInvitationForm, BulkInviteForm, CSVBulkInviteForm
 from profiles.models import Profile
 
 def _is_super_admin(user):
@@ -648,6 +652,166 @@ def superadmin_profile(request):
         'total_users': total_users,
     }
     return render(request, 'organizations/superadmin_profile.html', context)
+
+
+@login_required
+def csv_bulk_invite(request):
+    """
+    CSV Bulk Invitation of users to organization
+    - Allows Super Admin to upload CSV file with email addresses
+    - Creates user accounts for valid emails and assigns to organization
+    - Provides detailed summary report of the operation
+    - Only accessible for Super Admins
+    """
+    if not _is_super_admin(request.user):
+        messages.error(request, "Access denied. Super Admin privileges required.")
+        return redirect('organizations:organization_list')
+    
+    results = None
+    
+    if request.method == 'POST':
+        form = CSVBulkInviteForm(request.POST, request.FILES)
+        if form.is_valid():
+            organization = form.cleaned_data['organization']
+            csv_file = form.cleaned_data['csv_file']
+            default_role = form.cleaned_data['default_role']
+            
+            # Initialize counters for summary report
+            successful_invites = 0
+            failed_invites = 0
+            invalid_emails = 0
+            existing_users = 0
+            errors = []
+            
+            try:
+                # Read and decode CSV file
+                decoded_file = csv_file.read().decode('utf-8')
+                csv_reader = csv.reader(io.StringIO(decoded_file))
+                
+                # Process CSV with transaction to ensure data consistency
+                with transaction.atomic():
+                    for row_number, row in enumerate(csv_reader, start=1):
+                        if not row or len(row) == 0:
+                            continue  # Skip empty rows
+                        
+                        email = row[0].strip().lower()  # Get email from first column
+                        
+                        if not email:
+                            continue  # Skip empty emails
+                        
+                        # Validate email format
+                        try:
+                            validate_email(email)
+                        except ValidationError:
+                            invalid_emails += 1
+                            errors.append(f"Row {row_number}: Invalid email format '{email}'")
+                            continue
+                        
+                        # Check if user already exists
+                        if User.objects.filter(email=email).exists():
+                            existing_user = User.objects.get(email=email)
+                            # Check if user is already in the organization
+                            if UserRole.objects.filter(user=existing_user, organization=organization).exists():
+                                existing_users += 1
+                                errors.append(f"Row {row_number}: User '{email}' already exists in {organization.name}")
+                                continue
+                            else:
+                                # User exists but not in this organization, add them
+                                UserRole.objects.create(
+                                    user=existing_user,
+                                    organization=organization,
+                                    role=default_role,
+                                    assigned_by=request.user
+                                )
+                                successful_invites += 1
+                                continue
+                        
+                        try:
+                            # Create new user
+                            # Generate username from email (part before @)
+                            username_base = email.split('@')[0]
+                            username = username_base
+                            counter = 1
+                            
+                            # Ensure username is unique
+                            while User.objects.filter(username=username).exists():
+                                username = f"{username_base}{counter}"
+                                counter += 1
+                            
+                            # Create user with temporary password
+                            temp_password = f"Temp{username}123!"
+                            
+                            new_user = User.objects.create_user(
+                                username=username,
+                                email=email,
+                                password=temp_password,
+                                first_name='',
+                                last_name=''
+                            )
+                            
+                            # Assign role in organization
+                            UserRole.objects.create(
+                                user=new_user,
+                                organization=organization,
+                                role=default_role,
+                                assigned_by=request.user
+                            )
+                            
+                            successful_invites += 1
+                            
+                        except Exception as e:
+                            failed_invites += 1
+                            errors.append(f"Row {row_number}: Error creating user for '{email}': {str(e)}")
+                
+                # Prepare results summary
+                results = {
+                    'total_processed': successful_invites + failed_invites + invalid_emails + existing_users,
+                    'successful_invites': successful_invites,
+                    'failed_invites': failed_invites,
+                    'invalid_emails': invalid_emails,
+                    'existing_users': existing_users,
+                    'organization': organization,
+                    'default_role': default_role,
+                    'errors': errors[:20]  # Show only first 20 errors
+                }
+                
+                # Display summary message
+                if successful_invites > 0:
+                    messages.success(
+                        request, 
+                        f"✅ CSV processing completed! {successful_invites} users invited successfully to {organization.name}."
+                    )
+                
+                if failed_invites > 0 or invalid_emails > 0 or existing_users > 0:
+                    messages.warning(
+                        request,
+                        f"⚠️ Issues found: {invalid_emails} invalid emails, {existing_users} existing users, {failed_invites} creation errors."
+                    )
+                    
+            except Exception as e:
+                messages.error(request, f"Error processing CSV file: {str(e)}")
+                results = None
+    
+    else:
+        # Check if organization is passed as GET parameter for preselection
+        org_id = request.GET.get('org')
+        initial_data = {}
+        
+        if org_id:
+            try:
+                preselected_org = Organization.objects.get(id=org_id, is_active=True)
+                initial_data['organization'] = preselected_org
+            except Organization.DoesNotExist:
+                pass
+        
+        form = CSVBulkInviteForm(initial=initial_data)
+    
+    context = {
+        'form': form,
+        'results': results,
+        'preselected_org': request.GET.get('org'),  # Pass to template for additional context
+    }
+    return render(request, 'organizations/csv_bulk_invite.html', context)
 
 
 @login_required

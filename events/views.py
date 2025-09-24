@@ -8,6 +8,7 @@ from django.utils import timezone
 from .models import Event, EventRegistration
 from .forms import EventForm
 
+@login_required
 def dashboard_view(request):
     """
     Vista principal del dashboard de eventos
@@ -137,6 +138,7 @@ def my_events_view(request):
     return render(request, 'events/my_events.html', context)
 
 
+@login_required
 def register_event_view(request, event_id):
     """
     Vista para registrar usuario en un evento
@@ -145,10 +147,6 @@ def register_event_view(request, event_id):
     - Redirige al detalle del evento después del registro
     """
     user = request.user
-    if not user.is_authenticated:
-        messages.error(request, "You need to log in")
-        return redirect('login')
-    
     event = get_object_or_404(Event, id=event_id)
 
     # Verificar que el evento no haya expirado
@@ -190,6 +188,7 @@ def unregister_event_view(request, event_id):
 
     return redirect('events:my_events')
 
+@login_required
 def create_event_view(request):
     """
     Vista para crear un nuevo evento
@@ -255,6 +254,7 @@ def _is_staff_user(user):
     return staff_roles.exists()
 
 
+@login_required
 def edit_event_view(request, event_id):
     """
     Vista para editar un evento existente
@@ -295,6 +295,7 @@ def edit_event_view(request, event_id):
     return render(request, 'events/edit_event.html', {'form': form, 'event': event, 'is_staff_user': _is_staff_user(request.user)})
 
 
+@login_required
 def delete_event_view(request, event_id):
     """
     Vista para eliminar un evento

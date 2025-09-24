@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from organizations.models import UserRole
+import time
 
 def login_view(request):
     """
@@ -108,3 +112,43 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have successfully logged out.")
     return redirect('/')
+
+@login_required
+@csrf_exempt
+def refresh_session(request):
+    """
+    AJAX endpoint to refresh user session and prevent automatic logout
+    """
+    if request.method == 'POST':
+        # Update last activity time in session
+        request.session['last_activity'] = time.time()
+        
+        # Calculate remaining time until session expires (30 minutes = 1800 seconds)
+        remaining_time = 1800  # Reset to full 30 minutes
+        
+        return JsonResponse({
+            'status': 'success',
+            'remaining_time': remaining_time,
+            'message': 'Session refreshed successfully'
+        })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    })
+
+@login_required
+def check_session_status(request):
+    """
+    AJAX endpoint to check current session status
+    """
+    current_time = time.time()
+    last_activity = request.session.get('last_activity', current_time)
+    time_since_last_activity = current_time - last_activity
+    remaining_time = max(0, 1800 - time_since_last_activity)  # 1800 seconds = 30 minutes
+    
+    return JsonResponse({
+        'status': 'success',
+        'remaining_time': remaining_time,
+        'is_expired': remaining_time <= 0
+    })

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block title %}SphereLink{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -167,5 +168,240 @@
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  {% if user.is_authenticated %}
+  <script>
+    console.log('🚀 Session timeout script loaded');
+    
+    // Variables globales
+    let timeoutWarning;
+    let timeoutLogout;
+    let countdownInterval;
+    let isModalVisible = false;
+    
+    // Configuración - 30 minutos (producción)
+    const WARNING_TIME = 28 * 60 * 1000; // 28 minutos (1680 segundos) para mostrar modal
+    const LOGOUT_TIME = 30 * 60 * 1000; // 30 minutos (1800 segundos) para logout total
+    const COUNTDOWN_SECONDS = 120; // 2 minutos de cuenta regresiva
+    
+    // Crear modal directamente en el HTML (sin Bootstrap Modal)
+    function createTimeoutModal() {
+      console.log('📝 Creating timeout modal...');
+      
+      const modalHTML = `
+        <div id="sessionTimeoutOverlay" style="
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.8);
+          z-index: 9999;
+          justify-content: center;
+          align-items: center;
+        ">
+          <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            margin: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          ">
+            <div style="color: #ff6b35; font-size: 4rem; margin-bottom: 20px;">⚠️</div>
+            <h2 style="color: #333; margin-bottom: 15px;">¡Advertencia de Sesión!</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 20px;">
+              Tu sesión expirará en <strong id="timeoutCountdown" style="color: #ff6b35; font-size: 2rem;">0:05</strong>
+            </p>
+            <p style="margin-bottom: 30px; color: #666;">
+              ¿Deseas continuar con tu sesión?
+            </p>
+            <div>
+              <button onclick="extendUserSession()" style="
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 15px 30px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+                margin: 0 10px;
+                cursor: pointer;
+                font-weight: bold;
+              ">
+                ✅ Sí, Mantener Sesión
+              </button>
+              <button onclick="logoutUserNow()" style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 15px 30px;
+                font-size: 1.1rem;
+                border-radius: 8px;
+                margin: 0 10px;
+                cursor: pointer;
+                font-weight: bold;
+              ">
+                ❌ Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+      console.log('✅ Modal created and added to DOM');
+    }
+    
+    // Mostrar modal de advertencia
+    function showTimeoutWarning() {
+      if (isModalVisible) return;
+      
+      console.log('⚠️ SHOWING TIMEOUT WARNING MODAL');
+      isModalVisible = true;
+      
+      const overlay = document.getElementById('sessionTimeoutOverlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        
+        // Iniciar cuenta regresiva
+        let seconds = COUNTDOWN_SECONDS;
+        updateCountdownDisplay(seconds);
+        
+        countdownInterval = setInterval(() => {
+          seconds--;
+          updateCountdownDisplay(seconds);
+          
+          if (seconds <= 0) {
+            console.log('⏰ Countdown finished - Auto logout');
+            logoutUserNow();
+          }
+        }, 1000);
+      } else {
+        console.error('❌ Modal overlay not found!');
+      }
+    }
+    
+    // Actualizar display de cuenta regresiva
+    function updateCountdownDisplay(seconds) {
+      const countdownEl = document.getElementById('timeoutCountdown');
+      if (countdownEl) {
+        const display = `0:${seconds.toString().padStart(2, '0')}`;
+        countdownEl.textContent = display;
+      }
+    }
+    
+    // Ocultar modal
+    function hideTimeoutModal() {
+      console.log('🙈 Hiding timeout modal');
+      isModalVisible = false;
+      
+      const overlay = document.getElementById('sessionTimeoutOverlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
+      
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+    }
+    
+    // Extender sesión
+    function extendUserSession() {
+      console.log('🔄 User chose to extend session');
+      hideTimeoutModal();
+      
+      // Hacer petición AJAX
+      fetch('{% url "registration:refresh_session" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('✅ Session refresh response:', data);
+        if (data.status === 'success') {
+          startSessionTimers(); // Reiniciar timers
+          alert('✅ Sesión extendida correctamente');
+        } else {
+          logoutUserNow();
+        }
+      })
+      .catch(error => {
+        console.error('❌ Error refreshing session:', error);
+        logoutUserNow();
+      });
+    }
+    
+    // Logout inmediato
+    function logoutUserNow() {
+      console.log('🚪 Logging out user NOW');
+      clearAllSessionTimers();
+      window.location.href = '{% url "registration:logout" %}';
+    }
+    
+    // Limpiar todos los timers
+    function clearAllSessionTimers() {
+      if (timeoutWarning) clearTimeout(timeoutWarning);
+      if (timeoutLogout) clearTimeout(timeoutLogout);
+      if (countdownInterval) clearInterval(countdownInterval);
+      timeoutWarning = timeoutLogout = countdownInterval = null;
+    }
+    
+    // Iniciar timers de sesión
+    function startSessionTimers() {
+      console.log('⏰ Starting session timers...');
+      clearAllSessionTimers();
+      
+      // Timer para mostrar advertencia
+      timeoutWarning = setTimeout(() => {
+        console.log('⚠️ WARNING TIME REACHED - Showing modal');
+        showTimeoutWarning();
+      }, WARNING_TIME);
+      
+      // Timer para logout automático
+      timeoutLogout = setTimeout(() => {
+        console.log('⏰ LOGOUT TIME REACHED - Auto logout');
+        logoutUserNow();
+      }, LOGOUT_TIME);
+      
+      console.log(`⏰ Timers set: Warning in ${WARNING_TIME/1000}s, Logout in ${LOGOUT_TIME/1000}s`);
+    }
+    
+    // Resetear timers por actividad
+    function resetSessionTimers() {
+      if (!isModalVisible) {
+        console.log('👆 User activity detected - Resetting timers');
+        startSessionTimers();
+      }
+    }
+    
+    // Hacer funciones globales
+    window.extendUserSession = extendUserSession;
+    window.logoutUserNow = logoutUserNow;
+    
+    // Inicializar cuando DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🎯 DOM loaded - Initializing session timeout system');
+      
+      // Crear modal
+      createTimeoutModal();
+      
+      // Iniciar timers
+      startSessionTimers();
+      
+      // Agregar listeners de actividad
+      ['click', 'keypress', 'mousemove', 'scroll', 'touchstart'].forEach(event => {
+        document.addEventListener(event, resetSessionTimers, true);
+      });
+      
+      console.log('🚀 Session timeout system initialized successfully!');
+    });
+  </script>
+  {% endif %}
 </body>
 </html>
