@@ -37,22 +37,22 @@ class Event(models.Model):
     
     @property
     def current_registrations(self):
-        """Retorna el número actual de registros"""
+        """Returns the current number of registrations"""
         return self.registrations.count()
     
     @property
     def available_spots(self):
-        """Retorna el número de lugares disponibles"""
+        """Returns the number of available spots"""
         return max(0, self.max_capacity - self.current_registrations)
     
     @property
     def is_full(self):
-        """Retorna True si el evento está lleno"""
+        """Returns True if the event is full"""
         return self.current_registrations >= self.max_capacity
     
     @property
     def registration_percentage(self):
-        """Retorna el porcentaje de ocupación del evento"""
+        """Returns the event occupancy percentage"""
         if self.max_capacity == 0:
             return 0
         return (self.current_registrations / self.max_capacity) * 100
@@ -63,7 +63,7 @@ class EventRegistration(models.Model):
     registered_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'event')  # Previene inscripciones duplicadas
+        unique_together = ('user', 'event')  # Prevents duplicate registrations
 
     def __str__(self):
         return f"{self.user.username} registered for {self.event.title}"

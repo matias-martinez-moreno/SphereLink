@@ -11,27 +11,27 @@ from .forms import EventForm
 @login_required
 def dashboard_view(request):
     """
-    Vista principal del dashboard de eventos
-    - Para Super Admin: muestra todos los eventos del sistema
-    - Para Staff y Member: muestra solo eventos de su organización
-    - Permite búsqueda y filtrado por tipo
-    - Ordena eventos por fecha (más recientes primero)
+    Main events dashboard view
+    - For Super Admin: shows all system events
+    - For Staff and Member: shows only events from their organization
+    - Allows search and filtering by type
+    - Orders events by date (most recent first)
     """
-    # Obtener parámetros de búsqueda y filtros del usuario
+    # Get search parameters and filters from user
     search_query = request.GET.get('search', '')
     event_type = request.GET.get('type', '')
     
-    # Determinar qué eventos mostrar según el rol del usuario
+    # Determine which events to show based on user role
     if request.user.is_superuser:
-        # Super Admin ve todos los eventos del sistema
+        # Super Admin sees all system events
         events = Event.objects.all().order_by('-date')
         user_organization = None
         is_super_admin = True
     else:
-        # Staff y Member ven eventos de su organización
+        # Staff and Member see events from their organization
         from organizations.models import UserRole
         
-        # Obtener la organización activa del usuario
+        # Get user's active organization
         user_role = UserRole.objects.filter(
             user=request.user,
             is_active=True,
@@ -39,22 +39,22 @@ def dashboard_view(request):
         ).first()
         
         if user_role:
-            # Mostrar eventos de la organización del usuario (incluyendo los que creó)
+            # Show events from user's organization (including those they created)
             events = Event.objects.filter(
                 organization=user_role.organization
             ).order_by('-date')
             user_organization = user_role.organization
             is_super_admin = False
         else:
-            # Usuario sin organización activa - mostrar eventos sin organización
-            # Esto incluye eventos creados por usuarios que no pertenecen a ninguna organización
+            # User without active organization - show events without organization
+            # This includes events created by users who don't belong to any organization
             events = Event.objects.filter(
                 organization__isnull=True
             ).order_by('-date')
             user_organization = None
             is_super_admin = False
     
-    # Aplicar filtro de búsqueda si se especifica
+    # Apply search filter if specified
     if search_query:
         events = events.filter(
             Q(title__icontains=search_query) |
@@ -62,11 +62,11 @@ def dashboard_view(request):
             Q(location__icontains=search_query)
         )
     
-    # Aplicar filtro por tipo de evento si se especifica
+    # Apply event type filter if specified
     if event_type:
         events = events.filter(event_type=event_type)
     
-    # Obtener tipos de eventos para el filtro del frontend
+    # Get event types for frontend filter
     event_types = Event.EVENT_TYPES
     
     context = {
@@ -82,14 +82,14 @@ def dashboard_view(request):
     return render(request, 'events/dashboard.html', context)
 
 def profile_view(request):
-    """Redirige al perfil real en la app de profiles"""
+    """Redirect to the real profile in the profiles app"""
     return redirect('profiles:my_profile')
 
 def events_list_view(request):
     """
-    Vista de lista de eventos futuros
-    - Muestra solo eventos que aún no han ocurrido
-    - Ordenados por fecha ascendente
+    Future events list view
+    - Shows only events that haven't occurred yet
+    - Ordered by date ascending
     """
     events = Event.objects.filter(date__gte=timezone.now()).order_by('date')
     return render(request, 'events/events_list.html', {'events': events})
@@ -97,15 +97,15 @@ def events_list_view(request):
 
 def event_detail_view(request, event_id):
     """
-    Vista detallada de un evento específico
-    - Muestra toda la información del evento
-    - Indica si el usuario actual está registrado
-    - Incluye tipos de eventos para el frontend
+    Detailed view of a specific event
+    - Shows all event information
+    - Indicates if the current user is registered
+    - Includes event types for the frontend
     """
     event = get_object_or_404(Event, id=event_id)
     user_registered = False
     
-    # Verificar si el usuario está registrado en este evento
+    # Check if user is registered for this event
     if request.user.is_authenticated:
         user_registered = event.registrations.filter(user=request.user).exists()
     
@@ -121,10 +121,10 @@ def event_detail_view(request, event_id):
 @login_required
 def my_events_view(request):
     """
-    Vista de eventos del usuario autenticado
-    - Muestra eventos creados por el usuario
-    - Muestra eventos en los que el usuario está registrado
-    - Incluye información sobre permisos de staff
+    Authenticated user's events view
+    - Shows events created by the user
+    - Shows events the user is registered for
+    - Includes information about staff permissions
     """
     user = request.user
     created_events = Event.objects.filter(created_by=user).order_by('-created_at')
@@ -141,26 +141,26 @@ def my_events_view(request):
 @login_required
 def register_event_view(request, event_id):
     """
-    Vista para registrar usuario en un evento
-    - Verifica que el usuario esté autenticado
-    - Previene registros duplicados
-    - Redirige al detalle del evento después del registro
+    View to register user for an event
+    - Verifies user is authenticated
+    - Prevents duplicate registrations
+    - Redirects to event detail after registration
     """
     user = request.user
     event = get_object_or_404(Event, id=event_id)
 
-    # Verificar que el evento no haya expirado
+    # Check that the event hasn't expired
     if event.date < timezone.now():
         messages.error(request, "This event has already passed and you cannot register for it.")
         return redirect('events:event_detail', event_id=event_id)
 
-    # Verificar si ya está registrado para evitar duplicados
+    # Check if already registered to avoid duplicates
     already_registered = event.registrations.filter(user=user).exists()
 
     if already_registered:
         messages.info(request, "You are already registered for this event.")
     else:
-        # Crear inscripción del usuario al evento
+        # Create user registration for the event
         event.registrations.create(user=user)
         messages.success(request, "You have successfully registered for the event.")
 
@@ -170,16 +170,16 @@ def register_event_view(request, event_id):
 @login_required
 def unregister_event_view(request, event_id):
     """
-    Vista para cancelar registro en un evento
-    - Elimina la inscripción del usuario
-    - Solo funciona si el usuario estaba registrado
-    - Redirige a mis eventos después de la cancelación
+    View to cancel event registration
+    - Removes user registration
+    - Only works if user was registered
+    - Redirects to my events after cancellation
     """
     user = request.user
     event = get_object_or_404(Event, id=event_id)
 
     try:
-        # Buscar y eliminar la inscripción
+        # Find and delete the registration
         registration = EventRegistration.objects.get(event=event, user=user)
         registration.delete()
         messages.success(request, f"You have successfully unregistered from the event '{event.title}'.")
@@ -191,11 +191,11 @@ def unregister_event_view(request, event_id):
 @login_required
 def create_event_view(request):
     """
-    Vista para crear un nuevo evento
-    - Solo usuarios autenticados pueden crear eventos
-    - Los eventos de staff se marcan automáticamente como oficiales
-    - Asigna automáticamente la organización del usuario al evento
-    - Usa el formulario EventForm con validaciones
+    View to create a new event
+    - Only authenticated users can create events
+    - Staff events are automatically marked as official
+    - Automatically assigns user's organization to the event
+    - Uses EventForm with validations
     """
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, user=request.user)
@@ -203,7 +203,7 @@ def create_event_view(request):
             new_event = form.save(commit=False)
             new_event.created_by = request.user
             
-            # Asignar automáticamente la organización del usuario al evento
+            # Automatically assign user's organization to the event
             from organizations.models import UserRole
             user_role = UserRole.objects.filter(
                 user=request.user,
@@ -213,9 +213,9 @@ def create_event_view(request):
             
             if user_role:
                 new_event.organization = user_role.organization
-                # El evento aparecerá automáticamente en el dashboard de la organización
+                # Event will automatically appear in organization dashboard
             
-            # Marcar automáticamente como oficial si es staff
+            # Automatically mark as official if user is staff
             if _is_staff_user(request.user):
                 new_event.is_official = True
             else:
@@ -223,7 +223,7 @@ def create_event_view(request):
             
             new_event.save()
             return redirect('events:my_events')
-        # Los errores del formulario se muestran automáticamente en el template
+        # Form errors are automatically displayed in the template
         pass
     else:
         form = EventForm(user=request.user)
@@ -232,19 +232,19 @@ def create_event_view(request):
 
 def _is_staff_user(user):
     """
-    Verifica si el usuario tiene rol de staff o superior
-    - Retorna True si es superuser de Django
-    - Retorna True si tiene rol staff, org_admin o super_admin en alguna organización
-    - Retorna False si no está autenticado o no tiene permisos
+    Check if user has staff role or higher
+    - Returns True if user is Django superuser
+    - Returns True if user has staff, org_admin or super_admin role in any organization
+    - Returns False if not authenticated or has no permissions
     """
     if not user.is_authenticated:
         return False
     
-    # Verificar si es superuser de Django (acceso completo)
+    # Check if user is Django superuser (full access)
     if user.is_superuser:
         return True
     
-    # Verificar roles en organizaciones (sistema de permisos personalizado)
+    # Check roles in organizations (custom permission system)
     from organizations.models import UserRole
     staff_roles = UserRole.objects.filter(
         user=user,
@@ -257,14 +257,14 @@ def _is_staff_user(user):
 @login_required
 def edit_event_view(request, event_id):
     """
-    Vista para editar un evento existente
-    - Solo el creador del evento puede editarlo
-    - Usa el mismo formulario que la creación
-    - Mantiene el historial de cambios
+    View to edit an existing event
+    - Only the event creator can edit it
+    - Uses the same form as creation
+    - Maintains change history
     """
     event = get_object_or_404(Event, id=event_id)
 
-    # Verificar permisos: solo el creador puede editar
+    # Check permissions: only creator can edit
     if event.created_by != request.user:
         messages.error(request, "You don't have permission to edit this event.")
         return redirect('events:my_events')
@@ -274,7 +274,7 @@ def edit_event_view(request, event_id):
         if form.is_valid():
             updated_event = form.save(commit=False)
             
-            # Asignar la organización del usuario al evento si no tiene una
+            # Assign user's organization to event if it doesn't have one
             if not updated_event.organization:
                 from organizations.models import UserRole
                 user_role = UserRole.objects.filter(
@@ -298,14 +298,14 @@ def edit_event_view(request, event_id):
 @login_required
 def delete_event_view(request, event_id):
     """
-    Vista para eliminar un evento
-    - Solo el creador o usuarios staff pueden eliminar
-    - Requiere confirmación antes de eliminar
-    - Elimina permanentemente el evento y sus registros
+    View to delete an event
+    - Only creator or staff users can delete
+    - Requires confirmation before deletion
+    - Permanently deletes the event and its registrations
     """
     event = get_object_or_404(Event, id=event_id)
 
-    # Verificar permisos: creador o staff
+    # Check permissions: creator or staff
     if not (event.created_by == request.user or _is_staff_user(request.user)):
         messages.error(request, "You don't have permission to delete this event.")
         return redirect('events:my_events')
@@ -320,25 +320,25 @@ def delete_event_view(request, event_id):
             messages.error(request, f"Error deleting event: {str(e)}")
             return redirect('events:my_events')
 
-    # Mostrar confirmación antes de eliminar el evento
+    # Show confirmation before deleting the event
     return render(request, 'events/delete_event_confirm.html', {'event': event})
 
 @login_required
 def event_registrations_view(request, event_id):
     """
-    Vista para mostrar los registros de un evento específico
-    - Solo el creador del evento puede ver esta información
-    - Muestra lista de participantes registrados
-    - Incluye estadísticas de ocupación
+    View to show registrations for a specific event
+    - Only the event creator can see this information
+    - Shows list of registered participants
+    - Includes occupancy statistics
     """
     event = get_object_or_404(Event, id=event_id)
     
-    # Verificar permisos: solo el creador puede ver los registros
+    # Check permissions: only creator can view registrations
     if event.created_by != request.user:
         messages.error(request, "You don't have permission to view registrations for this event.")
         return redirect('events:my_events')
     
-    # Obtener todos los registros del evento
+    # Get all event registrations
     registrations = event.registrations.select_related('user').order_by('registered_at')
     
     context = {
@@ -353,9 +353,9 @@ def event_registrations_view(request, event_id):
 @login_required
 def export_attendees_csv(request, event_id):
     """
-    Export a CSV file of all registered attendees for an event.
-    - Only accessible to the event creator or staff users.
-    - The CSV contains 'Name' and 'Email' of each registered user.
+    Export a CSV file of all registered attendees for an event
+    - Only accessible to the event creator or staff users
+    - The CSV contains 'Name' and 'Email' of each registered user
     """
     event = get_object_or_404(Event, id=event_id)
     user = request.user

@@ -4,14 +4,14 @@ from .models import Event
 
 class EventForm(forms.ModelForm):
     """
-    Formulario para crear y editar eventos
-    - Incluye todos los campos necesarios para un evento
-    - El campo is_official solo se muestra para usuarios staff
-    - Usa widgets personalizados con clases CSS de Bootstrap
+    Form for creating and editing events
+    - Includes all necessary fields for an event
+    - The is_official field is only shown for staff users
+    - Uses custom widgets with Bootstrap CSS classes
     """
     class Meta:
         model = Event
-        # Excluimos los campos que no deben ser llenados por el usuario
+        # Exclude fields that should not be filled by the user
         exclude = ['created_by', 'created_at', 'updated_at']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -34,22 +34,22 @@ class EventForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         """
-        Inicialización personalizada del formulario
-        - Recibe el usuario actual para determinar permisos
-        - Oculta el campo is_official para usuarios no-staff
-        - Mantiene la funcionalidad estándar del formulario
+        Custom form initialization
+        - Receives current user to determine permissions
+        - Hides is_official field for non-staff users
+        - Maintains standard form functionality
         """
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
-        # Solo mostrar campo is_official para staff y super_admin
-        # Esto controla qué usuarios pueden marcar eventos como oficiales
+        # Only show is_official field for staff and super_admin
+        # This controls which users can mark events as official
         if not user or not self._is_staff_user(user):
             self.fields.pop('is_official', None)
     def clean_date(self):
         """
-        Validación para la fecha del evento
-        - No puede ser una fecha en el pasado
+        Validation for event date
+        - Cannot be a date in the past
         """
         date = self.cleaned_data.get('date')
         if date and date < timezone.now():
@@ -59,9 +59,9 @@ class EventForm(forms.ModelForm):
     
     def clean_max_capacity(self):
         """
-        Validación personalizada para la capacidad máxima
-        - Debe ser un número positivo
-        - Mínimo 1 participante
+        Custom validation for maximum capacity
+        - Must be a positive number
+        - Minimum 1 participant
         """
         max_capacity = self.cleaned_data.get('max_capacity')
         
@@ -69,7 +69,7 @@ class EventForm(forms.ModelForm):
             if max_capacity < 1:
                 raise forms.ValidationError("Maximum capacity must be at least 1 participant.")
             
-            # Si es una edición, verificar que no sea menor que los registros actuales
+            # If editing, verify it's not less than current registrations
             if self.instance and self.instance.pk:
                 current_registrations = self.instance.current_registrations
                 if max_capacity < current_registrations:
@@ -81,20 +81,20 @@ class EventForm(forms.ModelForm):
     
     def _is_staff_user(self, user):
         """
-        Verifica si el usuario tiene rol de staff o superior
-        - Retorna True si es superuser de Django
-        - Retorna True si tiene rol staff, org_admin o super_admin en alguna organización
-        - Retorna False si no está autenticado o no tiene permisos
+        Check if user has staff role or higher
+        - Returns True if user is Django superuser
+        - Returns True if user has staff, org_admin or super_admin role in any organization
+        - Returns False if not authenticated or has no permissions
         """
         if not user.is_authenticated:
             return False
         
-        # Verificar si es superuser de Django (acceso completo al sistema)
+        # Check if user is Django superuser (full system access)
         if user.is_superuser:
             return True
         
-        # Verificar roles en organizaciones (sistema de permisos personalizado)
-        # Solo usuarios con roles administrativos pueden marcar eventos como oficiales
+        # Check roles in organizations (custom permission system)
+        # Only users with administrative roles can mark events as official
         from organizations.models import UserRole
         staff_roles = UserRole.objects.filter(
             user=user,

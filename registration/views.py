@@ -4,22 +4,27 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
 from organizations.models import UserRole
+from .models import ContactMessage
+from .forms import ContactForm
 import time
 
 def login_view(request):
     """
-    Vista de inicio de sesión principal
-    - Verifica credenciales del usuario
-    - Para superadmin: solo verifica contraseña, no requiere organización
-    - Para otros usuarios: verifica que pertenezcan a una organización activa
-    - Redirige según el rol del usuario (super_admin va a organizations, otros a events)
+    Main login view
+    - Verifies user credentials
+    - For superadmin: only verifies password, no organization required
+    - For other users: verifies they belong to an active organization
+    - Redirects according to user role (super_admin goes to organizations, others to events)
     """
-    # Si el usuario ya está autenticado, redirigir al dashboard
+    # If user is already authenticated, redirect to dashboard
     if request.user.is_authenticated:
         return redirect('/events/dashboard/')
     
-    # Limpiar mensajes existentes al cargar la página de login (solo en GET)
+    # Clear existing messages when loading login page (only on GET)
     if request.method == 'GET':
         try:
             storage = messages.get_messages(request)
@@ -33,17 +38,17 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         
-        # Autenticar usuario con las credenciales proporcionadas
+        # Authenticate user with provided credentials
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
-            # CASO ESPECIAL: Si es superadmin, permitir acceso inmediato
+            # SPECIAL CASE: If superadmin, allow immediate access
             if user.is_superuser:
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.username}! Access as Super Administrator")
                 return redirect('organizations:organization_list')
             
-            # Para usuarios NO superadmin: verificar que pertenezcan a una organización activa
+            # For NON-superadmin users: verify they belong to an active organization
             user_roles = UserRole.objects.filter(
                 user=user, 
                 is_active=True,
@@ -51,56 +56,56 @@ def login_view(request):
             ).select_related('organization')
             
             if user_roles.exists():
-                # Usuario tiene acceso a al menos una organización
+                # User has access to at least one organization
                 login(request, user)
                 
-                # Determinar el rol más alto del usuario para personalizar el mensaje
-                # Si tiene múltiples roles, priorizar super_admin
+                # Determine user's highest role to customize message
+                # If has multiple roles, prioritize super_admin
                 role = user_roles.first()
                 
-                # Verificar si tiene rol super_admin en alguna organización
+                # Check if has super_admin role in any organization
                 has_super_admin = user_roles.filter(role='super_admin').exists()
                 
                 if has_super_admin:
-                    # Si tiene super_admin, usar ese rol para el mensaje
+                    # If has super_admin, use that role for the message
                     super_admin_role = user_roles.filter(role='super_admin').first()
                     role_name = super_admin_role.get_role_display()
                     org_name = super_admin_role.organization.name
                 else:
-                    # Si no tiene super_admin, usar el primer rol
+                    # If no super_admin, use first role
                     role_name = role.get_role_display()
                     org_name = role.organization.name
                 
                 messages.success(request, f"Welcome back, {user.username}! Access as {role_name} in {org_name}")
                 
-                # Redirigir según el rol del usuario
-                # SOLO super_admin va a organizaciones, staff y member van a eventos
+                # Redirect according to user role
+                # ONLY super_admin goes to organizations, staff and member go to events
                 if has_super_admin:
-                    # Super admins van al panel de organizaciones
+                    # Super admins go to organization panel
                     return redirect('organizations:organization_list')
                 else:
-                    # Staff y Member van al dashboard de eventos
+                    # Staff and Member go to events dashboard
                     return redirect('/events/dashboard/')
             else:
-                # Usuario no tiene acceso a ninguna organización activa
-                # Esto puede suceder si todas sus organizaciones están desactivadas
+                # User doesn't have access to any active organization
+                # This can happen if all their organizations are deactivated
                 messages.error(request, "Your account doesn't have access to any active organization. Contact the administrator.")
         else:
-            # Credenciales inválidas
+            # Invalid credentials
             messages.error(request, "Invalid username or password. Please try again.")
     
-    # Renderizar el formulario de login (GET) o con errores (POST)
+    # Render login form (GET) or with errors (POST)
     return render(request, 'registration/login.html')
 
 def logout_view(request):
     """
-    Vista de cierre de sesión
-    - Cierra la sesión del usuario actual
-    - Limpia todos los mensajes existentes
-    - Redirige a la página de login
-    - Muestra mensaje de confirmación
+    Logout view
+    - Closes current user session
+    - Clears all existing messages
+    - Redirects to login page
+    - Shows confirmation message
     """
-    # Limpiar todos los mensajes existentes antes del logout
+    # Clear all existing messages before logout
     try:
         storage = messages.get_messages(request)
         storage.used = True
@@ -152,3 +157,78 @@ def check_session_status(request):
         'remaining_time': remaining_time,
         'is_expired': remaining_time <= 0
     })
+
+def contact_admin(request):
+    """
+    Handle contact form submission from users who need help with login or account issues
+    - Creates a ContactMessage record
+    - Sends email notification to system administrators
+    - Returns success message to user
+    """
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            try:
+                # Save the contact message
+                contact_message = form.save()
+                
+                # Send email notification to administrators
+                admin_email = getattr(settings, 'ADMIN_EMAIL', 'admin@spherelink.com')
+                subject = f"SphereLink Contact Request: {contact_message.subject}"
+                
+                # Create email content
+                context = {
+                    'contact_message': contact_message,
+                    'site_name': 'SphereLink',
+                    'admin_email': admin_email
+                }
+                
+                message_content = f"""
+A new contact request has been submitted through the SphereLink login page.
+
+Contact Details:
+- Email: {contact_message.email}
+- Subject: {contact_message.subject}
+- Message: {contact_message.message}
+- Submitted: {contact_message.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+
+Please respond to this user at: {contact_message.email}
+
+You can view and manage this contact request in the Django admin panel.
+
+Best regards,
+SphereLink System
+                """
+                
+                # Send email to administrators
+                send_mail(
+                    subject=subject,
+                    message=message_content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[admin_email],
+                    fail_silently=False,
+                )
+                
+                # Return success response
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Your message has been sent. An administrator will contact you shortly.'
+                })
+                
+            except Exception as e:
+                # Log the error and return error response
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'There was an error sending your message. Please try again later.'
+                })
+        else:
+            # Return form errors
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Please correct the errors below.',
+                'errors': form.errors
+            })
+    
+    # If GET request, return the form
+    form = ContactForm()
+    return render(request, 'registration/contact_form.html', {'form': form})

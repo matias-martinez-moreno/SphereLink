@@ -517,6 +517,56 @@ def bulk_invite_confirm_view(request):
     
     return render(request, 'organizations/bulk_invite.html')
 
+@login_required
+def contact_messages_view(request):
+    """
+    View to display and manage contact messages for Super Admin
+    - Shows all contact messages with their status
+    - Allows Super Admin to update message status and add notes
+    - Only accessible for Super Admins
+    """
+    if not _is_super_admin(request.user):
+        messages.error(request, "Access denied. Super Admin privileges required.")
+        return redirect('events:dashboard')
+    
+    # Get all contact messages ordered by most recent first
+    from registration.models import ContactMessage
+    contact_messages = ContactMessage.objects.all().order_by('-created_at')
+    
+    # Handle status updates
+    if request.method == 'POST':
+        message_id = request.POST.get('message_id')
+        new_status = request.POST.get('status')
+        admin_notes = request.POST.get('admin_notes', '')
+        
+        if message_id and new_status:
+            try:
+                contact_message = ContactMessage.objects.get(id=message_id)
+                contact_message.status = new_status
+                if admin_notes:
+                    contact_message.admin_notes = admin_notes
+                contact_message.save()
+                messages.success(request, f"Contact message status updated to {new_status}.")
+            except ContactMessage.DoesNotExist:
+                messages.error(request, "Contact message not found.")
+    
+    # Get statistics
+    total_messages = contact_messages.count()
+    pending_messages = contact_messages.filter(status='pending').count()
+    in_progress_messages = contact_messages.filter(status='in_progress').count()
+    resolved_messages = contact_messages.filter(status='resolved').count()
+    
+    context = {
+        'contact_messages': contact_messages,
+        'total_messages': total_messages,
+        'pending_messages': pending_messages,
+        'in_progress_messages': in_progress_messages,
+        'resolved_messages': resolved_messages,
+        'status_choices': ContactMessage.STATUS_CHOICES,
+    }
+    
+    return render(request, 'organizations/contact_messages.html', context)
+
 
 @login_required
 def invite_user(request, org_id):
@@ -826,3 +876,53 @@ def bulk_invite_confirm_view(request):
         return redirect('events:dashboard')
     
     return render(request, 'organizations/bulk_invite.html')
+
+@login_required
+def contact_messages_view(request):
+    """
+    View to display and manage contact messages for Super Admin
+    - Shows all contact messages with their status
+    - Allows Super Admin to update message status and add notes
+    - Only accessible for Super Admins
+    """
+    if not _is_super_admin(request.user):
+        messages.error(request, "Access denied. Super Admin privileges required.")
+        return redirect('events:dashboard')
+    
+    # Get all contact messages ordered by most recent first
+    from registration.models import ContactMessage
+    contact_messages = ContactMessage.objects.all().order_by('-created_at')
+    
+    # Handle status updates
+    if request.method == 'POST':
+        message_id = request.POST.get('message_id')
+        new_status = request.POST.get('status')
+        admin_notes = request.POST.get('admin_notes', '')
+        
+        if message_id and new_status:
+            try:
+                contact_message = ContactMessage.objects.get(id=message_id)
+                contact_message.status = new_status
+                if admin_notes:
+                    contact_message.admin_notes = admin_notes
+                contact_message.save()
+                messages.success(request, f"Contact message status updated to {new_status}.")
+            except ContactMessage.DoesNotExist:
+                messages.error(request, "Contact message not found.")
+    
+    # Get statistics
+    total_messages = contact_messages.count()
+    pending_messages = contact_messages.filter(status='pending').count()
+    in_progress_messages = contact_messages.filter(status='in_progress').count()
+    resolved_messages = contact_messages.filter(status='resolved').count()
+    
+    context = {
+        'contact_messages': contact_messages,
+        'total_messages': total_messages,
+        'pending_messages': pending_messages,
+        'in_progress_messages': in_progress_messages,
+        'resolved_messages': resolved_messages,
+        'status_choices': ContactMessage.STATUS_CHOICES,
+    }
+    
+    return render(request, 'organizations/contact_messages.html', context)
