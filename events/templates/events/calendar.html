@@ -1,0 +1,420 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Calendar - SphereLink{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-dark mb-2">
+                <i class="fas fa-calendar-alt me-2"></i>Calendar
+            </h2>
+            <a href="{% url 'events:dashboard' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Calendar Navigation -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <div class="row align-items-center">
+                        <div class="col-3">
+                            <a href="{% url 'events:calendar' %}?year={{ prev_month.year }}&month={{ prev_month.month }}" 
+                               class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <select class="form-select form-select-sm" id="monthSelect" onchange="changeMonthYear()">
+                                        <option value="1" {% if month == 1 %}selected{% endif %}>January</option>
+                                        <option value="2" {% if month == 2 %}selected{% endif %}>February</option>
+                                        <option value="3" {% if month == 3 %}selected{% endif %}>March</option>
+                                        <option value="4" {% if month == 4 %}selected{% endif %}>April</option>
+                                        <option value="5" {% if month == 5 %}selected{% endif %}>May</option>
+                                        <option value="6" {% if month == 6 %}selected{% endif %}>June</option>
+                                        <option value="7" {% if month == 7 %}selected{% endif %}>July</option>
+                                        <option value="8" {% if month == 8 %}selected{% endif %}>August</option>
+                                        <option value="9" {% if month == 9 %}selected{% endif %}>September</option>
+                                        <option value="10" {% if month == 10 %}selected{% endif %}>October</option>
+                                        <option value="11" {% if month == 11 %}selected{% endif %}>November</option>
+                                        <option value="12" {% if month == 12 %}selected{% endif %}>December</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <select class="form-select form-select-sm" id="yearSelect" onchange="changeMonthYear()">
+                                        <option value="2024" {% if year == 2024 %}selected{% endif %}>2024</option>
+                                        <option value="2025" {% if year == 2025 %}selected{% endif %}>2025</option>
+                                        <option value="2026" {% if year == 2026 %}selected{% endif %}>2026</option>
+                                        <option value="2027" {% if year == 2027 %}selected{% endif %}>2027</option>
+                                        <option value="2028" {% if year == 2028 %}selected{% endif %}>2028</option>
+                                        <option value="2029" {% if year == 2029 %}selected{% endif %}>2029</option>
+                                        <option value="2030" {% if year == 2030 %}selected{% endif %}>2030</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" class="btn btn-outline-light btn-sm w-100" onclick="goToToday()">
+                                        <i class="fas fa-home me-1"></i>Today
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <a href="{% url 'events:calendar' %}?year={{ next_month.year }}&month={{ next_month.month }}" 
+                               class="btn btn-outline-light btn-sm">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    {% if events_by_day|length == 0 %}
+                    <!-- No Events Message -->
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted mb-3">No Events This Month</h4>
+                        <p class="text-muted mb-4">You haven't registered for any events this month.</p>
+                        <a href="{% url 'events:dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Browse Events
+                        </a>
+                    </div>
+                    {% else %}
+                    <!-- Weekday Headers -->
+                    <div class="calendar-header">
+                        {% for day_name in weekday_names %}
+                        <div class="calendar-day-header">{{ day_name }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Calendar Days -->
+                    <div class="calendar-grid">
+                        {% for week in weeks %}
+                            {% for day in week %}
+                                {% if day %}
+                                    <div class="calendar-day {% if day.has_events %}has-events{% endif %} {% if day.is_today %}today{% endif %}" 
+                                         data-year="{{ year }}" 
+                                         data-month="{{ month }}" 
+                                         data-day="{{ day.day }}">
+                                        <div class="day-number">{{ day.day }}</div>
+                                        {% if day.has_events %}
+                                            <div class="event-indicator">
+                                                <span class="event-count">{{ day.events|length }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="calendar-day empty"></div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Event Details Modal -->
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="eventDetailsModalLabel">
+                    Events for <span id="modalDate"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="eventsList">
+                    <!-- Events will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Simple Calendar Styles */
+.form-select {
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    font-weight: 400;
+}
+
+.form-select:focus {
+    border-color: #003364;
+    box-shadow: 0 0 0 0.2rem rgba(0, 51, 100, 0.25);
+    color: #495057;
+}
+
+.form-select option {
+    background: white;
+    color: #495057;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.calendar-day-header {
+    padding: 10px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    border-right: 1px solid #dee2e6;
+}
+
+.calendar-day-header:last-child {
+    border-right: none;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    min-height: 400px;
+}
+
+.calendar-day {
+    border-right: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px;
+    min-height: 60px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    background: white;
+}
+
+.calendar-day:last-child {
+    border-right: none;
+}
+
+.calendar-day:hover {
+    background: #f8f9fa;
+}
+
+.calendar-day.empty {
+    background: #f8f9fa;
+    cursor: default;
+}
+
+.calendar-day.empty:hover {
+    background: #f8f9fa;
+}
+
+.calendar-day.today {
+    background: #e3f2fd;
+    color: #1976d2;
+    font-weight: bold;
+}
+
+.calendar-day.has-events {
+    background: #e8f5e8;
+    border-left: 3px solid #28a745;
+}
+
+.calendar-day.has-events.today {
+    background: #c8e6c9;
+    border-left: 3px solid #1976d2;
+}
+
+.day-number {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.event-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
+.event-count {
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.calendar-day.today .event-count {
+    background: #1976d2;
+}
+
+.event-item {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 3px solid #007bff;
+}
+
+.event-item h6 {
+    color: #007bff;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.event-item .event-time {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.event-item .event-location {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.no-events {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.no-events i {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .calendar-day {
+        min-height: 50px;
+        padding: 5px;
+    }
+    
+    .day-number {
+        font-size: 0.9rem;
+    }
+    
+    .event-count {
+        width: 16px;
+        height: 16px;
+        font-size: 0.7rem;
+    }
+}
+</style>
+
+<script>
+function changeMonthYear() {
+    const year = document.getElementById('yearSelect').value;
+    const month = document.getElementById('monthSelect').value;
+    
+    window.location.href = `{% url 'events:calendar' %}?year=${year}&month=${month}`;
+}
+
+function goToToday() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1; // JavaScript months are 0-based
+    
+    window.location.href = `{% url 'events:calendar' %}?year=${year}&month=${month}`;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle calendar day clicks
+    document.querySelectorAll('.calendar-day:not(.empty)').forEach(function(dayElement) {
+        dayElement.addEventListener('click', function() {
+            const year = this.dataset.year;
+            const month = this.dataset.month;
+            const day = this.dataset.day;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
+            modal.show();
+            
+            // Load events for this day
+            loadDayEvents(year, month, day);
+        });
+    });
+    
+    function loadDayEvents(year, month, day) {
+        const eventsList = document.getElementById('eventsList');
+        const modalDate = document.getElementById('modalDate');
+        
+        // Show loading state
+        eventsList.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-spinner fa-spin fa-2x text-primary mb-3"></i>
+                <p class="text-muted">Loading events...</p>
+            </div>
+        `;
+        
+        // Set modal date
+        modalDate.textContent = `${month}/${day}/${year}`;
+        
+        // Fetch events for the day
+        fetch(`{% url "events:calendar_day_events" 0 0 0 %}`.replace('0/0/0', `${year}/${month}/${day}`))
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.events.length > 0) {
+                        eventsList.innerHTML = data.events.map(event => `
+                            <div class="event-item" onclick="window.location.href='${event.url}'">
+                                <h6>${event.title}</h6>
+                                <div class="event-time">
+                                    <i class="fas fa-clock me-1"></i>${event.time}
+                                </div>
+                                <div class="event-location">
+                                    <i class="fas fa-map-marker-alt me-1"></i>${event.location}
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        eventsList.innerHTML = `
+                            <div class="no-events">
+                                <i class="fas fa-calendar-times"></i>
+                                <h5>No Events</h5>
+                                <p>No events scheduled for this day.</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    eventsList.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading events: ${data.error}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                eventsList.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading events. Please try again.
+                    </div>
+                `;
+            });
+    }
+});
+</script>
+{% endblock %}

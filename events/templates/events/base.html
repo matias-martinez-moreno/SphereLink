@@ -5,12 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>{% block title %}SphereLink{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="{% static 'css/simple_style.css' %}" rel="stylesheet">
-    <link href="{% static 'css/global_colors.css' %}" rel="stylesheet">
+    <link href="{% static 'css/simple_style.css' %}?v=3" rel="stylesheet">
+    <link href="{% static 'css/global_colors.css' %}?v=3" rel="stylesheet">
     <style>
       :root {
         --primary-dark: #143c65;
@@ -32,24 +35,72 @@
         height: 100vh;
       }
       
-             .top-bar {
-         background: var(--primary-dark);
-         color: var(--text-light);
-         height: 70px;
-         display: flex;
-         align-items: center;
-         padding: 0 30px;
-         box-shadow: 0 4px 15px var(--shadow-color);
-         margin-bottom: 0;
-         position: relative;
-         z-index: 1000;
-       }
+      .top-bar {
+        background: #003364;
+        color: var(--text-light);
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        box-shadow: 0 4px 15px var(--shadow-color);
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1000;
+      }
+      
+      .top-bar-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-left: -20px;
+      }
+      
+      .logo-section img {
+        height: 50px;
+        width: auto;
+      }
       
       .top-bar h1 {
         margin: 0;
         font-size: 1.8rem;
         font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        color: var(--text-light);
+      }
+      
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: var(--accent-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: var(--primary-darker);
+      }
+      
+      .user-name {
+        font-weight: 600;
+        font-size: 0.95rem;
       }
       
       .main-container {
@@ -59,35 +110,61 @@
         margin-top: 0;
       }
       
-             nav {
-         width: 280px;
-         background: var(--primary-dark);
-         color: var(--text-light);
-         min-height: 100%;
-         height: 100%;
-         padding: 30px 20px;
-         box-sizing: border-box;
-         box-shadow: 4px 0 15px var(--shadow-color);
-         display: flex;
-         flex-direction: column;
-         position: relative;
-         z-index: 999;
-       }
+      nav {
+        width: 280px;
+        background: #003364;
+        color: var(--text-light);
+        min-height: 100%;
+        height: 100%;
+        padding: 40px 15px 25px 15px;
+        box-sizing: border-box;
+        box-shadow: 4px 0 15px var(--shadow-color);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 999;
+        border-right: 2px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .nav-header {
+        padding: 0 0 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+      }
+      
+      .nav-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+      
+      .nav-menu {
+        flex: 1;
+        padding: 10px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
       
       nav a {
         color: var(--text-muted);
         display: flex;
         align-items: center;
-        padding: 12px 15px;
+        padding: 15px 20px;
         text-decoration: none;
-        border-radius: 8px;
-        margin-bottom: 8px;
+        border-radius: 10px;
+        margin-bottom: 0;
         transition: all 0.3s ease;
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        border: 1px solid transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
       
       nav a i {
@@ -97,17 +174,37 @@
         margin-right: 12px;
       }
       
-             nav a:hover {
-         background: var(--accent-dark);
-         color: var(--text-light);
-         transform: translateX(5px);
-         border-color: var(--accent-blue);
-         box-shadow: 0 2px 8px rgba(132, 164, 176, 0.3);
-       }
+      nav a:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--text-light);
+        transform: translateX(8px);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
       
       nav a:active {
         transform: translateX(3px);
-        box-shadow: 0 1px 4px rgba(132, 164, 176, 0.4);
+        box-shadow: 0 1px 4px var(--shadow-color);
+      }
+      
+      .nav-footer {
+        padding: 20px 0 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: auto;
+      }
+      
+      .nav-footer a {
+        background: rgba(220, 53, 69, 0.1);
+        border-color: rgba(220, 53, 69, 0.2);
+      }
+      
+      .nav-footer a:hover {
+        background: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.4);
+      }
+      
+      .nav-footer a i {
+        color: #ff6b6b;
       }
       
       main {
@@ -117,49 +214,129 @@
         overflow-y: auto;
       }
       
-      /* Estilos adicionales para elementos decorativos */
-      .card {
-        border: none;
-        box-shadow: 0 4px 12px rgba(20, 60, 101, 0.1);
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .top-bar {
+          height: 70px;
+          padding: 0 20px;
+        }
+        
+        .top-bar h1 {
+          font-size: 1.4rem;
+        }
+        
+        .user-info {
+          padding: 6px 12px;
+        }
+        
+        .user-avatar {
+          width: 30px;
+          height: 30px;
+          font-size: 0.8rem;
+        }
+        
+        nav {
+          width: 250px;
+          padding: 20px 15px;
+        }
+        
+        nav a {
+          padding: 12px 15px;
+          font-size: 0.9rem;
+        }
+        
+        nav a i {
+          font-size: 1rem;
+          margin-right: 12px;
+        }
+        
+        main {
+          padding: 20px;
+        }
       }
       
-             .card-header {
-         background: var(--primary-dark);
-         color: var(--text-light);
-         border: none;
-       }
+      @media (max-width: 480px) {
+        .main-container {
+          flex-direction: column;
+        }
+        
+        nav {
+          width: 100%;
+          height: auto;
+          order: 2;
+        }
+        
+        main {
+          order: 1;
+          min-height: calc(100vh - 150px);
+        }
+        
+        .top-bar {
+          flex-direction: column;
+          height: auto;
+          padding: 15px 20px;
+        }
+        
+        .top-bar-content {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
       
-             .btn-primary {
-         background: var(--primary-dark);
-         border: none;
-       }
-       
-       .btn-primary:hover {
-         background: var(--accent-dark);
-         transform: translateY(-1px);
-         box-shadow: 0 4px 12px var(--shadow-color);
-       }
+      .card {
+        border: none;
+        box-shadow: 0 4px 12px var(--shadow-color);
+      }
+      
+      .card-header {
+        background: #003364;
+        color: var(--text-light);
+        border: none;
+      }
+      
+      .btn-primary {
+        background: #003364;
+        border: none;
+      }
+      
+      .btn-primary:hover {
+        background: #004a8a;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px var(--shadow-color);
+      }
     </style>
 </head>
 <body>
+     <!-- Navigation -->
      <div class="top-bar">
-          <img src="{% static 'events/logo2.png' %}" alt="SphereLink Logo" height="60" style="vertical-align: middle;">
+          <div class="top-bar-content">
+            <div class="logo-section">
+              <img src="{% static 'events/logo 1.png' %}" alt="SphereLink Logo">
+            </div>
+          </div>
    </div>
   
   <div class="main-container">
     <nav>
-      <a href="{% url 'events:dashboard' %}"><i class="bi bi-house-door-fill me-2"></i>Dashboard</a>
-      <a href="{% url 'events:create_event' %}"><i class="bi bi-plus-circle-fill me-2"></i>Create Event</a>
-      <a href="{% url 'events:my_events' %}"><i class="bi bi-calendar-event-fill me-2"></i>My Events</a>
-      <a href="{% url 'profiles:my_profile' %}"><i class="bi bi-person-fill me-2"></i>My Profile</a>
-      {% if user.is_authenticated %}
-        {% for role in user.organization_roles.all %}
-          {% if role.role == 'super_admin' %}
-            <a href="{% url 'organizations:organization_list' %}"><i class="bi bi-building me-2"></i>Organizations</a>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-      <a href="{% url 'registration:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+      <!-- Sidebar -->
+      <div class="nav-menu">
+        <a href="{% url 'events:dashboard' %}"><i class="bi bi-house-door-fill"></i>Dashboard</a>
+        <a href="{% url 'events:calendar' %}"><i class="bi bi-calendar3"></i>Calendar</a>
+        <a href="{% url 'events:create_event' %}"><i class="bi bi-plus-circle-fill"></i>Create Event</a>
+        <a href="{% url 'events:my_events' %}"><i class="bi bi-calendar-event-fill"></i>My Events</a>
+        <a href="{% url 'profiles:my_profile' %}"><i class="bi bi-person-fill"></i>My Profile</a>
+        {% if user.is_authenticated %}
+          {% for role in user.organization_roles.all %}
+            {% if role.role == 'super_admin' %}
+              <a href="{% url 'organizations:organization_list' %}"><i class="bi bi-building"></i>Organizations</a>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      <div class="nav-footer">
+        <a href="{% url 'registration:logout' %}"><i class="bi bi-box-arrow-right"></i>Logout</a>
+      </div>
     </nav>
     <main>
       {% block content %}
@@ -171,7 +348,7 @@
   
   {% if user.is_authenticated %}
   <script>
-    console.log('🚀 Session timeout script loaded');
+    console.log('Session timeout script loaded');
     
     // Variables globales
     let timeoutWarning;
@@ -399,7 +576,7 @@
         document.addEventListener(event, resetSessionTimers, true);
       });
       
-      console.log('🚀 Session timeout system initialized successfully!');
+      console.log('Session timeout system initialized successfully!');
     });
   </script>
   {% endif %}

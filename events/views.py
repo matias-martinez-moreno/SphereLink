@@ -1,11 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 import csv
 from django.db.models import Q
 from django.utils import timezone
-from .models import Event, EventRegistration
+from datetime import datetime, timedelta
+from calendar import monthrange
+from .models import Event, EventRegistration, EventComment
 from .forms import EventForm
 
 @login_required
@@ -101,6 +105,7 @@ def event_detail_view(request, event_id):
     - Shows all event information
     - Indicates if the current user is registered
     - Includes event types for the frontend
+    - Includes comments for the event
     """
     event = get_object_or_404(Event, id=event_id)
     user_registered = False
@@ -109,11 +114,15 @@ def event_detail_view(request, event_id):
     if request.user.is_authenticated:
         user_registered = event.registrations.filter(user=request.user).exists()
     
+    # Get comments for this event (ordered by most recent first)
+    comments = event.comments.select_related('author').all()
+    
     context = {
         'event': event,
         'event_types': Event.EVENT_TYPES,
         'is_staff_user': _is_staff_user(request.user),
         'user_registered': user_registered,
+        'comments': comments,
     }
     return render(request, 'events/event_detail.html', context)
 
@@ -381,3 +390,267 @@ def export_attendees_csv(request, event_id):
         writer.writerow([registration.user.get_full_name(), registration.user.email])
 
     return response
+
+
+@login_required
+@require_POST
+def post_comment(request, event_id):
+    """
+    Post a new comment on an event
+    - Only authenticated users can post comments
+    - Comment content is required and limited to 1000 characters
+    - Returns JSON response for AJAX handling
+    """
+    event = get_object_or_404(Event, id=event_id)
+    content = request.POST.get('content', '').strip()
+    
+    # Validate comment content
+    if not content:
+        return JsonResponse({
+            'success': False,
+            'error': 'Comment content cannot be empty.'
+        })
+    
+    if len(content) > 1000:
+        return JsonResponse({
+            'success': False,
+            'error': 'Comment content cannot exceed 1000 characters.'
+        })
+    
+    try:
+        # Create the comment
+        comment = EventComment.objects.create(
+            event=event,
+            author=request.user,
+            content=content
+        )
+        
+        # Return success response with comment data
+        return JsonResponse({
+            'success': True,
+            'message': 'Comment posted successfully.',
+            'comment': {
+                'id': comment.id,
+                'content': comment.content,
+                'author': comment.author.username,
+                'created_at': comment.formatted_created_at,
+                'can_delete': comment.can_be_deleted_by(request.user)
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error posting comment: {str(e)}'
+        })
+
+
+@login_required
+@require_POST
+def delete_comment(request, comment_id):
+    """
+    Delete a comment from an event
+    - Only event creator, staff users, or comment author can delete
+    - Returns JSON response for AJAX handling
+    """
+    comment = get_object_or_404(EventComment, id=comment_id)
+    
+    # Check if user has permission to delete this comment
+    if not comment.can_be_deleted_by(request.user):
+        return JsonResponse({
+            'success': False,
+            'error': 'You do not have permission to delete this comment.'
+        })
+    
+    try:
+        # Delete the comment
+        comment.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Comment deleted successfully.'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error deleting comment: {str(e)}'
+        })
+
+
+@login_required
+def calendar_view(request):
+    """
+    Interactive calendar view for events
+    - Shows monthly view with navigation controls
+    - Highlights days with events
+    - Allows clicking on days to view event details
+    """
+    # Get month and year from URL parameters, default to current month
+    year = int(request.GET.get('year', timezone.now().year))
+    month = int(request.GET.get('month', timezone.now().month))
+    
+    # Validate month and year
+    if month < 1 or month > 12:
+        month = timezone.now().month
+    if year < 2020 or year > 2030:
+        year = timezone.now().year
+    
+    # Create date objects for the current month
+    current_date = datetime(year, month, 1)
+    prev_month = current_date - timedelta(days=1)
+    next_month = current_date + timedelta(days=32)
+    next_month = next_month.replace(day=1)
+    
+    # Check if user wants to see all events
+    show_all = request.GET.get('show_all', 'false').lower() == 'true'
+    
+    # Debug: Print request info
+    print(f"DEBUG CALENDAR - User: {request.user.username}")
+    print(f"DEBUG CALENDAR - Is authenticated: {request.user.is_authenticated}")
+    print(f"DEBUG CALENDAR - Is superuser: {request.user.is_superuser}")
+    print(f"DEBUG CALENDAR - Show all: {show_all}")
+    print(f"DEBUG CALENDAR - Year: {year}, Month: {month}")
+    print(f"DEBUG CALENDAR - Request path: {request.path}")
+    print(f"DEBUG CALENDAR - Request GET params: {request.GET}")
+    
+    # Get events for the current month based on user role
+    if request.user.is_superuser and show_all:
+        # Super Admin can see all system events only when explicitly requested
+        print("DEBUG CALENDAR - Using superuser all events query")
+        events = Event.objects.filter(
+            date__year=year,
+            date__month=month
+        ).order_by('date')
+    else:
+        # ALL users (including super admin) see ONLY events they are registered for
+        print("DEBUG CALENDAR - Using registered events query")
+        events = Event.objects.filter(
+            date__year=year,
+            date__month=month,
+            registrations__user=request.user
+        ).distinct().order_by('date')
+        
+        # Debug: Print user and events info
+        print(f"DEBUG CALENDAR - Events found: {events.count()}")
+        for event in events:
+            print(f"DEBUG CALENDAR - Event: {event.title} on {event.date}")
+    
+    # Group events by day
+    events_by_day = {}
+    for event in events:
+        day = event.date.day
+        if day not in events_by_day:
+            events_by_day[day] = []
+        events_by_day[day].append(event)
+    
+    # Generate calendar grid
+    first_day, last_day = monthrange(year, month)
+    first_weekday = datetime(year, month, 1).weekday()
+    
+    # Create calendar matrix
+    calendar_days = []
+    
+    # Add empty cells for days before the first day of the month
+    for i in range(first_weekday):
+        calendar_days.append(None)
+    
+    # Add days of the month
+    for day in range(1, last_day + 1):
+        calendar_days.append({
+            'day': day,
+            'has_events': day in events_by_day,
+            'events': events_by_day.get(day, []),
+            'is_today': (year == timezone.now().year and 
+                        month == timezone.now().month and 
+                        day == timezone.now().day)
+        })
+    
+    # Add empty cells for days after the last day of the month
+    while len(calendar_days) % 7 != 0:
+        calendar_days.append(None)
+    
+    # Group days into weeks
+    weeks = []
+    for i in range(0, len(calendar_days), 7):
+        weeks.append(calendar_days[i:i+7])
+    
+    context = {
+        'year': year,
+        'month': month,
+        'current_date': current_date,
+        'prev_month': prev_month,
+        'next_month': next_month,
+        'weeks': weeks,
+        'events_by_day': events_by_day,
+        'month_names': [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ],
+        'weekday_names': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    }
+    
+    return render(request, 'events/calendar.html', context)
+
+
+@login_required
+def calendar_day_events(request, year, month, day):
+    """
+    AJAX endpoint to get events for a specific day
+    - Returns JSON with events for the requested day
+    - Used for popup/modal display
+    """
+    try:
+        # Validate date
+        date_obj = datetime(int(year), int(month), int(day))
+        
+        # Check if user wants to see all events
+        show_all = request.GET.get('show_all', 'false').lower() == 'true'
+        
+        # Get events for the specific day based on user role
+        if request.user.is_superuser and show_all:
+            # Super Admin can see all system events only when explicitly requested
+            events = Event.objects.filter(
+                date__year=year,
+                date__month=month,
+                date__day=day
+            ).order_by('date')
+        else:
+            # ALL users (including super admin) see ONLY events they are registered for
+            events = Event.objects.filter(
+                date__year=year,
+                date__month=month,
+                date__day=day,
+                registrations__user=request.user
+            ).distinct().order_by('date')
+        
+        # Format events for JSON response
+        events_data = []
+        for event in events:
+            events_data.append({
+                'id': event.id,
+                'title': event.title,
+                'time': event.time,
+                'location': event.location,
+                'event_type': event.get_event_type_display(),
+                'is_official': event.is_official,
+                'url': f'/events/event/{event.id}/',
+                'description': event.description[:100] + '...' if len(event.description) > 100 else event.description
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'date': date_obj.strftime('%B %d, %Y'),
+            'events': events_data
+        })
+        
+    except (ValueError, TypeError):
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid date provided'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error retrieving events: {str(e)}'
+        })

@@ -67,3 +67,57 @@ class EventRegistration(models.Model):
 
     def __str__(self):
         return f"{self.user.username} registered for {self.event.title}"
+
+
+class EventComment(models.Model):
+    """
+    Model for comments on events
+    - Any authenticated user can post comments
+    - Event creator and Staff users can delete comments
+    - Comments are displayed with author name and timestamp
+    """
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_comments')
+    content = models.TextField(max_length=1000, help_text='Comment content (max 1000 characters)')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']  # Most recent comments first
+        verbose_name = 'Event Comment'
+        verbose_name_plural = 'Event Comments'
+
+    def __str__(self):
+        return f"{self.author.username} commented on {self.event.title}"
+
+    @property
+    def formatted_created_at(self):
+        """Returns formatted creation timestamp"""
+        return self.created_at.strftime("%B %d, %Y at %I:%M %p")
+
+    def can_be_deleted_by(self, user):
+        """
+        Check if a user can delete this comment
+        - Event creator can delete any comment on their event
+        - Staff users can delete any comment
+        - Comment author can delete their own comment
+        """
+        if not user.is_authenticated:
+            return False
+        
+        # Comment author can delete their own comment
+        if self.author == user:
+            return True
+            
+        # Event creator can delete any comment on their event
+        if self.event.created_by == user:
+            return True
+            
+        # Staff users can delete any comment
+        from organizations.models import UserRole
+        staff_roles = UserRole.objects.filter(
+            user=user,
+            is_active=True,
+            role__in=['staff', 'org_admin', 'super_admin']
+        )
+        return staff_roles.exists() or user.is_superuser
