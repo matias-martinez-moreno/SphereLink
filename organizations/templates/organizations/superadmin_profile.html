@@ -10,7 +10,9 @@
             <h2 class="text-dark mb-2">
                 <i class="fas fa-user-shield me-2"></i>Super Admin Profile
             </h2>
-            <p class="text-muted">Your super administrator account information</p>
+            <a href="{% url 'profiles:change_photo' %}" class="btn btn-primary">
+                <i class="fas fa-camera me-2"></i>Change Photo
+            </a>
         </div>
     </div>
 
@@ -37,60 +39,8 @@
                         <div class="col-md-6 mb-3">
                             <strong>Last Name:</strong> {{ request.user.last_name|default:"Not provided" }}
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Account & Role Information Card -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-shield me-2"></i>Account & Role Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <!-- Account Status Section -->
-                    <div class="mb-3">
-                        <h6 class="text-muted mb-2 text-uppercase small">
-                            <i class="fas fa-shield-alt me-1"></i>Account Status
-                        </h6>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            <span>Account Active</span>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            <span>Email Verified</span>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-clock text-warning me-2"></i>
-                            <span>Member for {{ request.user.date_joined|timesince }}</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-star text-warning me-2"></i>
-                            <span>Staff Member</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Divider -->
-                    <hr class="my-3">
-                    
-                    <!-- Role & Organization Section -->
-                    <div>
-                        <h6 class="text-muted mb-2 text-uppercase small">
-                            <i class="fas fa-user-tag me-1"></i>Role & Organization
-                        </h6>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-crown text-warning me-2"></i>
-                            <span><strong>Role:</strong> Super Administrator</span>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-globe me-2 text-info"></i>
-                            <span><strong>Organization:</strong> System-wide Access</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-shield-alt text-success me-2"></i>
-                            <span>Full System Administrator</span>
+                        <div class="col-md-12 mb-3">
+                            <strong>Role:</strong> Full System Administrator
                         </div>
                     </div>
                 </div>

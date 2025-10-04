@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ProfileForm
+from .forms import ProfileForm, PhotoForm
 from .models import Profile
 
 
@@ -169,3 +169,28 @@ def view_user_profile(request, user_id):
     }
     
     return render(request, 'profiles/view_user_profile.html', context)
+
+def change_photo(request):
+    """
+    Vista simple para cambiar solo la foto del perfil
+    - Solo usuarios autenticados pueden cambiar su foto
+    - Crea automáticamente un perfil si no existe
+    - Procesa solo el campo de foto
+    """
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user)
+    
+    if request.method == "POST":
+        form = PhotoForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('organizations:superadmin_profile')
+    else:
+        form = PhotoForm(instance=profile)
+
+    return render(request, 'profiles/change_photo.html', {'form': form})

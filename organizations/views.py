@@ -708,14 +708,26 @@ def superadmin_profile(request):
 def csv_bulk_invite(request):
     """
     CSV Bulk Invitation of users to organization
-    - Allows Super Admin to upload CSV file with email addresses
+    - Allows Member and Staff users to upload CSV file with email addresses
     - Creates user accounts for valid emails and assigns to organization
     - Provides detailed summary report of the operation
-    - Only accessible for Super Admins
+    - NOT accessible for Organization Admins (org_admin role)
     """
-    if not _is_super_admin(request.user):
-        messages.error(request, "Access denied. Super Admin privileges required.")
+    # Check if user is organization admin - deny access
+    org_admin_roles = UserRole.objects.filter(
+        user=request.user,
+        is_active=True,
+        role='org_admin'
+    )
+    
+    if org_admin_roles.exists():
+        messages.error(request, "Access denied. Organization Admins cannot use CSV Bulk Invite.")
         return redirect('organizations:organization_list')
+    
+    # Allow access for Super Admins, Members, and Staff
+    if not request.user.is_authenticated:
+        messages.error(request, "Please log in to access this feature.")
+        return redirect('login')
     
     results = None
     

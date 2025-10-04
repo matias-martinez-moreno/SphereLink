@@ -116,7 +116,7 @@
         color: var(--text-light);
         min-height: 100%;
         height: 100%;
-        padding: 40px 15px 25px 15px;
+        padding: 20px 15px 25px 15px;
         box-sizing: border-box;
         box-shadow: 4px 0 15px var(--shadow-color);
         display: flex;
@@ -194,17 +194,87 @@
       }
       
       .nav-footer a {
-        background: rgba(220, 53, 69, 0.1);
-        border-color: rgba(220, 53, 69, 0.2);
+        background: #6c757d;
+        border-color: #6c757d;
+        color: white;
       }
       
       .nav-footer a:hover {
-        background: rgba(220, 53, 69, 0.2);
-        border-color: rgba(220, 53, 69, 0.4);
+        background: #5a6268;
+        border-color: #5a6268;
+        color: white;
       }
       
       .nav-footer a i {
-        color: #ff6b6b;
+        color: white;
+      }
+      
+      /* User info card styling */
+      .user-info-card {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+      }
+      
+      .user-info-card:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      .user-info-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--accent-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1rem;
+        color: var(--primary-darker);
+        flex-shrink: 0;
+      }
+      
+      .user-details {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .user-name-small {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .user-role {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .user-organization {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
       }
       
       main {
@@ -320,11 +390,44 @@
     <nav>
       <!-- Sidebar -->
       <div class="nav-menu">
+        <div class="user-info-card">
+          <div class="user-info-content">
+            <div class="user-avatar-small">
+              {% if user_profile.photo %}
+                <img src="{{ user_profile.photo.url }}" alt="{{ user.get_full_name|default:user.username }}" 
+                     style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+              {% else %}
+                {{ user.username|first|upper }}
+              {% endif %}
+            </div>
+            <div class="user-details">
+              <div class="user-name-small">{{ user.get_full_name|default:user.username }}</div>
+              <div class="user-role">
+                {% for role in user.organization_roles.all %}
+                  {% if role.is_active %}
+                    {{ role.get_role_display }}
+                  {% endif %}
+                {% empty %}
+                  Member
+                {% endfor %}
+              </div>
+              <div class="user-organization">
+                {% for role in user.organization_roles.all %}
+                  {% if role.is_active %}
+                    {{ role.organization.name }}
+                  {% endif %}
+                {% empty %}
+                  Community
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
         <a href="{% url 'events:dashboard' %}"><i class="bi bi-house-door-fill"></i>Dashboard</a>
-        <a href="{% url 'events:calendar' %}"><i class="bi bi-calendar3"></i>Calendar</a>
         <a href="{% url 'events:create_event' %}"><i class="bi bi-plus-circle-fill"></i>Create Event</a>
         <a href="{% url 'events:my_events' %}"><i class="bi bi-calendar-event-fill"></i>My Events</a>
         <a href="{% url 'profiles:my_profile' %}"><i class="bi bi-person-fill"></i>My Profile</a>
+        <a href="{% url 'events:calendar' %}"><i class="bi bi-calendar3"></i>Calendar</a>
         {% if user.is_authenticated %}
           {% for role in user.organization_roles.all %}
             {% if role.role == 'super_admin' %}

@@ -3,52 +3,34 @@
 {% block title %}Organizations - SphereLink Admin{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container" style="padding-top: 0px;">
     <!-- Header Section -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2 class="text-dark mb-2">
-                <i class="fas fa-building me-2"></i>Organizations
-            </h2>
-            <p class="text-muted">Manage all organizations in the system</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="{% url 'organizations:create_organization' %}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Create Organization
-            </a>
-        </div>
+    <div class="row mb-1">
     </div>
 
-    <!-- System Statistics -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-info text-white text-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>System Statistics
-                    </h5>
+    <!-- Statistics Cards -->
+    <div class="row mb-2">
+        <div class="col-md-4 mb-2">
+            <div class="card text-center stats-card-total">
+                <div class="card-body stats-card-body">
+                    <h4 class="mb-1">{{ total_organizations }}</h4>
+                    <p class="mb-0 stats-label">Total Organizations</p>
                 </div>
-                <div class="card-body py-3">
-                    <div class="row text-center">
-                        <div class="col-md-4 mb-2">
-                            <div class="stat-item">
-                                <h3 class="text-primary mb-1">{{ total_organizations }}</h3>
-                                <p class="text-muted mb-0 small">Total Organizations</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <div class="stat-item">
-                                <h3 class="text-success mb-1">{{ active_organizations }}</h3>
-                                <p class="text-muted mb-0 small">Active Organizations</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <div class="stat-item">
-                                <h3 class="text-warning mb-1">{{ inactive_organizations }}</h3>
-                                <p class="text-muted mb-0 small">Inactive Organizations</p>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-2">
+            <div class="card text-center stats-card-active">
+                <div class="card-body stats-card-body">
+                    <h4 class="mb-1">{{ active_organizations }}</h4>
+                    <p class="mb-0 stats-label">Active Organizations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-2">
+            <div class="card text-center stats-card-inactive">
+                <div class="card-body stats-card-body">
+                    <h4 class="mb-1">{{ inactive_organizations }}</h4>
+                    <p class="mb-0 stats-label">Inactive Organizations</p>
                 </div>
             </div>
         </div>
@@ -57,32 +39,29 @@
     <!-- Search and Filter Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <!-- Search Bar -->
-                    <form method="get" class="mb-3">
-                        <div class="input-group">
-                            <span class="input-group-text bg-light">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" class="form-control" name="search" 
-                                   placeholder="Search organizations by name, description, or email..." 
-                                   value="{{ request.GET.search }}">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-1"></i>Search
-                            </button>
+            <div class="search-container">
+                <form method="get" class="search-form">
+                    <div class="search-input-group">
+                        <div class="search-icon">
+                            <i class="fas fa-search"></i>
                         </div>
-                    </form>
-                    
-                    <!-- Clear Search -->
-                    {% if request.GET.search %}
-                    <div class="mt-3">
-                        <a href="{% url 'organizations:organization_list' %}" class="btn btn-outline-danger btn-sm">
-                            <i class="fas fa-times me-1"></i>Clear Search
-                        </a>
+                        <input type="text" class="search-input" name="search" 
+                               placeholder="Search organizations by name, description, or email..." 
+                               value="{{ request.GET.search }}">
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search me-1"></i>Search
+                        </button>
                     </div>
-                    {% endif %}
+                </form>
+                
+                {% if request.GET.search %}
+                <div class="search-results-info">
+                    <span class="search-term">Searching for: "{{ request.GET.search }}"</span>
+                    <a href="{% url 'organizations:organization_list' %}" class="clear-search">
+                        <i class="fas fa-times me-1"></i>Clear Search
+                    </a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -111,11 +90,11 @@
                     {% for organization in organizations %}
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100">
-                                                         <div class="card-header bg-primary text-white">
-                                 <h5 class="mb-0">
-                                     <i class="fas fa-building me-2"></i>{{ organization.name }}
-                                 </h5>
-                             </div>
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-building me-2"></i>{{ organization.name }}
+                                </h5>
+                            </div>
                             <div class="card-body d-flex flex-column">
                                 <!-- Organization Info -->
                                 <div class="mb-3">
@@ -185,11 +164,21 @@
                                             <i class="fas fa-user-plus me-1"></i>Create User
                                         </a>
                                         
-                                        <!-- CSV Bulk Invite -->
-                                        <a href="{% url 'organizations:csv_bulk_invite' %}?org={{ organization.id }}" 
-                                           class="btn btn-warning btn-sm">
-                                            <i class="fas fa-file-csv me-1"></i>CSV Bulk Invite
-                                        </a>
+                                        <!-- CSV Bulk Invite - Only for member and staff, not org_admin -->
+                                        {% for role in request.user.organization_roles.all %}
+                                            {% if role.is_active and role.role != 'org_admin' %}
+                                                <a href="{% url 'organizations:csv_bulk_invite' %}?org={{ organization.id }}" 
+                                                   class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-file-csv me-1"></i>CSV Bulk Invite
+                                                </a>
+                                            {% endif %}
+                                        {% empty %}
+                                            <!-- If user has no roles, show CSV Bulk Invite -->
+                                            <a href="{% url 'organizations:csv_bulk_invite' %}?org={{ organization.id }}" 
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fas fa-file-csv me-1"></i>CSV Bulk Invite
+                                            </a>
+                                        {% endfor %}
                                         
                                         <!-- Delete Organization -->
                                         <a href="{% url 'organizations:delete_organization' organization.id %}" 
@@ -523,6 +512,153 @@
     background-color: #d1ecf1;
     color: #0c5460;
     border-left: 4px solid #17a2b8;
+}
+
+/* Improved Search Bar Styling */
+.search-container {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+.search-form {
+    margin-bottom: 0;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 6px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.search-input-group:focus-within {
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 0.1rem rgba(30, 58, 138, 0.15);
+    background: white;
+}
+
+.search-icon {
+    padding: 0 10px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    outline: none;
+    color: #495057;
+}
+
+.search-input::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.search-button {
+    background: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-left: 8px;
+}
+
+.search-button:hover {
+    background: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
+}
+
+.search-results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #e3f2fd;
+    border-radius: 6px;
+    border-left: 3px solid #1e3a8a;
+    font-size: 0.85rem;
+}
+
+.search-term {
+    color: #1e3a8a;
+    font-weight: 500;
+}
+
+.clear-search {
+    color: #dc2626;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.clear-search:hover {
+    color: #b91c1c;
+}
+
+/* Statistics Cards Styling */
+.stats-card-total,
+.stats-card-active,
+.stats-card-inactive {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.stats-card-total:hover,
+.stats-card-active:hover,
+.stats-card-inactive:hover {
+    transform: translateY(-2px);
+}
+
+.stats-card-total {
+    background: #1e3a8a;
+    color: white;
+}
+
+.stats-card-active {
+    background: #059669;
+    color: white;
+}
+
+.stats-card-inactive {
+    background: #dc2626;
+    color: white;
+}
+
+.stats-card-body {
+    padding: 15px 10px;
+}
+
+.stats-card-total h4,
+.stats-card-active h4,
+.stats-card-inactive h4 {
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.stats-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 /* System Statistics Styling - Updated for smaller size */

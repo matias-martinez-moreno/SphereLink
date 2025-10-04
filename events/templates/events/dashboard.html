@@ -4,20 +4,6 @@
 
 {% block content %}
 <div class="container">
-    <!-- Header Section -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <h2 class="text-dark mb-2">Hello {{ request.user.get_full_name|default:request.user.username }}!</h2>
-            {% if is_super_admin %}
-                <p class="text-muted">Here are all the available events across all organizations</p>
-            {% elif user_organization %}
-                <p class="text-muted">Here are the available events in <strong>{{ user_organization.name }}</strong></p>
-            {% else %}
-                <p class="text-muted">Here are the available community events (no organization assigned)</p>
-            {% endif %}
-        </div>
-    </div>
-
     <!-- Search and Filters Bar -->
     <div class="row mb-3">
         <div class="col-12">
@@ -40,7 +26,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-dark w-100">Search</button>
+                            <button type="submit" class="btn btn-search w-100">Search</button>
                         </div>
                     </form>
                 </div>
@@ -51,15 +37,15 @@
     <!-- Statistics Cards -->
     <div class="row mb-3">
         <div class="col-12">
-            <div class="card bg-dark text-white">
-                <div class="card-body text-center">
-                    <h3 class="mb-0">{{ total_events }}</h3>
+            <div class="total-events-container">
+                <div class="total-events-number">{{ total_events }}</div>
+                <div class="total-events-label">
                     {% if is_super_admin %}
-                        <p class="mb-0">Total Events (All Organizations)</p>
+                        Total Events (All Organizations)
                     {% elif user_organization %}
-                        <p class="mb-0">Total Events in {{ user_organization.name }}</p>
+                        Total Events in {{ user_organization.name }}
                     {% else %}
-                        <p class="mb-0">Total Community Events</p>
+                        Total Community Events
                     {% endif %}
                 </div>
             </div>
@@ -155,6 +141,54 @@
 
 <style>
 /* Additional styles specific to dashboard */
+.total-events-container {
+    background: #1e3a8a;
+    color: white;
+    border-radius: 15px;
+    padding: 1px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+}
+
+.total-events-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+    background: #1e3a8a;
+    color: white;
+}
+
+.total-events-number {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.total-events-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    opacity: 0.9;
+}
+
+.btn-search {
+    background: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-search:hover {
+    background: #1e3a8a;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+}
+
 .event-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: none;
