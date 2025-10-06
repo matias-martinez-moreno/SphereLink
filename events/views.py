@@ -28,7 +28,7 @@ def dashboard_view(request):
     # Determine which events to show based on user role
     if request.user.is_superuser:
         # Super Admin sees all system events
-        events = Event.objects.all().order_by('-date')
+        events = Event.objects.all().order_by('date')
         user_organization = None
         is_super_admin = True
     else:
@@ -46,7 +46,7 @@ def dashboard_view(request):
             # Show events from user's organization (including those they created)
             events = Event.objects.filter(
                 organization=user_role.organization
-            ).order_by('-date')
+            ).order_by('date')
             user_organization = user_role.organization
             is_super_admin = False
         else:
@@ -54,7 +54,7 @@ def dashboard_view(request):
             # This includes events created by users who don't belong to any organization
             events = Event.objects.filter(
                 organization__isnull=True
-            ).order_by('-date')
+            ).order_by('date')
             user_organization = None
             is_super_admin = False
     
@@ -113,9 +113,24 @@ def event_detail_view(request, event_id):
     # Check if user is registered for this event
     if request.user.is_authenticated:
         user_registered = event.registrations.filter(user=request.user).exists()
+        
+        # Mark notifications related to this event as read
+        from .models import Notification
+        Notification.objects.filter(
+            user=request.user,
+            related_event=event,
+            is_read=False
+        ).update(is_read=True)
     
     # Get comments for this event (ordered by most recent first)
-    comments = event.comments.select_related('author').all()
+    # Get only top-level comments (not replies)
+    comments = event.comments.filter(parent_comment__isnull=True).select_related('author').prefetch_related('replies__author')
+    
+    # Add permission info to each comment
+    for comment in comments:
+        comment.can_delete = comment.can_be_deleted_by(request.user)
+        for reply in comment.replies.all():
+            reply.can_delete = reply.can_be_deleted_by(request.user)
     
     context = {
         'event': event,
@@ -394,88 +409,127 @@ def export_attendees_csv(request, event_id):
 
 @login_required
 @require_POST
-def post_comment(request, event_id):
+def add_comment(request, event_id):
     """
-    Post a new comment on an event
-    - Only authenticated users can post comments
-    - Comment content is required and limited to 1000 characters
-    - Returns JSON response for AJAX handling
+    Add a comment to an event
     """
     event = get_object_or_404(Event, id=event_id)
     content = request.POST.get('content', '').strip()
     
-    # Validate comment content
     if not content:
-        return JsonResponse({
-            'success': False,
-            'error': 'Comment content cannot be empty.'
-        })
+        return JsonResponse({'success': False, 'error': 'Comment cannot be empty.'})
     
     if len(content) > 1000:
-        return JsonResponse({
-            'success': False,
-            'error': 'Comment content cannot exceed 1000 characters.'
-        })
+        return JsonResponse({'success': False, 'error': 'Comment too long.'})
     
     try:
-        # Create the comment
         comment = EventComment.objects.create(
             event=event,
             author=request.user,
             content=content
         )
         
-        # Return success response with comment data
+        # Create notification for the event creator (if not commenting on own event)
+        if event.created_by != request.user:
+            from .models import Notification
+            Notification.objects.create(
+                user=event.created_by,
+                notification_type='comment_reply',  # We can reuse this type or create a new one
+                title='New comment on your event',
+                message=f'{request.user.username} commented on your event "{event.title}"',
+                related_event=event,
+                related_comment=comment
+            )
+        
         return JsonResponse({
             'success': True,
-            'message': 'Comment posted successfully.',
+            'message': 'Comment added successfully.',
             'comment': {
                 'id': comment.id,
                 'content': comment.content,
                 'author': comment.author.username,
                 'created_at': comment.formatted_created_at,
-                'can_delete': comment.can_be_deleted_by(request.user)
+                'can_delete': comment.can_be_deleted_by(request.user),
+                'is_event_owner': comment.is_event_owner_comment
             }
         })
-        
     except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required
+@require_POST
+def add_reply(request, event_id):
+    """
+    Add a reply to a comment
+    """
+    event = get_object_or_404(Event, id=event_id)
+    content = request.POST.get('content', '').strip()
+    parent_comment_id = request.POST.get('parent_comment_id')
+    
+    if not content:
+        return JsonResponse({'success': False, 'error': 'Reply cannot be empty.'})
+    
+    if len(content) > 1000:
+        return JsonResponse({'success': False, 'error': 'Reply too long.'})
+    
+    if not parent_comment_id:
+        return JsonResponse({'success': False, 'error': 'Parent comment ID required.'})
+    
+    try:
+        parent_comment = get_object_or_404(EventComment, id=parent_comment_id, event=event)
+        
+        reply = EventComment.objects.create(
+            event=event,
+            author=request.user,
+            content=content,
+            parent_comment=parent_comment
+        )
+        
+        # Create notification for the original comment author (if not replying to own comment)
+        if parent_comment.author != request.user:
+            from .models import Notification
+            Notification.objects.create(
+                user=parent_comment.author,
+                notification_type='comment_reply',
+                title=f'New reply to your comment',
+                message=f'{request.user.username} replied to your comment on "{event.title}"',
+                related_event=event,
+                related_comment=parent_comment
+            )
+        
         return JsonResponse({
-            'success': False,
-            'error': f'Error posting comment: {str(e)}'
+            'success': True,
+            'message': 'Reply added successfully.',
+            'reply': {
+                'id': reply.id,
+                'content': reply.content,
+                'author': reply.author.username,
+                'created_at': reply.formatted_created_at,
+                'can_delete': reply.can_be_deleted_by(request.user),
+                'is_event_owner': reply.is_event_owner_comment
+            }
         })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 @login_required
 @require_POST
 def delete_comment(request, comment_id):
     """
-    Delete a comment from an event
-    - Only event creator, staff users, or comment author can delete
-    - Returns JSON response for AJAX handling
+    Delete a comment
     """
     comment = get_object_or_404(EventComment, id=comment_id)
     
-    # Check if user has permission to delete this comment
     if not comment.can_be_deleted_by(request.user):
-        return JsonResponse({
-            'success': False,
-            'error': 'You do not have permission to delete this comment.'
-        })
+        return JsonResponse({'success': False, 'error': 'No permission to delete.'})
     
     try:
-        # Delete the comment
         comment.delete()
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Comment deleted successfully.'
-        })
-        
+        return JsonResponse({'success': True, 'message': 'Comment deleted.'})
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': f'Error deleting comment: {str(e)}'
-        })
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 @login_required

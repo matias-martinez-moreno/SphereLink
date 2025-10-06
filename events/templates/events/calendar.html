@@ -26,8 +26,8 @@
                             <a href="{% url 'events:calendar' %}?year={{ prev_month.year }}&month={{ prev_month.month }}" 
                                class="btn btn-outline-light btn-sm">
                                 <i class="fas fa-chevron-left"></i> Previous
-                            </a>
-                        </div>
+                                </a>
+                            </div>
                         <div class="col-6">
                             <div class="row g-2">
                                 <div class="col-4">
@@ -60,18 +60,18 @@
                                 <div class="col-4">
                                     <button type="button" class="btn btn-outline-light btn-sm w-100" onclick="goToToday()">
                                         <i class="fas fa-home me-1"></i>Today
-                                    </button>
-                                </div>
+                                </button>
                             </div>
                         </div>
+                    </div>
                         <div class="col-3">
                             <a href="{% url 'events:calendar' %}?year={{ next_month.year }}&month={{ next_month.month }}" 
                                class="btn btn-outline-light btn-sm">
                                 Next <i class="fas fa-chevron-right"></i>
                             </a>
-                        </div>
-                    </div>
                 </div>
+            </div>
+        </div>
             </div>
         </div>
     </div>
@@ -336,7 +336,7 @@ function goToToday() {
     const month = today.getMonth() + 1; // JavaScript months are 0-based
     
     window.location.href = `{% url 'events:calendar' %}?year=${year}&month=${month}`;
-}
+    }
 
 document.addEventListener('DOMContentLoaded', function() {
     // Handle calendar day clicks

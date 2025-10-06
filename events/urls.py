@@ -17,7 +17,8 @@ urlpatterns = [
     path('event/<int:event_id>/registrations/', views.event_registrations_view, name='event_registrations'),
     path('event/<int:event_id>/export_attendees/', views.export_attendees_csv, name='export_attendees'),
     # Comment URLs
-    path('event/<int:event_id>/comment/', views.post_comment, name='post_comment'),
+    path('event/<int:event_id>/comment/', views.add_comment, name='add_comment'),
+    path('event/<int:event_id>/reply/', views.add_reply, name='add_reply'),
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
     # Calendar URLs
     path('calendar/', views.calendar_view, name='calendar'),

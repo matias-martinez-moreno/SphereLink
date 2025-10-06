@@ -1,4 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from .forms import ProfileForm, PhotoForm
 from .models import Profile
 
@@ -57,9 +61,24 @@ def my_profile(request):
                     'is_superuser': False
                 }
         
+        # Obtener notificaciones no leídas y recientes
+        from events.models import Notification
+        unread_notifications = Notification.objects.filter(
+            user=request.user,
+            is_read=False
+        ).count()
+        
+        # Obtener las 5 notificaciones no leídas más recientes
+        recent_notifications = Notification.objects.filter(
+            user=request.user,
+            is_read=False
+        ).order_by('-created_at')[:5]
+        
         context = {
             'profile': profile,
-            'user_role_info': user_role_info
+            'user_role_info': user_role_info,
+            'unread_notifications': unread_notifications,
+            'recent_notifications': recent_notifications,
         }
         
         return render(request, 'profiles/my_profile.html', context)
@@ -194,3 +213,4 @@ def change_photo(request):
         form = PhotoForm(instance=profile)
 
     return render(request, 'profiles/change_photo.html', {'form': form})
+

@@ -6,10 +6,12 @@
     <!-- Header Section -->
     <div class="row mb-3">
         <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
             <h2 class="text-dark mb-2">My Profile</h2>
             <a href="{% url 'profiles:change_photo' %}" class="btn btn-primary">
                 <i class="fas fa-camera me-2"></i>Edit Photo
             </a>
+            </div>
         </div>
     </div>
 
@@ -59,6 +61,58 @@
                             <p class="text-muted mb-0">Member Since</p>
                         </div>
                     </div>
+                    
+                    <!-- Notifications Section -->
+                    <div class="row text-center mt-3">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-bell me-2"></i>Recent Notifications
+                                        {% if unread_notifications > 0 %}
+                                        <span class="badge bg-danger ms-2">{{ unread_notifications }}</span>
+                                        {% endif %}
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if recent_notifications %}
+                                    <div class="notifications-list">
+                                        {% for notification in recent_notifications %}
+                                        <div class="notification-item {% if not notification.is_read %}unread{% endif %} mb-2 p-2 border rounded">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 {% if not notification.is_read %}fw-bold{% endif %}">
+                                                        <i class="fas fa-reply me-2 text-primary"></i>{{ notification.title }}
+                                                    </h6>
+                                                    <p class="mb-1 text-muted">{{ notification.message }}</p>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock me-1"></i>{{ notification.created_at|timesince }} ago
+                                                    </small>
+                                                </div>
+                                                <div class="notification-actions">
+                                                    {% if notification.related_event %}
+                                                    <a href="{% url 'events:event_detail' notification.related_event.id %}" 
+                                                       class="btn btn-sm btn-outline-primary view-event-btn"
+                                                       data-event-id="{{ notification.related_event.id }}">
+                                                        <i class="fas fa-external-link-alt me-1"></i>View Event
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">No notifications at the moment</h5>
+                                        <p class="text-muted">We'll notify you when you receive comments or replies on your events.</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,7 +147,7 @@
                     <!-- Account Status Section -->
                     <div class="mb-3">
                         <h6 class="text-muted mb-2 text-uppercase small">
-                            <i class="fas fa-shield-alt me-1"></i>Account Status
+                            <i class="fas fa-shield-alt me-1"></i>Account Information
                         </h6>
                         <div class="d-flex align-items-center mb-2">
                             <i class="fas fa-check-circle text-success me-2"></i>
@@ -211,5 +265,74 @@ hr {
         padding-bottom: 1rem;
     }
 }
+
+
+.fa-bell {
+    font-size: 1.2rem;
+}
+
+/* Notification Styles */
+.notification-item {
+    transition: all 0.3s ease;
+    border-left: 4px solid #e9ecef !important;
+}
+
+.notification-item.unread {
+    border-left-color: #143c65 !important;
+    background-color: #f8f9fa;
+}
+
+.notification-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.notification-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.notification-item.unread h6 {
+    color: #143c65;
+}
+
+    .notifications-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+.notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background: #143c65;
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+    background: #0d2a4a;
+}
+
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle View Event button clicks
+    document.querySelectorAll('.view-event-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            // Let the link work normally (go to event page)
+            // The event_detail_view will mark notifications as read
+            // When user comes back, the badge will be updated
+        });
+    });
+});
+</script>
+
 {% endblock %}

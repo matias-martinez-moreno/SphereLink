@@ -75,10 +75,12 @@ class EventComment(models.Model):
     - Any authenticated user can post comments
     - Event creator and Staff users can delete comments
     - Comments are displayed with author name and timestamp
+    - Users can reply to comments (parent_comment field)
     """
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_comments')
     content = models.TextField(max_length=1000, help_text='Comment content (max 1000 characters)')
+    parent_comment = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -94,6 +96,16 @@ class EventComment(models.Model):
     def formatted_created_at(self):
         """Returns formatted creation timestamp"""
         return self.created_at.strftime("%B %d, %Y at %I:%M %p")
+
+    @property
+    def is_reply(self):
+        """Check if this comment is a reply to another comment"""
+        return self.parent_comment is not None
+
+    @property
+    def is_event_owner_comment(self):
+        """Check if this comment is from the event owner"""
+        return self.author == self.event.created_by
 
     def can_be_deleted_by(self, user):
         """
@@ -121,3 +133,33 @@ class EventComment(models.Model):
             role__in=['staff', 'org_admin', 'super_admin']
         )
         return staff_roles.exists() or user.is_superuser
+
+
+class Notification(models.Model):
+    """
+    Model for user notifications
+    - Shows when someone replies to user's comments
+    - Small dot indicator in profile
+    """
+    NOTIFICATION_TYPES = [
+        ('comment_reply', 'Comment Reply'),
+        ('event_update', 'Event Update'),
+        ('registration_confirmed', 'Registration Confirmed'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=25, choices=NOTIFICATION_TYPES, default='comment_reply')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    related_event = models.ForeignKey('Event', on_delete=models.CASCADE, null=True, blank=True)
+    related_comment = models.ForeignKey('EventComment', on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
