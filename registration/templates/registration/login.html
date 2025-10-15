@@ -10,9 +10,10 @@
     <link href="{% static 'css/global_colors.css' %}" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #143c65;
-            --secondary-color: #46688c;
-            --accent-color: #84a4b0;
+            /* refreshed SphereLink blues */
+            --primary-color: #0d3b66; /* deeper blue */
+            --secondary-color: #1e5b99; /* supporting blue */
+            --accent-color: #4da3ff; /* accent */
             --text-color: #2c3e50;
             --light-gray: #f8f9fa;
             --border-color: #e9ecef;
@@ -21,39 +22,128 @@
         body {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        .login-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            overflow: hidden;
-            width: 100%;
-            max-width: 420px;
-            border: 1px solid var(--border-color);
+        /* Full-screen layout */
+        .auth-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr; /* login left, brand right */
+            min-height: 100vh;
         }
         
-                 .login-header {
-             background: var(--primary-color);
-             color: white;
-             padding: 35px 30px;
-             text-align: center;
-             position: relative;
-         }
+        .brand-pane {
+            background: linear-gradient(145deg, rgba(20,60,101,0.95), rgba(70,104,140,0.9)), url('{% static "images/login_bg.jpg" %}') center/cover no-repeat;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
         
-        .login-header::before {
+        .brand-pane::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
+            inset: 0;
+            background: radial-gradient(650px 200px at 10% 10%, rgba(255,255,255,0.08), transparent 60%),
+                        radial-gradient(700px 250px at 90% 90%, rgba(255,255,255,0.06), transparent 60%);
+            pointer-events: none;
+        }
+        
+        .brand-content {
+            max-width: 720px;
+            text-align: center; /* center content */
+        }
+        
+        .brand-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .brand-logo img {
+            width: clamp(160px, 24vw, 320px); /* larger and more centered presence */
+            height: clamp(160px, 24vw, 320px);
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.30);
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .brand-title { display: none; }
+        
+        .brand-tagline {
+            margin-top: 14px;
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+        
+        .brand-quotes {
+            margin-top: 36px;
+            display: grid;
+            gap: 16px;
+        }
+        
+        .quote {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        
+        .quote i {
+            color: var(--accent-color);
+            margin-top: 3px;
+        }
+        
+        .quote p {
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .form-pane {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 64px 48px;
+        }
+        
+        .login-container {
+            background: transparent; /* remove card feel */
+            border-radius: 0;
+            box-shadow: none;
+            overflow: visible;
+            width: 100%;
+            max-width: 520px;
+            border: none;
+        }
+        
+        /* inline brand header on form side */
+        .form-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .form-brand img {
+            width: 72px; /* larger left logo */
+            height: 72px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        .form-brand h1 {
+            margin: 0;
+            font-size: 2rem; /* more robust */
+            font-weight: 800; /* bold */
+            letter-spacing: 0.2px;
+            color: var(--primary-color);
+        }
+        .form-subtitle {
+            margin: 6px 0 22px 0;
+            color: #6c757d;
         }
         
         .logo-container {
@@ -85,7 +175,7 @@
         }
         
         .login-body {
-            padding: 40px 30px;
+            padding: 0; /* unify with non-card layout */
         }
         
         .form-label {
@@ -106,7 +196,7 @@
         
         .form-control:focus {
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.15);
+            box-shadow: 0 8px 24px rgba(13, 59, 102, 0.08), 0 0 0 0.2rem rgba(77, 163, 255, 0.18);
             background-color: white;
         }
         
@@ -131,8 +221,8 @@
                  .btn-primary {
              background: var(--primary-color);
              border: none;
-             border-radius: 10px;
-             padding: 12px 24px;
+            border-radius: 9999px; /* pill */
+            padding: 12px 20px;
              font-weight: 500;
              font-size: 1rem;
              transition: all 0.3s ease;
@@ -140,7 +230,7 @@
          }
         
                  .btn-primary:hover {
-             background: var(--secondary-color);
+            background: var(--secondary-color);
              transform: translateY(-2px);
              box-shadow: 0 6px 20px rgba(20, 60, 101, 0.3);
          }
@@ -203,29 +293,52 @@
             letter-spacing: 1px;
         }
         
-        @media (max-width: 480px) {
-            .login-container {
-                margin: 20px;
-                max-width: none;
+        @media (max-width: 992px) {
+            .auth-layout {
+                grid-template-columns: 1fr;
             }
-            
-            .login-header, .login-body {
-                padding: 25px 20px;
+            .brand-pane {
+                order: 2;
+                min-height: 45vh;
+            }
+            .form-pane {
+                order: 1;
+                padding: 32px 20px;
             }
         }
     </style>
 </head>
-<body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="logo-container">
-                <img src="{% static 'Logo.png' %}" alt="SphereLink Logo">
+    <body>
+    <div class="auth-layout">
+        <div class="brand-pane">
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <img src="{% static 'Logo.png' %}" alt="SphereLink Logo">
+                </div>
+                <p class="brand-tagline">Connecting communities through meaningful experiences</p>
+                <div class="brand-quotes">
+                    <div class="quote">
+                        <i class="fas fa-circle-notch"></i>
+                        <p>We empower real connections between people, organizations, and events.</p>
+                    </div>
+                    <div class="quote">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>Security and simplicity to manage your community ecosystem.</p>
+                    </div>
+                    <div class="quote">
+                        <i class="fas fa-bolt"></i>
+                        <p>Everything you need to coordinate, communicate, and grow.</p>
+                    </div>
+                </div>
             </div>
-            <h1>SphereLink</h1>
-            <p>Connect with your community</p>
         </div>
-        
-        <div class="login-body">
+        <div class="form-pane">
+            <div class="login-container">
+                <div class="form-brand">
+                    <h1>SphereLink</h1>
+                </div>
+                <p class="form-subtitle">Sign in to manage your events and community</p>
+                <div class="login-body">
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -270,7 +383,7 @@
                 </button>
             </form>
             
-
+            
             
             <div class="footer-text">
                 <p><strong>New to SphereLink?</strong></p>
@@ -281,6 +394,8 @@
                     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#contactAdminModal">
                         <i class="fas fa-question-circle me-2"></i>Need Help? Contact Admin
                     </button>
+                </div>
+            </div>
                 </div>
             </div>
         </div>
