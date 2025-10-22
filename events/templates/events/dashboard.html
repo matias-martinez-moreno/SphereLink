@@ -4,6 +4,41 @@
 
 {% block content %}
 <div class="container">
+    <!-- Header Section with Help Button -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center w-100">
+                    <h2 class="text-dark mb-0 fw-bold me-auto">Manage your events and organization</h2>
+                    <div class="events-counter mx-auto">
+                        <span class="badge bg-primary fs-6 px-8 py-3 rounded-pill d-flex align-items-center justify-content-center">
+                            <span>{{ total_events }} Events Available</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center">
+                    {% if is_staff_user %}
+                    <a href="{% url 'organizations:staff_help' %}" 
+                       class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center" 
+                       data-bs-toggle="tooltip" 
+                       data-bs-placement="left" 
+                       title="Staff Help Guide - Learn how to manage events as staff">
+                        <i class="fas fa-question-circle me-1"></i>Help
+                    </a>
+                    {% else %}
+                    <a href="{% url 'organizations:member_help' %}" 
+                       class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center" 
+                       data-bs-toggle="tooltip" 
+                       data-bs-placement="left" 
+                       title="Member Help Guide - Learn how to manage events as a member">
+                        <i class="fas fa-question-circle me-1"></i>Help
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search and Filters Bar -->
     <div class="row mb-3">
         <div class="col-12">
@@ -34,23 +69,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="total-events-container">
-                <div class="total-events-number">{{ total_events }}</div>
-                <div class="total-events-label">
-                    {% if is_super_admin %}
-                        Total Events (All Organizations)
-                    {% elif user_organization %}
-                        Total Events in {{ user_organization.name }}
-                    {% else %}
-                        Total Community Events
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Events Grid -->
     <div class="row">
@@ -217,5 +235,33 @@
 .gap-2 {
     gap: 0.5rem !important;
 }
+
+/* Events counter styling */
+.events-counter .badge {
+    background: #198754 !important;
+    border: none;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    min-width: 350px;
+    justify-content: center;
+}
+
+.events-counter .badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(25, 135, 84, 0.5);
+    background: #146c43 !important;
+}
 </style>
+
+<script>
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
 {% endblock %}

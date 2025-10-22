@@ -18,4 +18,8 @@ urlpatterns = [
     path('csv_bulk_invite/', views.csv_bulk_invite, name='csv_bulk_invite'),
     path('contact-messages/', views.contact_messages_view, name='contact_messages'),
     path('profile/', views.superadmin_profile, name='superadmin_profile'),
+    path('help/', views.superadmin_help, name='superadmin_help'),
+    path('staff-help/', views.staff_help, name='staff_help'),
+    path('member-help/', views.member_help, name='member_help'),
+    path('user-help/', views.user_help, name='user_help'),
 ]

@@ -88,6 +88,34 @@
          z-index: 999;
          border-right: 2px solid rgba(255, 255, 255, 0.1);
        }
+       
+       .nav-header {
+         padding: 0 0 20px;
+         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+         margin-bottom: 20px;
+       }
+       
+       .nav-header > div:first-child {
+         margin-top: 0;
+         padding-top: 0;
+       }
+       
+       .nav-title {
+         font-size: 1.1rem;
+         font-weight: 600;
+         color: var(--text-muted);
+         text-transform: uppercase;
+         letter-spacing: 1px;
+         margin: 0;
+       }
+       
+       .nav-menu {
+         flex: 1;
+         padding: 10px 0;
+         display: flex;
+         flex-direction: column;
+         gap: 8px;
+       }
       
       nav a {
         color: var(--text-muted);
@@ -115,11 +143,8 @@
       }
       
       nav a:hover {
-         background: rgba(255, 255, 255, 0.15);
-         color: var(--text-light);
-         transform: translateX(8px);
-         border-color: rgba(255, 255, 255, 0.3);
-         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
        }
       
       nav a:active {
@@ -177,9 +202,8 @@
        }
        
        nav a[href*="logout"]:hover {
-         background: #5a6268 !important;
-         border-color: #5a6268 !important;
-         color: white !important;
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
        }
        
        nav a[href*="logout"] i {
@@ -200,9 +224,8 @@
        }
        
        .nav-footer a:hover {
-         background: #5a6268;
-         border-color: #5a6268;
-         color: white;
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
        }
        
        .nav-footer a i {
@@ -214,7 +237,7 @@
          background: rgba(255, 255, 255, 0.1);
          border: 1px solid rgba(255, 255, 255, 0.2);
          border-radius: 10px;
-         padding: 15px;
+         padding: 15px 20px 10px 20px;
          margin-bottom: 15px;
          transition: all 0.3s ease;
        }
@@ -228,7 +251,10 @@
        .user-info-content {
          display: flex;
          align-items: center;
+         justify-content: center;
          gap: 12px;
+         height: 100%;
+         min-height: 60px;
        }
        
        .user-avatar-small {
@@ -275,6 +301,7 @@
          overflow: hidden;
          text-overflow: ellipsis;
          margin-top: 2px;
+         margin-bottom: 0;
        }
     </style>
 </head>
@@ -288,7 +315,7 @@
   <div class="main-container">
     <nav>
       <!-- Super Admin Sidebar -->
-      <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="nav-header">
         <div class="user-info-card">
           <div class="user-info-content">
             <div class="user-avatar-small">
@@ -300,23 +327,25 @@
               {% endif %}
             </div>
             <div class="user-details">
-              <div class="user-name-small">{{ user.get_full_name|default:user.username }}</div>
-              <div class="user-role">Super Admin</div>
-              <div class="user-organization">System Administrator</div>
+              <div class="user-name-small">{{ request.user.get_full_name|default:request.user.username }}</div>
+              <div class="user-role">Full System Administrator</div>
             </div>
           </div>
         </div>
+      </div>
+      
+      <div class="nav-menu">
         <a href="{% url 'organizations:organization_list' %}">
           <i class="bi bi-building me-2"></i>Organizations
         </a>
-        <a href="{% url 'organizations:create_organization' %}" style="margin-left: 20px; font-size: 0.9rem; padding: 8px 15px;">
+        <a href="{% url 'organizations:create_organization' %}">
           <i class="bi bi-plus-circle me-2"></i>Create Organization
-        </a>
-        <a href="{% url 'organizations:contact_messages' %}" style="margin-left: 20px; font-size: 0.9rem; padding: 8px 15px;">
-          <i class="bi bi-envelope me-2"></i>Contact Messages
         </a>
         <a href="{% url 'organizations:superadmin_profile' %}">
           <i class="bi bi-person-fill me-2"></i>My Profile
+        </a>
+        <a href="{% url 'organizations:contact_messages' %}">
+          <i class="bi bi-envelope me-2"></i>Contact Messages
         </a>
       </div>
       

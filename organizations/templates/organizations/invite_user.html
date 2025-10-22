@@ -9,8 +9,8 @@
         <div class="col-12">
             <h2 class="text-primary mb-2">Invite User</h2>
             <p class="text-muted">Send an invitation to join {{ organization.name }}</p>
-            <a href="{% url 'organizations:manage_user_roles' organization.id %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-2"></i>Back to User Management
+            <a href="{% url 'organizations:organization_list' %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Organizations
             </a>
         </div>
     </div>
@@ -88,7 +88,7 @@
                             <button type="submit" class="btn btn-dark btn-lg flex-fill">
                                 <i class="fas fa-paper-plane me-2"></i>Send Invitation
                             </button>
-                            <a href="{% url 'organizations:manage_user_roles' organization.id %}" class="btn btn-outline-secondary btn-lg">
+                            <a href="{% url 'organizations:organization_list' %}" class="btn btn-outline-secondary btn-lg">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                         </div>

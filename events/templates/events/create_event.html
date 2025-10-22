@@ -9,9 +9,6 @@
         <div class="col-12">
             <h2 class="text-dark mb-2">Create New Event</h2>
             <p class="text-muted">Share your event with the community</p>
-            <a href="{% url 'events:my_events' %}" class="btn btn-secondary btn-sm">
-                ← Back to My Events
-            </a>
         </div>
     </div>
 
@@ -32,7 +29,7 @@
                         {% endif %}
 
                         <!-- Title Field -->
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="{{ form.title.id_for_label }}" class="form-label">Event Title</label>
                             {{ form.title }}
                             {% if form.title.errors %}
@@ -45,9 +42,10 @@
                         </div>
 
                         <!-- Description Field -->
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
-                            {{ form.description }}
+                            <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" 
+                                    class="form-control" rows="3" placeholder="Brief description of your event...">{{ form.description.value|default:"" }}</textarea>
                             {% if form.description.errors %}
                                 <div class="text-danger small">
                                     {% for error in form.description.errors %}
@@ -57,50 +55,62 @@
                             {% endif %}
                         </div>
 
-                        <!-- Date and Time Field -->
-                        <div class="mb-3">
-                            <label for="{{ form.date.id_for_label }}" class="form-label">Date and Time</label>
-                            {{ form.date }}
-                            {% if form.date.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.date.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                        <!-- Date and Duration Row -->
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <label for="{{ form.date.id_for_label }}" class="form-label">Date and Time</label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.duration.id_for_label }}" class="form-label">Duration (minutes)</label>
+                                {{ form.duration }}
+                                {% if form.duration.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.duration.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
 
-                        <!-- Duration Field -->
-                        <div class="mb-3">
-                            <label for="{{ form.duration.id_for_label }}" class="form-label">Duration (minutes)</label>
-                            {{ form.duration }}
-                            {% if form.duration.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.duration.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Max Capacity Field -->
-                        <div class="mb-3">
-                            <label for="{{ form.max_capacity.id_for_label }}" class="form-label">
-                                <i class="fas fa-users me-2"></i>Maximum Capacity
-                            </label>
-
-                            {{ form.max_capacity }}
-                            {% if form.max_capacity.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.max_capacity.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                        <!-- Max Capacity and Event Type Row -->
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <label for="{{ form.max_capacity.id_for_label }}" class="form-label">
+                                    <i class="fas fa-users me-2"></i>Maximum Capacity
+                                </label>
+                                {{ form.max_capacity }}
+                                {% if form.max_capacity.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.max_capacity.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.event_type.id_for_label }}" class="form-label">Event Type</label>
+                                {{ form.event_type }}
+                                {% if form.event_type.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.event_type.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
 
                         <!-- Location Field -->
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
                             {{ form.location }}
                             {% if form.location.errors %}
@@ -112,23 +122,11 @@
                             {% endif %}
                         </div>
 
-                        <!-- Event Type Field -->
-                        <div class="mb-3">
-                            <label for="{{ form.event_type.id_for_label }}" class="form-label">Event Type</label>
-                            {{ form.event_type }}
-                            {% if form.event_type.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.event_type.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
                         <!-- Requirements Field -->
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="{{ form.requirements.id_for_label }}" class="form-label">Requirements (optional)</label>
-                            {{ form.requirements }}
+                            <textarea name="{{ form.requirements.name }}" id="{{ form.requirements.id_for_label }}" 
+                                    class="form-control" rows="2" placeholder="Any special requirements or materials needed...">{{ form.requirements.value|default:"" }}</textarea>
                             {% if form.requirements.errors %}
                                 <div class="text-danger small">
                                     {% for error in form.requirements.errors %}
@@ -139,7 +137,7 @@
                         </div>
 
                         <!-- Image Field -->
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label for="{{ form.image.id_for_label }}" class="form-label">Image (optional)</label>
                             {{ form.image }}
                             {% if form.image.errors %}
@@ -151,28 +149,6 @@
                             {% endif %}
                         </div>
 
-                        <!-- Official Event Field (Staff Only) -->
-                        {% if form.is_official %}
-                        <div class="mb-3">
-                            <div class="form-check">
-                                {{ form.is_official }}
-                                <label class="form-check-label" for="{{ form.is_official.id_for_label }}">
-                                    <i class="fas fa-star me-2 text-warning"></i>Mark as Official Event
-                                </label>
-                            </div>
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Official events are automatically highlighted and have higher visibility.
-                            </div>
-                            {% if form.is_official.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.is_official.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        {% endif %}
 
                         <!-- Submit Button -->
                         <div class="d-grid">
@@ -188,6 +164,70 @@
 </div>
 
 <style>
-/* Additional styles specific to create_event */
+/* Compact and interesting form styles */
+.form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border-color: #0d3b66;
+    box-shadow: 0 0 0 0.2rem rgba(13, 59, 102, 0.15);
+    transform: translateY(-1px);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    background: linear-gradient(135deg, #0d3b66, #1e5b99) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0d3b66, #1e5b99);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 59, 102, 0.3);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.form-control::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+/* Compact spacing */
+.mb-2 {
+    margin-bottom: 0.75rem !important;
+}
+
+/* Icon styling */
+.form-label i {
+    color: #0d3b66;
+}
 </style>
 {% endblock %}

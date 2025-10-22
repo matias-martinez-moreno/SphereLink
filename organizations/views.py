@@ -289,6 +289,8 @@ def manage_user_roles(request, org_id):
                 if action == 'delete_user':
                     username = user_role.user.username
                     user_role.delete()
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': True, 'message': f"User {username} has been removed from the organization."})
                     messages.success(request, f"User {username} has been removed from the organization.")
                 
                 elif action == 'edit_role':
@@ -297,11 +299,78 @@ def manage_user_roles(request, org_id):
                         user_role.role = new_role
                         user_role.assigned_by = request.user
                         user_role.save()
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': True, 'message': f"Role updated for {user_role.user.username}"})
                         messages.success(request, f"Role updated for {user_role.user.username}")
                 
+                elif action == 'change_password':
+                    user_id = request.POST.get('user_id')
+                    new_password = request.POST.get('new_password')
+                    confirm_password = request.POST.get('confirm_password')
+                    
+                    # Debug logging
+                    print(f"DEBUG - Change password request:")
+                    print(f"  User ID: {user_id}")
+                    print(f"  New password length: {len(new_password) if new_password else 'None'}")
+                    print(f"  Confirm password length: {len(confirm_password) if confirm_password else 'None'}")
+                    print(f"  Passwords match: {new_password == confirm_password}")
+                    
+                    # Validate password length
+                    if not new_password or len(new_password) < 6:
+                        error_msg = 'Password must be at least 6 characters long.'
+                        print(f"DEBUG - Password length error: {error_msg}")
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': False, 'error': error_msg})
+                        messages.error(request, error_msg)
+                        return redirect('organizations:manage_user_roles', org_id=org_id)
+                    
+                    # Validate password match
+                    if new_password != confirm_password:
+                        error_msg = 'Passwords do not match.'
+                        print(f"DEBUG - Password match error: {error_msg}")
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': False, 'error': error_msg})
+                        messages.error(request, error_msg)
+                        return redirect('organizations:manage_user_roles', org_id=org_id)
+                    
+                    try:
+                        user = User.objects.get(id=user_id)
+                        print(f"DEBUG - User found: {user.username}")
+                        
+                        # Check if the new password is the same as the current password
+                        if user.check_password(new_password):
+                            error_msg = 'New password must be different from the current password.'
+                            print(f"DEBUG - Same password error: {error_msg}")
+                            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                                return JsonResponse({'success': False, 'error': error_msg})
+                            messages.error(request, error_msg)
+                            return redirect('organizations:manage_user_roles', org_id=org_id)
+                        
+                        # Set the new password
+                        user.set_password(new_password)
+                        user.save()
+                        print(f"DEBUG - Password changed successfully for {user.username}")
+                        
+                        success_msg = f"Password changed successfully for {user.username}"
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': True, 'message': success_msg})
+                        messages.success(request, success_msg)
+                        
+                    except User.DoesNotExist:
+                        error_msg = 'User not found.'
+                        print(f"DEBUG - User not found error: {error_msg}")
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': False, 'error': error_msg})
+                        messages.error(request, error_msg)
+                        return redirect('organizations:manage_user_roles', org_id=org_id)
+                
             except UserRole.DoesNotExist:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'User role not found.'})
                 messages.error(request, "User role not found.")
             except Exception as e:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': f'Error processing action: {str(e)}'})
                 messages.error(request, f"Error processing action: {str(e)}")
         
 
@@ -672,6 +741,87 @@ def accept_invitation(request, token):
 
 
 @login_required
+def superadmin_help(request):
+    """
+    FR: Quick Help Page for Super Admin Interface
+    - Shows how to manage the application quickly
+    - Only accessible for Super Admins
+    """
+    if not _is_super_admin(request.user):
+        messages.error(request, "Access denied. Super Admin privileges required.")
+        return redirect('organizations:organization_list')
+    
+    return render(request, 'organizations/superadmin_help.html')
+
+@login_required
+def staff_help(request):
+    """
+    FR: Quick Help Page for Staff Interface
+    - Shows how to manage events and organization
+    - Only accessible for Staff members
+    """
+    # Check if user has staff role in any organization
+    user_roles = UserRole.objects.filter(
+        user=request.user,
+        is_active=True,
+        role__in=['staff', 'org_admin']
+    )
+    
+    if not user_roles.exists():
+        messages.error(request, "Access denied. Staff privileges required.")
+        return redirect('events:dashboard')
+    
+    return render(request, 'organizations/staff_help.html')
+
+@login_required
+def member_help(request):
+    """
+    FR: Quick Help Page for Member Interface
+    - Shows how to manage events as a community member
+    - Only accessible for regular members
+    """
+    # Check if user has staff role in any organization
+    user_roles = UserRole.objects.filter(
+        user=request.user,
+        is_active=True,
+        role__in=['staff', 'org_admin']
+    )
+    
+    if user_roles.exists():
+        messages.error(request, "Access denied. This help guide is for regular members only.")
+        return redirect('events:dashboard')
+    
+    return render(request, 'organizations/member_help.html')
+
+@login_required
+def user_help(request):
+    """
+    FR: Quick Help Page for User Interface (Staff and Members)
+    - Shows how to manage events and organization
+    - Accessible for all authenticated users
+    """
+    # Check if user is staff in any organization
+    is_staff_user = False
+    user_organization = None
+    
+    user_roles = UserRole.objects.filter(
+        user=request.user,
+        is_active=True,
+        role__in=['staff', 'org_admin']
+    )
+    
+    if user_roles.exists():
+        is_staff_user = True
+        user_organization = user_roles.first().organization
+    
+    context = {
+        'is_staff_user': is_staff_user,
+        'user_organization': user_organization,
+    }
+    
+    return render(request, 'organizations/staff_help.html', context)
+
+@login_required
 def superadmin_profile(request):
     """
     Vista del perfil para Super Admin
@@ -688,6 +838,16 @@ def superadmin_profile(request):
     except Profile.DoesNotExist:
         from profiles.models import Profile
         profile = Profile.objects.create(user=request.user)
+    
+    # Manejar POST para actualizar perfil
+    if request.method == 'POST':
+        user = request.user
+        user.email = request.POST.get('email', user.email)
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.save()
+        messages.success(request, "Profile updated successfully!")
+        return redirect('organizations:superadmin_profile')
     
     # Obtener estadísticas del sistema para el superadmin
     from organizations.models import Organization, UserRole

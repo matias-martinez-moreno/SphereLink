@@ -151,8 +151,8 @@ def my_events_view(request):
     - Includes information about staff permissions
     """
     user = request.user
-    created_events = Event.objects.filter(created_by=user).order_by('-created_at')
-    registered_events = Event.objects.filter(registrations__user=user).order_by('-date')
+    created_events = Event.objects.filter(created_by=user).order_by('date')
+    registered_events = Event.objects.filter(registrations__user=user).order_by('date')
     
     context = {
         'created_events': created_events,

@@ -91,8 +91,8 @@
 }
 
 .btn-primary:hover {
-    background-color: var(--accent-dark) !important;
-    border-color: var(--accent-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary {
@@ -101,8 +101,8 @@
 }
 
 .btn-secondary:hover {
-    background-color: var(--accent-blue) !important;
-    border-color: var(--accent-blue) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-success {
@@ -111,8 +111,8 @@
 }
 
 .btn-success:hover {
-    background-color: var(--accent-blue) !important;
-    border-color: var(--accent-blue) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-info {
@@ -122,9 +122,8 @@
 }
 
 .btn-info:hover {
-    background-color: var(--primary-light) !important;
-    border-color: var(--primary-light) !important;
-    color: var(--text-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-warning {
@@ -134,9 +133,8 @@
 }
 
 .btn-warning:hover {
-    background-color: #dc3545 !important;
-    border-color: #dc3545 !important;
-    color: var(--text-light) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-danger {
@@ -145,8 +143,8 @@
 }
 
 .btn-danger:hover {
-    background-color: #c82333 !important;
-    border-color: #c82333 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Simplified dark button for consistency */
@@ -156,8 +154,8 @@
 }
 
 .btn-dark:hover {
-    background-color: var(--accent-dark) !important;
-    border-color: var(--accent-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* ========================================
@@ -340,8 +338,8 @@
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-medium);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn:active {

@@ -5,39 +5,39 @@
 {% block content %}
 <div class="container" style="padding-top: 0px;">
     <!-- Header Section -->
-    <div class="row mb-1">
+    <div class="row mb-0">
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="row mb-2">
-        <div class="col-md-4 mb-2">
-            <div class="card text-center stats-card-total">
-                <div class="card-body stats-card-body">
-                    <h4 class="mb-1">{{ total_organizations }}</h4>
-                    <p class="mb-0 stats-label">Total Organizations</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-2">
-            <div class="card text-center stats-card-active">
-                <div class="card-body stats-card-body">
-                    <h4 class="mb-1">{{ active_organizations }}</h4>
-                    <p class="mb-0 stats-label">Active Organizations</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-2">
-            <div class="card text-center stats-card-inactive">
-                <div class="card-body stats-card-body">
-                    <h4 class="mb-1">{{ inactive_organizations }}</h4>
-                    <p class="mb-0 stats-label">Inactive Organizations</p>
+    <!-- Explanatory Text -->
+    <div class="row mb-0" style="margin-top: -10px;">
+        <div class="col-12">
+            <div class="alert alert-light border-0 bg-light">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-building fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1 text-dark">Organization Management Center</h5>
+                            <p class="mb-0 text-muted">Manage all organizations, monitor their status, and control user access across the platform.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{% url 'organizations:superadmin_help' %}" 
+                           class="btn btn-outline-primary btn-sm" 
+                           data-bs-toggle="tooltip" 
+                           data-bs-placement="left" 
+                           title="Quick Help Guide - Learn how to manage the application efficiently">
+                            <i class="fas fa-question-circle me-1"></i>Help
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Search and Filter Section -->
-    <div class="row mb-4">
+    <div class="row mb-0">
         <div class="col-12">
             <div class="search-container">
                 <form method="get" class="search-form">
@@ -66,24 +66,9 @@
         </div>
     </div>
 
-    <!-- Search Results Info -->
-    {% if request.GET.search %}
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fas fa-search me-2"></i>
-                <strong>Search Results:</strong> 
-                Found {{ organizations.count }} organization(s) matching "{{ request.GET.search }}"
-                <a href="{% url 'organizations:organization_list' %}" class="float-end">
-                    <i class="fas fa-times me-1"></i>Clear Search
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 
     <!-- Organizations List -->
-    <div class="row">
+    <div class="row mb-5" style="margin-top: 40px;">
         <div class="col-12">
             {% if organizations %}
                 <div class="row g-4">
@@ -91,77 +76,77 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100">
                             <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-building me-2"></i>{{ organization.name }}
+                                <h5 class="mb-0 d-flex align-items-center">
+                                    {% if organization.logo %}
+                                        <img src="{{ organization.logo.url }}" alt="{{ organization.name }} logo" 
+                                             class="me-2 organization-logo" style="width: 24px; height: 24px; object-fit: cover; border-radius: 50%;">
+                                    {% else %}
+                                        <i class="fas fa-building me-2"></i>
+                                    {% endif %}
+                                    {{ organization.name }}
                                 </h5>
                             </div>
                             <div class="card-body d-flex flex-column">
                                 <!-- Organization Info -->
                                 <div class="mb-3">
-                                    {% if organization.description %}
-                                        <p class="card-text">{{ organization.description|truncatewords:20 }}</p>
-                                    {% else %}
-                                        <p class="text-muted">No description available</p>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Organization Details -->
-                                <div class="mb-3">
-                                    <div class="row text-center">
-                                        <div class="col-6">
-                                            <h6 class="text-primary mb-1">{{ organization.user_roles.count }}</h6>
-                                            <small class="text-muted">Users</small>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1 me-2">
+                                            {% if organization.description %}
+                                                <p class="card-text mb-0">{{ organization.description|truncatewords:10 }}</p>
+                                            {% else %}
+                                                <p class="text-muted mb-0">No description available</p>
+                                            {% endif %}
                                         </div>
-                                        <div class="col-6">
-                                            <h6 class="text-success mb-1">
-                                                {% if organization.is_active %}
-                                                    <i class="fas fa-check-circle text-success"></i>
-                                                {% else %}
-                                                    <i class="fas fa-times-circle text-danger"></i>
-                                                {% endif %}
-                                            </h6>
-                                            <small class="text-muted">Status</small>
+                                        <div>
+                                            {% if organization.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Contact Info -->
-                                {% if organization.email or organization.phone %}
+                                <!-- Contact Info and Users -->
                                 <div class="mb-3">
                                     {% if organization.email %}
-                                        <p class="mb-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <div>
                                             <i class="fas fa-envelope me-2 text-muted"></i>
                                             <small>{{ organization.email }}</small>
-                                        </p>
+                                        </div>
+                                        <div>
+                                            <h6 class="text-primary mb-0">{{ organization.user_roles.count }} users</h6>
+                                        </div>
+                                    </div>
                                     {% endif %}
                                     {% if organization.phone %}
-                                        <p class="mb-0">
-                                            <i class="fas fa-phone me-2 text-muted"></i>
-                                            <small>{{ organization.phone }}</small>
-                                        </p>
+                                    <div>
+                                        <i class="fas fa-phone me-2 text-muted"></i>
+                                        <small>{{ organization.phone }}</small>
+                                    </div>
                                     {% endif %}
                                 </div>
-                                {% endif %}
 
                                 <!-- Action Buttons -->
                                 <div class="mt-auto">
-                                    <div class="d-grid gap-2">
+                                    <div class="d-grid gap-2 text-center">
                                         <!-- Edit Organization Details -->
                                         <a href="{% url 'organizations:edit_organization' organization.id %}" 
                                            class="btn btn-primary btn-sm">
-                                            <i class="fas fa-edit me-1"></i>Edit Organization Details
+                                            <i class="fas fa-edit me-1"></i>Edit Organization Info
                                         </a>
                                         
                                         <!-- Manage Users -->
                                         <a href="{% url 'organizations:manage_user_roles' organization.id %}" 
                                            class="btn btn-info btn-sm">
-                                            <i class="fas fa-users me-1"></i>Manage Users
+                                            <i class="fas fa-users me-1"></i>Manage Organization Users
                                         </a>
                                         
                                         <!-- Create User -->
                                         <a href="{% url 'organizations:create_user' organization.id %}" 
                                            class="btn btn-success btn-sm">
-                                            <i class="fas fa-user-plus me-1"></i>Create User
+                                            <i class="fas fa-user-plus me-1"></i>Add New User
                                         </a>
                                         
                                         <!-- CSV Bulk Invite - Only for member and staff, not org_admin -->
@@ -169,14 +154,14 @@
                                             {% if role.is_active and role.role != 'org_admin' %}
                                                 <a href="{% url 'organizations:csv_bulk_invite' %}?org={{ organization.id }}" 
                                                    class="btn btn-warning btn-sm">
-                                                    <i class="fas fa-file-csv me-1"></i>CSV Bulk Invite
+                                                    <i class="fas fa-file-csv me-1"></i>Bulk Invite Users
                                                 </a>
                                             {% endif %}
                                         {% empty %}
                                             <!-- If user has no roles, show CSV Bulk Invite -->
                                             <a href="{% url 'organizations:csv_bulk_invite' %}?org={{ organization.id }}" 
                                                class="btn btn-warning btn-sm">
-                                                <i class="fas fa-file-csv me-1"></i>CSV Bulk Invite
+                                                <i class="fas fa-file-csv me-1"></i>Bulk Invite Users
                                             </a>
                                         {% endfor %}
                                         
@@ -184,7 +169,7 @@
                                         <a href="{% url 'organizations:delete_organization' organization.id %}" 
                                            class="btn btn-danger btn-sm"
                                            title="Delete Organization">
-                                            <i class="fas fa-trash me-1"></i>Delete
+                                            <i class="fas fa-trash me-1"></i>Delete Organization
                                         </a>
                                     </div>
                                 </div>
@@ -685,6 +670,145 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+/* Explanatory Text Styling */
+.alert-light {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease;
+}
+
+.alert-light:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.alert-light .fa-building {
+    color: #143c65 !important;
+    opacity: 0.8;
+}
+
+.alert-light h5 {
+    color: #143c65 !important;
+    font-weight: 600;
+}
+
+.alert-light p {
+    color: #6c757d !important;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* Status Badge Styling */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+    color: white;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: white;
+}
+
+/* Button Text Alignment */
+.btn {
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Organization Logo Styling */
+.organization-logo {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.organization-logo:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+        /* Professional Button Styling */
+        .btn-primary {
+            background: #6c757d !important;
+            border: 1px solid #6c757d !important;
+            color: white !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3) !important;
+        }
+
+        .btn-info {
+            background: #1e5b99 !important;
+            border: 1px solid #1e5b99 !important;
+            color: white !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 8px rgba(30, 91, 153, 0.3) !important;
+        }
+
+        .btn-success {
+            background: #1e5b99 !important;
+            border: 1px solid #1e5b99 !important;
+            color: white !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 8px rgba(30, 91, 153, 0.3) !important;
+        }
+
+        .btn-warning {
+            background: #1e5b99 !important;
+            border: 1px solid #1e5b99 !important;
+            color: white !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 8px rgba(30, 91, 153, 0.3) !important;
+        }
+
+        .btn-danger {
+            background: #dc3545 !important;
+            border: 1px solid #dc3545 !important;
+            color: white !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3) !important;
+        }
 </style>
 
 

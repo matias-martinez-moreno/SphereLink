@@ -197,8 +197,8 @@
                     {% endif %}
                     
                     <div class="mt-4">
-                        <a href="{% url 'organizations:manage_user_roles' results.organization.id %}" class="btn btn-primary">
-                            <i class="bi bi-people me-2"></i>View Organization Users
+                        <a href="{% url 'organizations:organization_list' %}" class="btn btn-primary">
+                            <i class="bi bi-people me-2"></i>Back to Organizations
                         </a>
                         <a href="{% url 'organizations:csv_bulk_invite' %}" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-repeat me-2"></i>Invite More Users
