@@ -593,6 +593,63 @@
          transform: translateY(-1px);
          box-shadow: 0 4px 12px var(--shadow-color);
        }
+       
+       /* Floating Help Button */
+       .floating-help-button {
+         position: fixed;
+         bottom: 20px;
+         right: 20px;
+         z-index: 1000;
+       }
+       
+      .help-float-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: #007bff;
+        color: white;
+        border-radius: 50%;
+        text-decoration: none;
+        box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: bold;
+      }
+       
+      .help-float-btn:hover {
+        background: #0056b3;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        text-decoration: none;
+      }
+       
+       .help-float-btn:active {
+         transform: translateY(0);
+         box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+       }
+       
+      .help-float-btn i {
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+       
+       /* Responsive adjustments */
+       @media (max-width: 768px) {
+         .floating-help-button {
+           bottom: 15px;
+           right: 15px;
+         }
+         
+         .help-float-btn {
+           width: 45px;
+           height: 45px;
+           font-size: 1.1rem;
+         }
+       }
     </style>
 </head>
 <body>
@@ -965,5 +1022,28 @@
     });
   </script>
   {% endif %}
+  
+  <!-- Floating Help Button -->
+  <div class="floating-help-button">
+    {% if user.is_authenticated %}
+      {% if is_staff_user %}
+        <a href="{% url 'organizations:staff_help' %}" 
+           class="help-float-btn" 
+           data-bs-toggle="tooltip" 
+           data-bs-placement="left" 
+           title="Staff Help Guide - Learn how to manage events as staff">
+          <i class="fas fa-question"></i>
+        </a>
+      {% else %}
+        <a href="{% url 'organizations:member_help' %}" 
+           class="help-float-btn" 
+           data-bs-toggle="tooltip" 
+           data-bs-placement="left" 
+           title="Member Help Guide - Learn how to manage events as a member">
+          <i class="fas fa-question"></i>
+        </a>
+      {% endif %}
+    {% endif %}
+  </div>
 </body>
 </html>

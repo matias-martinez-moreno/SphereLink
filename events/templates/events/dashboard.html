@@ -19,27 +19,6 @@
                     </div>
                 </div>
                 
-                <div class="dashboard-help">
-                    {% if is_staff_user %}
-                    <a href="{% url 'organizations:staff_help' %}" 
-                       class="help-button" 
-                       data-bs-toggle="tooltip" 
-                       data-bs-placement="left" 
-                       title="Staff Help Guide - Learn how to manage events as staff">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help</span>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'organizations:member_help' %}" 
-                       class="help-button" 
-                       data-bs-toggle="tooltip" 
-                       data-bs-placement="left" 
-                       title="Member Help Guide - Learn how to manage events as a member">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Help</span>
-                    </a>
-                    {% endif %}
-                </div>
             </div>
         </div>
     </div>
@@ -200,38 +179,6 @@
     flex-shrink: 0;
 }
 
-.dashboard-help {
-    flex-shrink: 0;
-}
-
-/* Help Button Styling */
-.help-button {
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 18px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
-}
-
-.help-button:hover {
-    background: #5a6268;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-    text-decoration: none;
-}
-
-.help-button i {
-    font-size: 1rem;
-}
 
 /* Responsive design */
 @media (max-width: 992px) {
@@ -263,10 +210,6 @@
         font-size: 0.85rem;
     }
     
-    .help-button {
-        padding: 10px 15px;
-        font-size: 0.85rem;
-    }
 }
 
 /* Events Available Badge - Synchronized Design */
