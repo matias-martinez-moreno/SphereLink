@@ -140,11 +140,19 @@
         width: 70px;
       }
       
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px 15px 15px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 15px;
+      }
+      
       .sidebar-toggle {
-        position: absolute;
-        top: 20px;
-        left: 20px;
+        flex-shrink: 0;
         z-index: 1000;
+        margin-left: -10px;
       }
       
       .toggle-btn {
@@ -219,12 +227,10 @@
         display: none;
       }
       
-      .sidebar.collapsed .user-info-card {
-        display: none;
-      }
-      
-      .sidebar.collapsed .user-avatar-small {
-        display: none;
+      .sidebar.collapsed .sidebar-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px 10px 15px 10px;
       }
       
       .sidebar.collapsed .user-info-content {
@@ -279,17 +285,6 @@
         font-size: 0.9rem;
       }
        
-      .nav-header {
-        padding: 20px 0 15px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 15px;
-        margin-top: 104px;
-      }
-       
-       .nav-header > div:first-child {
-         margin-top: 0;
-         padding-top: 0;
-       }
        
        .nav-title {
          font-size: 1.1rem;
@@ -497,6 +492,63 @@
          margin-top: 2px;
          margin-bottom: 0;
        }
+       
+       /* Floating Help Button */
+       .floating-help-button {
+         position: fixed;
+         bottom: 20px;
+         right: 20px;
+         z-index: 1000;
+       }
+       
+       .help-float-btn {
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         width: 45px;
+         height: 45px;
+         background: #007bff;
+         color: white;
+         border-radius: 50%;
+         text-decoration: none;
+         box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+         transition: all 0.3s ease;
+         border: none;
+         font-size: 1.1rem;
+         font-weight: bold;
+       }
+       
+       .help-float-btn:hover {
+         background: #0056b3;
+         color: white;
+         transform: translateY(-2px);
+         box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+         text-decoration: none;
+       }
+       
+       .help-float-btn:active {
+         transform: translateY(0);
+         box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+       }
+       
+       .help-float-btn i {
+         font-size: 1.2rem;
+         line-height: 1;
+       }
+       
+       /* Responsive adjustments */
+       @media (max-width: 768px) {
+         .floating-help-button {
+           bottom: 15px;
+           right: 15px;
+         }
+         
+         .help-float-btn {
+           width: 40px;
+           height: 40px;
+           font-size: 1rem;
+         }
+       }
     </style>
 </head>
 <body>
@@ -510,31 +562,34 @@
   
   <div class="main-container">
     <nav id="sidebar" class="sidebar">
-      <!-- Sidebar Toggle Button -->
-      <div class="sidebar-toggle">
-        <button id="toggle-btn" class="toggle-btn">
-          <i class="fas fa-bars" id="toggle-icon"></i>
-        </button>
+      <!-- Sidebar Header with Toggle and User Info -->
+      <div class="sidebar-header">
+        <!-- Sidebar Toggle Button -->
+        <div class="sidebar-toggle">
+          <button id="toggle-btn" class="toggle-btn">
+            <i class="fas fa-bars" id="toggle-icon"></i>
+          </button>
+        </div>
+        
+        <!-- User Info Content -->
+        <div class="user-info-content">
+          <div class="user-avatar-small">
+            {% if user_profile.photo %}
+              <img src="{{ user_profile.photo.url }}" alt="{{ user.get_full_name|default:user.username }}" 
+                   style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            {% else %}
+              {{ user.username|first|upper }}
+            {% endif %}
+          </div>
+          <div class="user-details">
+            <div class="user-name-small">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="user-role">Administrator</div>
+          </div>
+        </div>
       </div>
       
       <!-- Super Admin Sidebar Content -->
       <div class="nav-content">
-        <div class="nav-header">
-          <div class="user-info-content">
-            <div class="user-avatar-small">
-              {% if user_profile.photo %}
-                <img src="{{ user_profile.photo.url }}" alt="{{ user.get_full_name|default:user.username }}" 
-                     style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-              {% else %}
-                {{ user.username|first|upper }}
-              {% endif %}
-            </div>
-            <div class="user-details">
-              <div class="user-name-small">{{ request.user.get_full_name|default:request.user.username }}</div>
-              <div class="user-role">Full System Administrator</div>
-            </div>
-          </div>
-        </div>
       
       <div class="nav-menu">
         <a href="{% url 'organizations:organization_list' %}" data-tooltip="Organizations">
@@ -597,5 +652,16 @@
       });
   });
   </script>
+  
+  <!-- Floating Help Button -->
+  <div class="floating-help-button">
+    <a href="{% url 'organizations:superadmin_help' %}" 
+       class="help-float-btn" 
+       data-bs-toggle="tooltip" 
+       data-bs-placement="left" 
+       title="Super Admin Help Guide - Learn how to manage the system">
+      <i class="fas fa-question"></i>
+    </a>
+  </div>
 </body>
 </html>

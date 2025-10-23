@@ -177,11 +177,19 @@
         width: 70px;
       }
       
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px 15px 15px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 15px;
+      }
+      
       .sidebar-toggle {
-        position: absolute;
-        top: 20px;
-        left: 20px;
+        flex-shrink: 0;
         z-index: 1000;
+        margin-left: -10px;
       }
       
       .toggle-btn {
@@ -233,17 +241,6 @@
         transition: opacity 0.3s ease;
       }
       
-      .nav-header {
-        padding: 20px 0 15px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 15px;
-        margin-top: 104px;
-      }
-      
-      .nav-header > div:first-child {
-        margin-top: 0;
-        padding-top: 0;
-      }
       
       .sidebar.collapsed .nav-content {
         opacity: 1;
@@ -268,12 +265,10 @@
         display: none;
       }
       
-      .sidebar.collapsed .user-info-card {
-        display: none;
-      }
-      
-      .sidebar.collapsed .user-avatar-small {
-        display: none;
+      .sidebar.collapsed .sidebar-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px 10px 15px 10px;
       }
       
       .sidebar.collapsed .user-info-content {
@@ -328,12 +323,6 @@
         font-size: 0.9rem;
       }
       
-      .nav-header {
-        padding: 20px 0 15px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 15px;
-        margin-top: 104px;
-      }
       
       .nav-title {
         font-size: 1.1rem;
@@ -666,48 +655,51 @@
   
   <div class="main-container">
     <nav id="sidebar" class="sidebar">
-      <!-- Sidebar Toggle Button -->
-      <div class="sidebar-toggle">
-        <button id="toggle-btn" class="toggle-btn">
-          <i class="fas fa-bars" id="toggle-icon"></i>
-        </button>
+      <!-- Sidebar Header with Toggle and User Info -->
+      <div class="sidebar-header">
+        <!-- Sidebar Toggle Button -->
+        <div class="sidebar-toggle">
+          <button id="toggle-btn" class="toggle-btn">
+            <i class="fas fa-bars" id="toggle-icon"></i>
+          </button>
+        </div>
+        
+        <!-- User Info Content -->
+        <div class="user-info-content">
+          <div class="user-avatar-small">
+            {% if user_profile.photo %}
+              <img src="{{ user_profile.photo.url }}" alt="{{ user.get_full_name|default:user.username }}" 
+                   style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            {% else %}
+              {{ user.username|first|upper }}
+            {% endif %}
+          </div>
+          <div class="user-details">
+            <div class="user-name-small">{{ user.get_full_name|default:user.username }}</div>
+            <div class="user-role">
+              {% for role in user.organization_roles.all %}
+                {% if role.is_active %}
+                  {{ role.get_role_display }}
+                {% endif %}
+              {% empty %}
+                Member
+              {% endfor %}
+            </div>
+            <div class="user-organization">
+              {% for role in user.organization_roles.all %}
+                {% if role.is_active %}
+                  {{ role.organization.name }}
+                {% endif %}
+              {% empty %}
+                Community
+              {% endfor %}
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- Sidebar Content -->
       <div class="nav-content">
-        <div class="nav-header">
-          <div class="user-info-content">
-            <div class="user-avatar-small">
-              {% if user_profile.photo %}
-                <img src="{{ user_profile.photo.url }}" alt="{{ user.get_full_name|default:user.username }}" 
-                     style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-              {% else %}
-                {{ user.username|first|upper }}
-              {% endif %}
-            </div>
-            <div class="user-details">
-              <div class="user-name-small">{{ user.get_full_name|default:user.username }}</div>
-              <div class="user-role">
-                {% for role in user.organization_roles.all %}
-                  {% if role.is_active %}
-                    {{ role.get_role_display }}
-                  {% endif %}
-                {% empty %}
-                  Member
-                {% endfor %}
-              </div>
-              <div class="user-organization">
-                {% for role in user.organization_roles.all %}
-                  {% if role.is_active %}
-                    {{ role.organization.name }}
-                  {% endif %}
-                {% empty %}
-                  Community
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
       
       <div class="nav-menu">
         <a href="{% url 'events:dashboard' %}" data-tooltip="Dashboard">
