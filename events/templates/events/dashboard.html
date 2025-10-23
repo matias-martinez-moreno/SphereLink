@@ -9,7 +9,11 @@
         <div class="col-12">
             <div class="dashboard-header">
                 <div class="dashboard-title-container">
-                    <h1 class="dashboard-title">Welcome {{ request.user.first_name|default:request.user.username }}, Manage Your Events & Organization</h1>
+                    {% if is_staff_user %}
+                        <h1 class="dashboard-title">Welcome {{ request.user.first_name|default:request.user.username }}, Manage Events & Organization as Staff</h1>
+                    {% else %}
+                        <h1 class="dashboard-title">Welcome {{ request.user.first_name|default:request.user.username }}, Discover and Join Events</h1>
+                    {% endif %}
                 </div>
                 
                 <div class="dashboard-stats">

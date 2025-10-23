@@ -19,16 +19,6 @@
                     </div>
                 </div>
                 
-                <div class="dashboard-help">
-                    <a href="{% url 'organizations:superadmin_help' %}" 
-                       class="help-button" 
-                       data-bs-toggle="tooltip" 
-                       data-bs-placement="left" 
-                       title="Super Admin Help Guide - Learn how to manage the system">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Guide</span>
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -153,38 +143,6 @@
     flex-shrink: 0;
 }
 
-.dashboard-help {
-    flex-shrink: 0;
-}
-
-/* Help Button Styling */
-.help-button {
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 18px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
-}
-
-.help-button:hover {
-    background: #5a6268;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-    text-decoration: none;
-}
-
-.help-button i {
-    font-size: 1rem;
-}
 
 /* Organizations Available Badge - Synchronized Design */
 .organizations-available-simple {
@@ -268,10 +226,6 @@
         font-size: 0.8rem;
     }
     
-    .help-button {
-        padding: 10px 15px;
-        font-size: 0.85rem;
-    }
 }
 
 .btn-search {
