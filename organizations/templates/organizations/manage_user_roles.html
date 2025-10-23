@@ -220,15 +220,18 @@
                     </div>
                 </div>
                 
-                <form id="changePasswordForm">
+                <form id="changePasswordForm" autocomplete="off">
                     {% csrf_token %}
                     <input type="hidden" id="changePasswordUserId" name="user_id">
+                    <!-- Hidden fields to prevent browser password saving -->
+                    <input type="text" style="display:none" name="fake_username">
+                    <input type="password" style="display:none" name="fake_password">
                     <div class="mb-3">
                         <label for="newPassword" class="form-label">
                             <i class="fas fa-lock me-2"></i>New Password
                         </label>
                         <input type="password" class="form-control" id="newPassword" name="new_password" 
-                               placeholder="Enter new password" required minlength="6">
+                               placeholder="Enter new password" required minlength="6" autocomplete="new-password">
                         <div class="invalid-feedback" id="newPasswordError"></div>
                     </div>
                     
@@ -237,7 +240,7 @@
                             <i class="fas fa-lock me-2"></i>Confirm New Password
                         </label>
                         <input type="password" class="form-control" id="confirmPassword" name="confirm_password" 
-                               placeholder="Confirm new password" required>
+                               placeholder="Confirm new password" required autocomplete="new-password">
                         <div class="invalid-feedback" id="confirmPasswordError"></div>
                     </div>
                 </form>
@@ -606,20 +609,53 @@ function deleteUserRole(userRoleId) {
 }
 
 function changeUserPassword(userId, username) {
-    document.getElementById('changePasswordUserId').value = userId;
-    document.getElementById('changePasswordUsername').textContent = username;
-    document.getElementById('changePasswordEmail').textContent = ''; // We'll get this from the row
+    // Set user ID and username
+    const userIdField = document.getElementById('changePasswordUserId');
+    const usernameField = document.getElementById('changePasswordUsername');
+    const emailField = document.getElementById('changePasswordEmail');
     
-    // Get email from the table row
-    const userRow = document.querySelector(`tr[data-user-role-id] button[onclick*="${userId}"]`).closest('tr');
-    const email = userRow.querySelector('td:nth-child(2)').textContent.trim();
-    document.getElementById('changePasswordEmail').textContent = email;
+    if (!userIdField || !usernameField || !emailField) {
+        showAlert('Error: Modal elements not found', 'danger');
+        return;
+    }
+    
+    userIdField.value = userId;
+    usernameField.textContent = username;
+    
+    // Get email from the table row - simplified approach
+    try {
+        // Find the button that was clicked and get its parent row
+        const clickedButton = event.target;
+        const userRow = clickedButton.closest('tr');
+        
+        if (userRow) {
+            const emailCell = userRow.querySelector('td:nth-child(2)');
+            if (emailCell) {
+                emailField.textContent = emailCell.textContent.trim();
+            } else {
+                emailField.textContent = 'Email not found';
+            }
+        } else {
+            emailField.textContent = 'Email not found';
+        }
+    } catch (error) {
+        emailField.textContent = 'Email not found';
+    }
     
     // Clear form and errors
-    document.getElementById('changePasswordForm').reset();
+    const form = document.getElementById('changePasswordForm');
+    if (form) {
+        form.reset();
+    }
     clearPasswordErrors();
     
-    new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+    // Show modal
+    const modal = document.getElementById('changePasswordModal');
+    if (modal) {
+        new bootstrap.Modal(modal).show();
+    } else {
+        showAlert('Error: Modal not found', 'danger');
+    }
 }
 
 // Alert function for showing messages
@@ -734,6 +770,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Frontend validation
             let hasErrors = false;
             
+            if (!userId || userId.trim() === '') {
+                showAlert('User ID not found. Please try again.', 'danger');
+                return;
+            }
+            
+            if (isNaN(userId)) {
+                showAlert('Invalid user ID. Please try again.', 'danger');
+                return;
+            }
+            
             if (newPassword.length < 6) {
                 showPasswordError('newPassword', 'Password must be at least 6 characters long');
                 hasErrors = true;
@@ -754,9 +800,18 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Changing...';
             submitBtn.disabled = true;
             
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (!csrfToken) {
+                showAlert('Error: CSRF token not found', 'danger');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+            
             // Submit via AJAX
             const formData = new FormData();
-            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            formData.append('csrfmiddlewaretoken', csrfToken.value);
             formData.append('user_id', userId);
             formData.append('action', 'change_password');
             formData.append('new_password', newPassword);
@@ -769,19 +824,44 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response. Check server logs for errors.');
+                }
+                
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     showAlert('Password changed successfully!', 'success');
-                    bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
                     document.getElementById('changePasswordForm').reset();
                 } else {
                     showAlert(data.error || 'Error changing password', 'danger');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                showAlert('Error changing password. Please try again.', 'danger');
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    showAlert('Connection error: Server is not responding. Please check if the server is running.', 'danger');
+                } else if (error.message.includes('non-JSON response')) {
+                    showAlert('Server error: Check server logs for details', 'danger');
+                } else if (error.message.includes('Unexpected token')) {
+                    showAlert('Server returned invalid response. Check server logs.', 'danger');
+                } else if (error.message.includes('CONNECTION_REFUSED')) {
+                    showAlert('Connection refused: Server is not running or not accessible.', 'danger');
+                } else {
+                    showAlert(`Error changing password: ${error.message}`, 'danger');
+                }
             })
             .finally(() => {
                 // Restore button state
@@ -789,149 +869,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.disabled = false;
             });
         });
-    }
-    
-    // Password change form validation
-    const changePasswordForm = document.getElementById('changePasswordForm');
-    if (changePasswordForm) {
-        changePasswordForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Clear previous error messages
-            document.querySelectorAll('.password-error').forEach(el => el.remove());
-            
-            let hasErrors = false;
-            
-            // Check password length
-            if (newPassword.length < 6) {
-                showPasswordError('newPassword', 'Password must be at least 6 characters long!');
-                hasErrors = true;
-            }
-            
-            // Check if passwords match
-            if (newPassword !== confirmPassword) {
-                showPasswordError('confirmPassword', 'Passwords do not match!');
-                hasErrors = true;
-            }
-            
-            // Check for empty passwords
-            if (!newPassword.trim()) {
-                showPasswordError('newPassword', 'Password cannot be empty!');
-                hasErrors = true;
-            }
-            
-            if (!confirmPassword.trim()) {
-                showPasswordError('confirmPassword', 'Please confirm your password!');
-                hasErrors = true;
-            }
-            
-            // Clear any previous validation errors
-            document.querySelectorAll('.is-invalid').forEach(field => {
-                field.classList.remove('is-invalid');
-            });
-            
-            // Check if new password is different from current (basic check)
-            if (newPassword.length > 0 && newPassword === confirmPassword && newPassword.length >= 6) {
-                // This is a valid password, we'll let the server handle the "same password" check
-            }
-            
-            if (hasErrors) {
-                return false;
-            }
-            
-            // Show loading state
-            const submitBtn = document.querySelector('button[form="changePasswordForm"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Changing...';
-            submitBtn.disabled = true;
-            
-            // Submit form via fetch
-            const formData = new FormData(this);
-            
-            // Debug: Log form data
-            console.log('Change password form data being sent:');
-            for (let [key, value] of formData.entries()) {
-                console.log(key, value);
-            }
-            
-            fetch(window.location.href, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response data:', data);
-                if (data.success) {
-                    console.log('Password change successful');
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
-                    if (modal) {
-                        modal.hide();
-                    }
-                    
-                    // Clear form
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
-                    
-                    // Clear any validation errors
-                    document.querySelectorAll('.password-error').forEach(el => el.remove());
-                    document.querySelectorAll('.is-invalid').forEach(field => {
-                        field.classList.remove('is-invalid');
-                    });
-                    
-                    // Show success message
-                    showAlert(data.message || 'Password changed successfully!', 'success');
-                } else {
-                    console.log('Password change failed:', data.error);
-                    // Show specific error message
-                    const errorMessage = data.error || 'Unknown error occurred';
-                    showAlert('Error: ' + errorMessage, 'danger');
-                    
-                    // Clear form on error
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
-                    
-                    // Clear any validation errors
-                    document.querySelectorAll('.password-error').forEach(el => el.remove());
-                    document.querySelectorAll('.is-invalid').forEach(field => {
-                        field.classList.remove('is-invalid');
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('Error changing password. Please try again.', 'danger');
-            })
-            .finally(() => {
-                // Reset button
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
-        });
-    }
-    
-    // Function to show password error messages
-    function showPasswordError(fieldId, message) {
-        const field = document.getElementById(fieldId);
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'password-error text-danger small mt-1';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-1"></i>${message}`;
-        field.parentNode.appendChild(errorDiv);
-        field.classList.add('is-invalid');
     }
     
     // Delete user confirmation

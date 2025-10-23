@@ -43,12 +43,17 @@
                             </ul>
                             
                             <h6>What happens during processing:</h6>
-                            <ul class="mb-0">
+                            <ul class="mb-3">
                                 <li>✅ Valid emails will create new user accounts</li>
                                 <li>🔄 Existing users will be added to the selected organization</li>
                                 <li>❌ Invalid emails will be skipped and reported</li>
                                 <li>⚠️ Users already in the organization will be skipped</li>
                             </ul>
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-key me-2"></i>
+                                <strong>Passwords:</strong> New users get temporary passwords in format <code>Temp{username}123!</code> (must change on first login)
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <h6>Sample CSV Format:</h6>

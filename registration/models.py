@@ -7,9 +7,7 @@ class ContactMessage(models.Model):
     """
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('in_progress', 'In Progress'),
-        ('resolved', 'Resolved'),
-        ('closed', 'Closed'),
+        ('solved', 'Solved'),
     ]
     
     email = models.EmailField(help_text="User's email address")

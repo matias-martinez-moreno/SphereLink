@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .forms import ProfileForm, PhotoForm
+from .forms import ProfileForm, PhotoForm, UserProfileForm
 from .models import Profile
 
 
@@ -92,7 +92,7 @@ def edit_profile(request):
     """
     Vista para editar el perfil del usuario
     - Solo usuarios autenticados pueden editar su perfil
-    - Crea automáticamente un perfil si no existe
+    - Permite editar username, first_name, last_name y foto
     - Procesa el formulario y guarda los cambios
     """
     if not request.user.is_authenticated:
@@ -107,18 +107,35 @@ def edit_profile(request):
         profile = Profile.objects.create(user=request.user)
     
     if request.method == "POST":
-        # Procesar formulario de edición
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
+        # Procesar ambos formularios
+        user_form = UserProfileForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        
+        # Debug: Print form data
+        print(f"DEBUG - User form data: {request.POST}")
+        print(f"DEBUG - User form valid: {user_form.is_valid()}")
+        if not user_form.is_valid():
+            print(f"DEBUG - User form errors: {user_form.errors}")
+        print(f"DEBUG - Profile form valid: {profile_form.is_valid()}")
+        if not profile_form.is_valid():
+            print(f"DEBUG - Profile form errors: {profile_form.errors}")
+        
+        if user_form.is_valid() and profile_form.is_valid():
             # Guardar cambios y redirigir al perfil
-            form.save()
+            user_form.save()
+            profile_form.save()
+            messages.success(request, "Profile updated successfully!")
             return redirect('profiles:my_profile')
-        # Si hay errores, se muestran automáticamente en el template
     else:
-        # Mostrar formulario con datos actuales
-        form = ProfileForm(instance=profile)
+        # Mostrar formularios con datos actuales
+        user_form = UserProfileForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
 
-    return render(request, 'profiles/edit_profile.html', {'form': form})
+    return render(request, 'profiles/edit_profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'profile': profile
+    })
 
 
 def view_user_profile(request, user_id):

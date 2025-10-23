@@ -7,31 +7,36 @@
     <!-- Header Section with Help Button -->
     <div class="row mb-3">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center w-100">
-                    <h2 class="text-dark mb-0 fw-bold me-auto">Manage your events and organization</h2>
-                    <div class="events-counter mx-auto">
-                        <span class="badge bg-primary fs-6 px-8 py-3 rounded-pill d-flex align-items-center justify-content-center">
-                            <span>{{ total_events }} Events Available</span>
-                        </span>
+            <div class="dashboard-header">
+                <div class="dashboard-title-container">
+                    <h1 class="dashboard-title">Welcome {{ request.user.first_name|default:request.user.username }}, Manage Your Events & Organization</h1>
+                </div>
+                
+                <div class="dashboard-stats">
+                    <div class="events-available-simple">
+                        <span class="events-count">{{ total_events }}</span>
+                        <span class="events-text">Events Available</span>
                     </div>
                 </div>
-                <div class="d-flex justify-content-center">
+                
+                <div class="dashboard-help">
                     {% if is_staff_user %}
                     <a href="{% url 'organizations:staff_help' %}" 
-                       class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center" 
+                       class="help-button" 
                        data-bs-toggle="tooltip" 
                        data-bs-placement="left" 
                        title="Staff Help Guide - Learn how to manage events as staff">
-                        <i class="fas fa-question-circle me-1"></i>Help
+                        <i class="fas fa-question-circle"></i>
+                        <span>Help</span>
                     </a>
                     {% else %}
                     <a href="{% url 'organizations:member_help' %}" 
-                       class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center" 
+                       class="help-button" 
                        data-bs-toggle="tooltip" 
                        data-bs-placement="left" 
                        title="Member Help Guide - Learn how to manage events as a member">
-                        <i class="fas fa-question-circle me-1"></i>Help
+                        <i class="fas fa-question-circle"></i>
+                        <span>Help</span>
                     </a>
                     {% endif %}
                 </div>
@@ -158,37 +163,169 @@
 </div>
 
 <style>
-/* Additional styles specific to dashboard */
-.total-events-container {
-    background: #1e3a8a;
-    color: white;
+/* Dashboard Header Layout */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: #f8f9fa;
     border-radius: 15px;
-    padding: 1px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: none;
+    padding: 20px 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
 }
 
-.total-events-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
-    background: #1e3a8a;
-    color: white;
+.dashboard-title-container {
+    flex: 1;
+    text-align: left;
 }
 
-.total-events-number {
-    font-size: 2.2rem;
-    font-weight: bold;
+.dashboard-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
     margin-bottom: 5px;
-    color: white;
+    line-height: 1.3;
 }
 
-.total-events-label {
+.dashboard-subtitle {
+    font-size: 0.95rem;
+    color: #6c757d;
+    font-weight: 500;
+    margin: 0;
+}
+
+.dashboard-stats {
+    flex-shrink: 0;
+}
+
+.dashboard-help {
+    flex-shrink: 0;
+}
+
+/* Help Button Styling */
+.help-button {
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+}
+
+.help-button:hover {
+    background: #5a6268;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    text-decoration: none;
+}
+
+.help-button i {
     font-size: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .dashboard-title-container {
+        text-align: center;
+    }
+    
+    .dashboard-stats {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 15px 20px;
+    }
+    
+    .dashboard-title {
+        font-size: 1.3rem;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .help-button {
+        padding: 10px 15px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Events Available Badge - Synchronized Design */
+.events-available-simple {
+    background: #198754;
+    color: white;
+    border-radius: 12px;
+    padding: 8px 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.2);
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 280px;
+    cursor: pointer;
+}
+
+.events-available-simple:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+    background: #146c43;
+}
+
+.events-count {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+    display: inline;
+    line-height: 1;
+}
+
+.events-text {
+    font-size: 0.9rem;
     font-weight: 500;
     color: white;
     opacity: 0.9;
+    display: inline;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .events-available-simple {
+        min-width: 240px;
+        padding: 6px 16px;
+    }
+    
+    .events-count {
+        font-size: 1.2rem;
+    }
+    
+    .events-text {
+        font-size: 0.8rem;
+    }
 }
 
 .btn-search {
@@ -262,6 +399,42 @@ document.addEventListener('DOMContentLoaded', function() {
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    
+    // Enhanced Events Available Card functionality
+    const eventsCard = document.querySelector('.events-available-simple');
+    const eventsNumber = document.querySelector('.events-count');
+    
+    if (eventsCard && eventsNumber) {
+        // Add click functionality to scroll to events
+        eventsCard.addEventListener('click', function() {
+            const eventsSection = document.querySelector('.row.g-3');
+            if (eventsSection) {
+                eventsSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+        
+        // Get total events for accessibility
+        const totalEvents = parseInt(eventsNumber.textContent);
+        
+        // Add hover tooltip
+        eventsCard.setAttribute('title', 'Click to scroll to events');
+        
+        // Add keyboard accessibility
+        eventsCard.setAttribute('tabindex', '0');
+        eventsCard.setAttribute('role', 'button');
+        eventsCard.setAttribute('aria-label', `View ${totalEvents} available events`);
+        
+        // Handle keyboard events
+        eventsCard.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                eventsCard.click();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

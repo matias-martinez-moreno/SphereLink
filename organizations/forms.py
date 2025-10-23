@@ -1,5 +1,7 @@
 from django import forms
+from django.contrib.auth.models import User
 from .models import Organization, UserRole, OrganizationInvitation
+from .validators import validate_unique_email, validate_unique_username
 
 class OrganizationForm(forms.ModelForm):
     class Meta:
@@ -106,3 +108,62 @@ class CSVBulkInviteForm(forms.Form):
         if file.size > 5 * 1024 * 1024:  # 5MB limit
             raise forms.ValidationError('File size must be less than 5MB.')
         return file
+
+class CreateUserForm(forms.Form):
+    """
+    Formulario para crear usuarios con validaciones de email y username únicos
+    """
+    ROLE_CHOICES = [
+        ('member', 'Regular Member'),
+        ('staff', 'Staff Member'),
+    ]
+    
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+    )
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control'}),
+        help_text="Required. Enter a valid email address."
+    )
+    
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        help_text="Password must be at least 8 characters long."
+    )
+    
+    first_name = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    last_name = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        initial='member'
+    )
+    
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        validate_unique_username(username)
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        validate_unique_email(email)
+        return email
+    
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if len(password) < 8:
+            raise forms.ValidationError("Password must be at least 8 characters long.")
+        return password

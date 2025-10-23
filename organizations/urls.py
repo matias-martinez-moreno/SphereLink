@@ -5,6 +5,7 @@ app_name = 'organizations'
 
 urlpatterns = [
     path('', views.organization_list, name='organization_list'),
+    path('dashboard/', views.superadmin_dashboard, name='superadmin_dashboard'),
     path('create/', views.create_organization, name='create_organization'),
     path('edit/<int:org_id>/', views.edit_organization, name='edit_organization'),
     path('delete/<int:org_id>/', views.delete_organization, name='delete_organization'),

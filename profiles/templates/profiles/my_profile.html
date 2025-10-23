@@ -7,11 +7,14 @@
     <div class="row mb-3">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-            <h2 class="text-dark mb-2">My Profile</h2>
-            <a href="{% url 'profiles:change_photo' %}" class="btn btn-primary">
-                <i class="fas fa-camera me-2"></i>Edit Photo
+            <h2 class="text-dark mb-2">My Personal Profile</h2>
+            <a href="{% url 'profiles:edit_profile' %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit Profile
             </a>
             </div>
+            <a href="{% url 'events:dashboard' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>Back to Dashboard
+            </a>
         </div>
     </div>
 
@@ -21,7 +24,18 @@
             <!-- Personal Information Card -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Personal Information</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="profile-photo-small me-3">
+                            {% if profile.photo %}
+                                <img src="{{ profile.photo.url }}" alt="Profile Photo" class="profile-photo-img">
+                            {% else %}
+                                <div class="profile-photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <h5 class="mb-0">Personal Information</h5>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -119,22 +133,6 @@
 
         <!-- Right Column - Account & Role Information -->
         <div class="col-lg-4">
-            <!-- Profile Photo Card -->
-            <div class="card mb-3">
-                <div class="card-body text-center">
-                    {% if profile.photo %}
-                        <img src="{{ profile.photo.url }}" alt="Profile Photo" 
-                             class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                    {% else %}
-                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" 
-                             style="width: 150px; height: 150px;">
-                            <i class="fas fa-user fa-4x text-muted"></i>
-                        </div>
-                    {% endif %}
-                    <h5 class="mb-1">{{ request.user.get_full_name|default:request.user.username }}</h5>
-                    <p class="text-muted mb-0">{{ request.user.email|default:"No email provided" }}</p>
-                </div>
-            </div>
 
             <!-- Account & Role Information Card -->
             <div class="card shadow-sm">
@@ -318,6 +316,49 @@ hr {
 
 .notifications-list::-webkit-scrollbar-thumb:hover {
     background: #0d2a4a;
+}
+
+/* Profile Photo Styles */
+.profile-photo-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+}
+
+.profile-photo-tiny {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+    flex-shrink: 0;
+}
+
+.profile-photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.8rem;
+}
+
+.profile-photo-tiny .profile-photo-placeholder {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-size: 0.6rem;
 }
 
 </style>

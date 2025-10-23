@@ -1,6 +1,6 @@
 {% extends 'organizations/superadmin_base.html' %}
 
-{% block title %}Quick Help - SphereLink Admin{% endblock %}
+{% block title %}Super Admin Help Guide - SphereLink{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -8,22 +8,102 @@
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="text-dark mb-2">
-                <i class="fas fa-question-circle me-2"></i>Quick Help Guide
+                <i class="fas fa-crown me-2"></i>Super Admin Help Guide
             </h2>
-            <p class="text-muted">Essential guide for managing the SphereLink platform</p>
+            <p class="text-muted">Complete system administration guide</p>
             <a href="{% url 'organizations:organization_list' %}" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left me-2"></i>Back to Organizations
             </a>
         </div>
     </div>
 
-    <!-- Main Navigation Guide -->
+    <!-- Your Powers -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Your Super Admin Powers
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                                <h6>Manage Organizations</h6>
+                                <p class="small text-muted">Create, edit, delete organizations</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-users fa-2x text-info mb-2"></i>
+                                <h6>User Management</h6>
+                                <p class="small text-muted">Control all users system-wide</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-envelope fa-2x text-warning mb-2"></i>
+                                <h6>Contact Messages</h6>
+                                <p class="small text-muted">Handle user inquiries</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-chart-bar fa-2x text-success mb-2"></i>
+                                <h6>System Analytics</h6>
+                                <p class="small text-muted">View system statistics</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-compass me-2"></i>Main Navigation
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">🏢 Create Organization</h6>
+                            <ol class="small">
+                                <li>Click "Create Organization" in sidebar</li>
+                                <li>Fill organization details (name, email, description)</li>
+                                <li>Set organization status (active/inactive)</li>
+                                <li>Click "Create Organization"</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">👥 Add Users to Organization</h6>
+                            <ol class="small">
+                                <li>Go to organization details</li>
+                                <li>Click "Add New User"</li>
+                                <li>Fill user information</li>
+                                <li>Set role (Staff/Member) and save</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Guide -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-compass me-2"></i>Navigation Guide
                     </h5>
                 </div>
                 <div class="card-body">
@@ -32,28 +112,28 @@
                             <div class="p-3 border rounded">
                                 <i class="fas fa-building fa-2x text-primary mb-2"></i>
                                 <h6>Organizations</h6>
-                                <p class="small text-muted">Manage all organizations, create new ones, edit details</p>
+                                <p class="small text-muted">View all organizations, create new ones</p>
                             </div>
                         </div>
                         <div class="col-md-3 text-center mb-3">
                             <div class="p-3 border rounded">
-                                <i class="fas fa-users fa-2x text-info mb-2"></i>
+                                <i class="fas fa-user-cog fa-2x text-info mb-2"></i>
                                 <h6>User Management</h6>
-                                <p class="small text-muted">View all users, manage roles, system-wide user control</p>
+                                <p class="small text-muted">Manage users, roles, passwords</p>
                             </div>
                         </div>
                         <div class="col-md-3 text-center mb-3">
                             <div class="p-3 border rounded">
                                 <i class="fas fa-envelope fa-2x text-warning mb-2"></i>
                                 <h6>Contact Messages</h6>
-                                <p class="small text-muted">Read and respond to user messages and inquiries</p>
+                                <p class="small text-muted">Read and respond to messages</p>
                             </div>
                         </div>
                         <div class="col-md-3 text-center mb-3">
                             <div class="p-3 border rounded">
-                                <i class="fas fa-user-cog fa-2x text-success mb-2"></i>
+                                <i class="fas fa-user fa-2x text-success mb-2"></i>
                                 <h6>My Profile</h6>
-                                <p class="small text-muted">Update your profile information and settings</p>
+                                <p class="small text-muted">Your profile and settings</p>
                             </div>
                         </div>
                     </div>
@@ -62,70 +142,39 @@
         </div>
     </div>
 
-    <!-- Organization Management Workflow -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-sitemap me-2"></i>Organization Management Workflow
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="text-center">
-                                <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 40px; height: 40px;">1</div>
-                                <h6>Create Organization</h6>
-                                <p class="small text-muted">Click "Create Organization" → Fill details → Save</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="text-center">
-                                <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 40px; height: 40px;">2</div>
-                                <h6>Add Users</h6>
-                                <p class="small text-muted">Go to organization → "Add New User" → Fill user info</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="text-center">
-                                <div class="step-number bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 40px; height: 40px;">3</div>
-                                <h6>Manage Users</h6>
-                                <p class="small text-muted">"Manage Users" → Edit roles → Change passwords</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Key Features -->
+    <!-- Organization Management -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-star me-2"></i>Key Features
+                        <i class="fas fa-sitemap me-2"></i>Organization Management
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-success">🔍 Search & Filter</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-search text-info me-2"></i>Search organizations by name, email, or description</li>
-                                <li><i class="fas fa-filter text-info me-2"></i>Filter users by name or email in User Management</li>
-                                <li><i class="fas fa-chart-bar text-info me-2"></i>View real-time statistics for each organization</li>
+                        <div class="col-md-4">
+                            <h6 class="text-success">📊 View Organizations</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-list text-info me-2"></i>See all organizations in dashboard</li>
+                                <li><i class="fas fa-search text-info me-2"></i>Search by name, email, or description</li>
+                                <li><i class="fas fa-chart-bar text-info me-2"></i>View user count and statistics</li>
                             </ul>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-success">⚡ Quick Actions</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-upload text-info me-2"></i>Bulk invite users with CSV files</li>
-                                <li><i class="fas fa-edit text-info me-2"></i>Change user roles instantly (no page reload)</li>
-                                <li><i class="fas fa-key text-info me-2"></i>Reset passwords securely</li>
-                                <li><i class="fas fa-trash text-info me-2"></i>Remove users with confirmation modal</li>
+                        <div class="col-md-4">
+                            <h6 class="text-success">➕ Create Organization</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-plus text-info me-2"></i>Click "Create Organization"</li>
+                                <li><i class="fas fa-edit text-info me-2"></i>Fill name, email, description</li>
+                                <li><i class="fas fa-toggle-on text-info me-2"></i>Set active/inactive status</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-success">👥 Manage Users</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-user-plus text-info me-2"></i>Add new users to organization</li>
+                                <li><i class="fas fa-user-edit text-info me-2"></i>Change user roles (Staff/Member)</li>
+                                <li><i class="fas fa-key text-info me-2"></i>Reset user passwords</li>
                             </ul>
                         </div>
                     </div>
@@ -134,13 +183,79 @@
         </div>
     </div>
 
-    <!-- User Roles -->
+    <!-- User Management -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-warning text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-users-cog me-2"></i>User Roles
+                        <i class="fas fa-users-cog me-2"></i>User Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-warning">🔍 Find Users</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-search text-info me-2"></i>Search by name or email</li>
+                                <li><i class="fas fa-filter text-info me-2"></i>Filter by organization</li>
+                                <li><i class="fas fa-list text-info me-2"></i>View all users system-wide</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-warning">⚙️ Manage Users</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-edit text-info me-2"></i>Edit user information</li>
+                                <li><i class="fas fa-key text-info me-2"></i>Reset passwords</li>
+                                <li><i class="fas fa-trash text-info me-2"></i>Remove users from system</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Messages -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>Contact Messages
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-danger">📨 View Messages</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-inbox text-info me-2"></i>See all user messages</li>
+                                <li><i class="fas fa-clock text-warning me-2"></i>Pending messages need attention</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Mark as solved when resolved</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger">📊 Message Statistics</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-chart-pie text-info me-2"></i>Pending vs Solved count</li>
+                                <li><i class="fas fa-filter text-info me-2"></i>Filter by status</li>
+                                <li><i class="fas fa-search text-info me-2"></i>Search message content</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Roles Guide -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>User Roles Guide
                     </h5>
                 </div>
                 <div class="card-body">
@@ -150,9 +265,9 @@
                                 <i class="fas fa-user-tie fa-2x text-primary mb-2"></i>
                                 <h6 class="text-primary">Staff Members</h6>
                                 <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-1"></i>Create and manage events</li>
-                                    <li><i class="fas fa-check text-success me-1"></i>Invite new members</li>
-                                    <li><i class="fas fa-check text-success me-1"></i>Full organization access</li>
+                                    <li><i class="fas fa-check text-success me-1"></i>Create Official events</li>
+                                    <li><i class="fas fa-check text-success me-1"></i>Moderate content</li>
+                                    <li><i class="fas fa-check text-success me-1"></i>Full org access</li>
                                 </ul>
                             </div>
                         </div>
@@ -161,9 +276,9 @@
                                 <i class="fas fa-user fa-2x text-info mb-2"></i>
                                 <h6 class="text-info">Regular Members</h6>
                                 <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-1"></i>Register for events</li>
-                                    <li><i class="fas fa-check text-success me-1"></i>View event details</li>
-                                    <li><i class="fas fa-times text-danger me-1"></i>Cannot create events</li>
+                                    <li><i class="fas fa-check text-success me-1"></i>Create Community events</li>
+                                    <li><i class="fas fa-check text-success me-1"></i>Join events</li>
+                                    <li><i class="fas fa-times text-danger me-1"></i>Cannot create Official events</li>
                                 </ul>
                             </div>
                         </div>
@@ -172,7 +287,7 @@
                                 <i class="fas fa-crown fa-2x text-warning mb-2"></i>
                                 <h6 class="text-warning">Super Admin</h6>
                                 <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-1"></i>Full system access</li>
+                                    <li><i class="fas fa-check text-success me-1"></i>Full system control</li>
                                     <li><i class="fas fa-check text-success me-1"></i>Manage all organizations</li>
                                     <li><i class="fas fa-check text-success me-1"></i>Control all users</li>
                                 </ul>
@@ -184,31 +299,31 @@
         </div>
     </div>
 
-    <!-- Common Issues -->
-    <div class="row mb-4">
+    <!-- Tips & Best Practices -->
+    <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-danger text-white">
+                <div class="card-header bg-dark text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Common Issues & Solutions
+                        <i class="fas fa-lightbulb me-2"></i>Tips & Best Practices
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="text-danger">❌ User Login Issues</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-lightbulb text-warning me-2"></i><strong>Organization inactive:</strong> Check organization status</li>
-                                <li><i class="fas fa-lightbulb text-warning me-2"></i><strong>No role assigned:</strong> Assign user to organization</li>
-                                <li><i class="fas fa-lightbulb text-warning me-2"></i><strong>Wrong password:</strong> Reset user password</li>
+                            <h6 class="text-primary">💡 Pro Tips</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-search text-info me-2"></i>Use search to quickly find organizations/users</li>
+                                <li><i class="fas fa-upload text-info me-2"></i>Use CSV bulk invite for multiple users</li>
+                                <li><i class="fas fa-chart-bar text-info me-2"></i>Monitor organization statistics regularly</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-danger">❌ Organization Issues</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-lightbulb text-warning me-2"></i><strong>Status inactive:</strong> Activate organization</li>
-                                <li><i class="fas fa-lightbulb text-warning me-2"></i><strong>Missing info:</strong> Update organization details</li>
-                                <li><i class="fas fa-lightbulb text-warning me-2"></i><strong>No users:</strong> Add users to organization</li>
+                            <h6 class="text-primary">⚠️ Important Notes</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-exclamation-triangle text-warning me-2"></i>Always verify before deleting organizations</li>
+                                <li><i class="fas fa-key text-info me-2"></i>Reset passwords when users can't login</li>
+                                <li><i class="fas fa-envelope text-info me-2"></i>Respond to contact messages promptly</li>
                             </ul>
                         </div>
                     </div>
@@ -234,16 +349,6 @@
 .card-header {
     border-radius: 15px 15px 0 0 !important;
     border: none;
-}
-
-
-.step-number {
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.border {
-    border-color: #e9ecef !important;
 }
 
 .border:hover {

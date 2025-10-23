@@ -276,6 +276,13 @@
             color: #6c757d;
             font-size: 0.85rem;
             line-height: 1.4;
+            max-width: 100%;
+            padding: 0 20px;
+        }
+        
+        .footer-text p {
+            margin-bottom: 8px;
+            text-align: center;
         }
         
         .divider {
@@ -329,11 +336,11 @@
                 <div class="brand-quotes">
                     <div class="quote">
                         <i class="fas fa-circle-notch"></i>
-                        <p>We empower real connections between people, organizations, and events.</p>
+                        <p>We empower real connections between people and organizations.</p>
                     </div>
                     <div class="quote">
                         <i class="fas fa-shield-alt"></i>
-                        <p>Security and simplicity to manage your community ecosystem.</p>
+                        <p>Security and simplicity to manage your community.</p>
                     </div>
                     <div class="quote">
                         <i class="fas fa-bolt"></i>
@@ -393,16 +400,18 @@
                 </button>
             </form>
             
-            
+            <!-- Forgot Password Link -->
+            <div class="text-center mt-3">
+                <a href="{% url 'registration:password_reset' %}" class="text-decoration-none text-primary fw-medium">
+                    <i class="fas fa-key me-1"></i>Forgot your password?
+                </a>
+            </div>
             
             <div class="footer-text">
-                <p><strong>New to SphereLink?</strong></p>
-                <p>Contact your administrator to get access to your organization's events and community.</p>
-                
                 <!-- Contact Admin Button -->
-                <div class="mt-3">
+                <div class="mt-3 d-flex justify-content-center">
                     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#contactAdminModal">
-                        <i class="fas fa-question-circle me-2"></i>Need Help? Contact Admin
+                        <i class="fas fa-headset me-2"></i>Login Issues or Product Inquiry
                     </button>
                 </div>
             </div>
@@ -417,15 +426,15 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="contactAdminModalLabel">
-                        <i class="fas fa-question-circle me-2"></i>Contact Administrator
+                        <i class="fas fa-headset me-2"></i>Need Help?
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Need help with login or account access?</strong><br>
-                        Fill out the form below and an administrator will contact you shortly.
+                        <strong>Having trouble logging in or interested in SphereLink for your organization?</strong><br>
+                        Send us a message and we'll get back to you shortly.
                     </div>
                     
                     <form id="contactForm">
@@ -438,10 +447,10 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="contactMessage" class="form-label">Message *</label>
+                            <label for="contactMessage" class="form-label">How can we help? *</label>
                             <textarea class="form-control" id="contactMessage" name="message" rows="4" 
-                                      placeholder="Describe your issue or what help you need..." required></textarea>
-                            <div class="form-text">Please provide details about your login issue or account problem</div>
+                                      placeholder="Describe your login issue or tell us about your organization..." required></textarea>
+                            <div class="form-text">Login problems, product inquiries, or general questions - we're here to help!</div>
                         </div>
                         
                         <div id="contactFormAlert" class="alert d-none" role="alert"></div>

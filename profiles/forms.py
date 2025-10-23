@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from .models import Profile
 
 class ProfileForm(forms.ModelForm):
@@ -70,3 +71,48 @@ class PhotoForm(forms.ModelForm):
                 raise forms.ValidationError("Please upload a valid image file (JPG, PNG or GIF).")
         
         return photo
+
+class UserProfileForm(forms.ModelForm):
+    """
+    Formulario para editar información del usuario (username)
+    """
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your username'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your first name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your last name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your email',
+                'readonly': 'readonly'
+            })
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Email is readonly - users cannot change their email
+        self.fields['email'].disabled = True
+        self.fields['email'].help_text = 'Email cannot be changed'
+    
+    def clean_username(self):
+        """
+        Validate that the username is unique
+        """
+        username = self.cleaned_data.get('username')
+        
+        # Check if username already exists (excluding current user)
+        if User.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("This username is already taken. Please choose another one.")
+        
+        return username

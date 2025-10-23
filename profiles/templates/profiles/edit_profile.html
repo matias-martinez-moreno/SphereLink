@@ -24,42 +24,107 @@
                     <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
                         
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                        {% endif %}
-
-                        <!-- Profile Photo Field -->
-                        <div class="mb-3">
-                            <label for="{{ form.photo.id_for_label }}" class="form-label">Profile Photo</label>
-                            
-                            <!-- Current Photo Display -->
-                            {% if profile.photo %}
-                            <div class="mb-2">
-                                <p class="text-muted small">Current photo:</p>
-                                <img src="{{ profile.photo.url }}" alt="Current Profile Photo" 
-                                     class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                        <!-- User Information Section -->
+                        <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>User Information</h6>
+                        
+                        <!-- Username and Email Row -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.username.id_for_label }}" class="form-label">Username</label>
+                                {{ user_form.username }}
+                                {% if user_form.username.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in user_form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
-                            
-                            {{ form.photo }}
-                            {% if form.photo.errors %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                {{ user_form.email }}
+                                <small class="form-text text-muted">{{ user_form.email.help_text }}</small>
+                            </div>
+                        </div>
+
+                        <!-- First Name and Last Name Row -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in user_form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in user_form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Profile Photo Section -->
+                        <hr class="my-4">
+                        <h6 class="text-primary mb-3"><i class="fas fa-camera me-2"></i>Profile Photo</h6>
+                        
+                        <!-- Current Photo Display -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center">
+                                {% if profile.photo %}
+                                    <img src="{{ profile.photo.url }}" alt="Current Profile Photo" 
+                                         class="rounded-circle me-3" 
+                                         style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #e9ecef;">
+                                {% else %}
+                                    <div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-secondary text-white" 
+                                         style="width: 60px; height: 60px; font-size: 1.2rem;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="mb-1 text-muted">
+                                        {% if profile.photo %}
+                                            Current photo uploaded
+                                        {% else %}
+                                            No photo uploaded
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photo Upload Field -->
+                        <div class="mb-3">
+                            <label for="{{ profile_form.photo.id_for_label }}" class="form-label">Upload New Photo</label>
+                            {{ profile_form.photo }}
+                            {% if profile_form.photo.errors %}
                                 <div class="text-danger small">
-                                    {% for error in form.photo.errors %}
+                                    {% for error in profile_form.photo.errors %}
                                         {{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
+                            <small class="form-text text-muted">
+                                JPG, PNG, GIF. Maximum 5MB
+                            </small>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-dark">
-                                Save Changes
+                                <i class="fas fa-save me-2"></i>Save Changes
                             </button>
                             <a href="{% url 'profiles:my_profile' %}" class="btn btn-secondary">
-                                Cancel
+                                <i class="fas fa-times me-2"></i>Cancel
                             </a>
                         </div>
                     </form>
@@ -123,5 +188,34 @@
     color: #6c757d;
     font-size: 0.875rem;
 }
+
+/* Simple profile photo styles */
+.rounded-circle {
+    transition: transform 0.2s ease;
+}
+
+.rounded-circle:hover {
+    transform: scale(1.05);
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.querySelector('input[type="file"]');
+    
+    if (photoInput) {
+        // Simple file selection feedback
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Show file size warning if too large
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    alert('File is too large. Please select a file smaller than 5MB.');
+                    this.value = ''; // Clear the input
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

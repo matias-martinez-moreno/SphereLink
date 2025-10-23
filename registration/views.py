@@ -7,9 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.urls import reverse_lazy
 from organizations.models import UserRole
 from .models import ContactMessage
-from .forms import ContactForm
+from .forms import ContactForm, CustomPasswordResetForm
 import time
 
 def login_view(request):
@@ -232,3 +234,26 @@ SphereLink System
     # If GET request, return the form
     form = ContactForm()
     return render(request, 'registration/contact_form.html', {'form': form})
+
+
+# Custom Password Reset Views - Using Django's built-in functionality with custom templates
+class CustomPasswordResetView(PasswordResetView):
+    """Custom password reset view that uses our beautiful template and verifies email exists"""
+    template_name = 'registration/password_reset_form.html'
+    email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_url = reverse_lazy('registration:password_reset_done')
+    form_class = CustomPasswordResetForm
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    """Custom password reset done view"""
+    template_name = 'registration/password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Custom password reset confirm view"""
+    template_name = 'registration/password_reset_confirm.html'
+    success_url = reverse_lazy('registration:password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    """Custom password reset complete view"""
+    template_name = 'registration/password_reset_complete.html'

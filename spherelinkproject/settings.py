@@ -31,16 +31,16 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'registration',  # Moved to top so custom templates override admin templates
+    'events',
+    'profiles',
+    'organizations',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'events',
-    'profiles',
-    'registration',
-    'organizations',
 ]
 
 MIDDLEWARE = [
@@ -152,12 +152,15 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # For production
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 587
+# Para desarrollo: usar console backend (muestra emails en consola)
+# Para producción: usar SMTP backend (envía emails reales)
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+
+# Configuración SMTP para Gmail
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-DEFAULT_FROM_EMAIL = 'noreply@spherelink.com'
-ADMIN_EMAIL = 'admin@spherelink.com'  # Email address to receive contact form submissions
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@spherelink.com')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@spherelink.com')

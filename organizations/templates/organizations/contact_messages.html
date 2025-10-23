@@ -11,20 +11,15 @@
                 <i class="fas fa-envelope me-2"></i>Contact Messages
             </h2>
             <p class="text-muted">Manage user contact requests and help messages</p>
+            <a href="{% url 'organizations:superadmin_dashboard' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>Back to Organizations
+            </a>
         </div>
     </div>
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-primary">{{ total_messages }}</h4>
-                    <p class="text-muted mb-0">Total Messages</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="card text-center">
                 <div class="card-body">
                     <h4 class="text-warning">{{ pending_messages }}</h4>
@@ -32,19 +27,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-info">{{ in_progress_messages }}</h4>
-                    <p class="text-muted mb-0">In Progress</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-success">{{ resolved_messages }}</h4>
-                    <p class="text-muted mb-0">Resolved</p>
+                    <h4 class="text-success">{{ solved_messages }}</h4>
+                    <p class="text-muted mb-0">Solved</p>
                 </div>
             </div>
         </div>
@@ -67,7 +54,6 @@
                                     <tr>
                                         <th>Date</th>
                                         <th>Email</th>
-                                        <th>Subject</th>
                                         <th>Message</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -75,7 +61,7 @@
                                 </thead>
                                 <tbody>
                                     {% for message in contact_messages %}
-                                    <tr>
+                                    <tr data-message-id="{{ message.id }}">
                                         <td>
                                             <small>{{ message.created_at|date:"M d, Y" }}<br>
                                             {{ message.created_at|time:"g:i A" }}</small>
@@ -83,7 +69,6 @@
                                         <td>
                                             <strong>{{ message.email }}</strong>
                                         </td>
-                                        <td>{{ message.subject }}</td>
                                         <td>
                                             <div style="max-width: 300px; word-wrap: break-word;">
                                                 {{ message.message|truncatechars:100 }}
@@ -102,11 +87,17 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#updateModal{{ message.id }}">
-                                                <i class="fas fa-edit"></i> Update
-                                            </button>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#updateModal{{ message.id }}">
+                                                    <i class="fas fa-edit"></i> Update
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="deleteMessage({{ message.id }}, '{{ message.email }}')">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -142,11 +133,6 @@
                     </div>
                     <div class="col-md-6">
                         <strong>Date:</strong> {{ message.created_at|date:"M d, Y g:i A" }}
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <strong>Subject:</strong> {{ message.subject }}
                     </div>
                 </div>
                 <div class="row mb-3">
@@ -252,18 +238,8 @@
     color: #000 !important;
 }
 
-.badge.bg-in_progress {
-    background-color: #17a2b8 !important;
-    color: #fff !important;
-}
-
-.badge.bg-resolved {
+.badge.bg-solved {
     background-color: #28a745 !important;
-    color: #fff !important;
-}
-
-.badge.bg-closed {
-    background-color: #6c757d !important;
     color: #fff !important;
 }
 
@@ -286,4 +262,72 @@
     font-size: 0.875rem;
 }
 </style>
+
+<script>
+function deleteMessage(messageId, email) {
+    if (confirm(`Are you sure you want to delete the message from ${email}?\n\nThis action cannot be undone.`)) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Show loading state
+        const row = document.querySelector(`tr[data-message-id="${messageId}"]`);
+        if (row) {
+            row.style.opacity = '0.5';
+        }
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `csrfmiddlewaretoken=${csrfToken}&action=delete&message_id=${messageId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the row from the table
+                if (row) {
+                    row.remove();
+                }
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+                
+                // Reload page after 2 seconds to update statistics
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                // Show error message
+                alert(`Error: ${data.error || 'Failed to delete message'}`);
+                if (row) {
+                    row.style.opacity = '1';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting message. Please try again.');
+            if (row) {
+                row.style.opacity = '1';
+            }
+        });
+    }
+}
+</script>
 {% endblock %}

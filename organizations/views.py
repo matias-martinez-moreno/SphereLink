@@ -72,8 +72,10 @@ def organization_list(request):
             Q(website__icontains=search_query)
         )
     
-    # Ordenar por fecha de creación (más recientes primero)
-    organizations = organizations.order_by('-created_at')
+    # Ordenar por número de usuarios (de más a menos usuarios)
+    organizations = organizations.annotate(
+        active_user_count=Count('user_roles', filter=Q(user_roles__is_active=True))
+    ).order_by('-active_user_count', '-created_at')
     
     # Calcular estadísticas para el dashboard (usando todas las organizaciones, no solo las filtradas)
     all_organizations = Organization.objects.all()
@@ -120,6 +122,16 @@ def create_organization(request):
                     staff_password = request.POST.get('staff_password')
                     
                     if staff_username and staff_email and staff_password:
+                        # Verificar que el email no esté en uso
+                        if User.objects.filter(email=staff_email).exists():
+                            messages.error(request, f"Email '{staff_email}' is already in use. Please choose a different email.")
+                            return redirect('organizations:create_organization')
+                        
+                        # Verificar que el username no esté en uso
+                        if User.objects.filter(username=staff_username).exists():
+                            messages.error(request, f"Username '{staff_username}' is already in use. Please choose a different username.")
+                            return redirect('organizations:create_organization')
+                        
                         # Crear usuario con datos básicos
                         staff_user = User.objects.create_user(
                             username=staff_username,
@@ -266,129 +278,158 @@ def manage_user_roles(request, org_id):
     - Permite cambiar roles y estados de usuarios
     - Solo accesible para Super Admins
     """
-    if not _is_super_admin(request.user):
-        messages.error(request, "Access denied. Super Admin privileges required.")
-        return redirect('organizations:organization_list')
-    
-    organization = get_object_or_404(Organization, id=org_id)
-    user_roles = organization.user_roles.select_related('user').order_by('-assigned_at')
-    
-    # Debug: imprimir información sobre los user roles
-    print(f"DEBUG - Total user roles: {user_roles.count()}")
-    for ur in user_roles:
-        print(f"DEBUG - User: {ur.user.username}, Role: {ur.role}")
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        user_role_id = request.POST.get('user_role_id')
+    try:
+        if not _is_super_admin(request.user):
+            messages.error(request, "Access denied. Super Admin privileges required.")
+            return redirect('organizations:organization_list')
         
-        if action and user_role_id:
-            try:
-                user_role = UserRole.objects.get(id=user_role_id, organization=organization)
+        organization = get_object_or_404(Organization, id=org_id)
+        user_roles = organization.user_roles.select_related('user').order_by('-assigned_at')
+        
+        if request.method == 'POST':
+            action = request.POST.get('action')
+            user_role_id = request.POST.get('user_role_id')
+            
+            # Handle change_password action (doesn't require user_role_id)
+            if action == 'change_password':
+                user_id = request.POST.get('user_id')
+                new_password = request.POST.get('new_password')
+                confirm_password = request.POST.get('confirm_password')
                 
-                if action == 'delete_user':
-                    username = user_role.user.username
-                    user_role.delete()
+                # Validate password length
+                if not new_password or len(new_password) < 6:
+                    error_msg = 'Password must be at least 6 characters long.'
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        return JsonResponse({'success': True, 'message': f"User {username} has been removed from the organization."})
-                    messages.success(request, f"User {username} has been removed from the organization.")
+                        return JsonResponse({'success': False, 'error': error_msg})
+                    messages.error(request, error_msg)
+                    return redirect('organizations:manage_user_roles', org_id=org_id)
+                        
+                # Validate password match
+                if new_password != confirm_password:
+                    error_msg = 'Passwords do not match.'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': error_msg})
+                    messages.error(request, error_msg)
+                    return redirect('organizations:manage_user_roles', org_id=org_id)
                 
-                elif action == 'edit_role':
-                    new_role = request.POST.get('role')
-                    if new_role and new_role != user_role.role:
-                        user_role.role = new_role
-                        user_role.assigned_by = request.user
-                        user_role.save()
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({'success': True, 'message': f"Role updated for {user_role.user.username}"})
-                        messages.success(request, f"Role updated for {user_role.user.username}")
-                
-                elif action == 'change_password':
-                    user_id = request.POST.get('user_id')
-                    new_password = request.POST.get('new_password')
-                    confirm_password = request.POST.get('confirm_password')
-                    
-                    # Debug logging
-                    print(f"DEBUG - Change password request:")
-                    print(f"  User ID: {user_id}")
-                    print(f"  New password length: {len(new_password) if new_password else 'None'}")
-                    print(f"  Confirm password length: {len(confirm_password) if confirm_password else 'None'}")
-                    print(f"  Passwords match: {new_password == confirm_password}")
-                    
-                    # Validate password length
-                    if not new_password or len(new_password) < 6:
-                        error_msg = 'Password must be at least 6 characters long.'
-                        print(f"DEBUG - Password length error: {error_msg}")
+                try:
+                    # Validate user_id is not empty
+                    if not user_id:
+                        error_msg = 'User ID is required.'
                         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                             return JsonResponse({'success': False, 'error': error_msg})
                         messages.error(request, error_msg)
                         return redirect('organizations:manage_user_roles', org_id=org_id)
-                    
-                    # Validate password match
-                    if new_password != confirm_password:
-                        error_msg = 'Passwords do not match.'
-                        print(f"DEBUG - Password match error: {error_msg}")
+                        
+                    # Convert user_id to integer
+                    try:
+                        user_id = int(user_id)
+                    except (ValueError, TypeError):
+                        error_msg = f'Invalid user ID format: {user_id}'
                         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                             return JsonResponse({'success': False, 'error': error_msg})
                         messages.error(request, error_msg)
                         return redirect('organizations:manage_user_roles', org_id=org_id)
-                    
+                        
+                    # Try to get the user
                     try:
                         user = User.objects.get(id=user_id)
-                        print(f"DEBUG - User found: {user.username}")
-                        
-                        # Check if the new password is the same as the current password
-                        if user.check_password(new_password):
-                            error_msg = 'New password must be different from the current password.'
-                            print(f"DEBUG - Same password error: {error_msg}")
+
+                        # Verify user belongs to this organization
+                        user_role = UserRole.objects.filter(user=user, organization=organization).first()
+                        if not user_role:
+                            error_msg = f'User {user.username} is not a member of this organization.'
                             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                                 return JsonResponse({'success': False, 'error': error_msg})
                             messages.error(request, error_msg)
                             return redirect('organizations:manage_user_roles', org_id=org_id)
-                        
-                        # Set the new password
-                        user.set_password(new_password)
-                        user.save()
-                        print(f"DEBUG - Password changed successfully for {user.username}")
-                        
-                        success_msg = f"Password changed successfully for {user.username}"
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({'success': True, 'message': success_msg})
-                        messages.success(request, success_msg)
-                        
+
                     except User.DoesNotExist:
-                        error_msg = 'User not found.'
-                        print(f"DEBUG - User not found error: {error_msg}")
+                        error_msg = f'User with ID {user_id} not found in database.'
                         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                             return JsonResponse({'success': False, 'error': error_msg})
                         messages.error(request, error_msg)
                         return redirect('organizations:manage_user_roles', org_id=org_id)
-                
-            except UserRole.DoesNotExist:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({'success': False, 'error': 'User role not found.'})
-                messages.error(request, "User role not found.")
-            except Exception as e:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({'success': False, 'error': f'Error processing action: {str(e)}'})
-                messages.error(request, f"Error processing action: {str(e)}")
-        
+                        
+                    # Check if the new password is the same as the current password
+                    if user.check_password(new_password):
+                        error_msg = 'New password must be different from the current password.'
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': False, 'error': error_msg})
+                        messages.error(request, error_msg)
+                        return redirect('organizations:manage_user_roles', org_id=org_id)
 
+                    # Set the new password
+                    user.set_password(new_password)
+                    user.save()
+
+                    success_msg = f"Password changed successfully for {user.username}"
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': True, 'message': success_msg})
+                    messages.success(request, success_msg)
+                    return redirect('organizations:manage_user_roles', org_id=org_id)
+
+                except Exception as e:
+                    error_msg = f'Error changing password: {str(e)}'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': error_msg})
+                    messages.error(request, error_msg)
+                    return redirect('organizations:manage_user_roles', org_id=org_id)
+            
+            # Handle other actions (require user_role_id)
+            elif action and user_role_id:
+                try:
+                    user_role = UserRole.objects.get(id=user_role_id, organization=organization)
+                
+                    if action == 'delete_user':
+                        username = user_role.user.username
+                        user_role.delete()
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': True, 'message': f"User {username} has been removed from the organization."})
+                        messages.success(request, f"User {username} has been removed from the organization.")
+                
+                    elif action == 'edit_role':
+                        new_role = request.POST.get('role')
+                        if new_role and new_role != user_role.role:
+                            user_role.role = new_role
+                            user_role.assigned_by = request.user
+                            user_role.save()
+                            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                                return JsonResponse({'success': True, 'message': f"Role updated for {user_role.user.username}"})
+                            messages.success(request, f"Role updated for {user_role.user.username}")
+                
+                except UserRole.DoesNotExist:
+                    error_msg = 'User role not found.'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': error_msg})
+                    messages.error(request, error_msg)
+                except Exception as e:
+                    error_msg = f'Error processing action: {str(e)}'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': error_msg})
+                    messages.error(request, error_msg)
+        
+        # Calcular estadísticas de la organización
+        total_users = user_roles.count()
+        staff_members = user_roles.filter(role__in=['staff', 'org_admin', 'super_admin']).count()
+        regular_members = user_roles.filter(role='member').count()
+        
+        context = {
+            'organization': organization,
+            'user_roles': user_roles,
+            'role_choices': UserRole.ROLE_CHOICES,
+            'total_users': total_users,
+            'staff_members': staff_members,
+            'regular_members': regular_members,
+        }
+        return render(request, 'organizations/manage_user_roles.html', context)
     
-    # Calcular estadísticas de la organización
-    total_users = user_roles.count()
-    staff_members = user_roles.filter(role__in=['staff', 'org_admin', 'super_admin']).count()
-    regular_members = user_roles.filter(role='member').count()
-    
-    context = {
-        'organization': organization,
-        'user_roles': user_roles,
-        'role_choices': UserRole.ROLE_CHOICES,
-        'total_users': total_users,
-        'staff_members': staff_members,
-        'regular_members': regular_members,
-    }
-    return render(request, 'organizations/manage_user_roles.html', context)
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': f'Server error: {str(e)}'})
+        else:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect('organizations:organization_list')
 
 
 @login_required
@@ -525,13 +566,6 @@ def user_management(request):
                 'count': count
             })
     
-    # Debug: imprimir estadísticas en consola
-    print(f"DEBUG - Total Users: {total_users}")
-    print(f"DEBUG - Users with Roles: {users_with_roles}")
-    print(f"DEBUG - Users without Roles: {users_without_roles}")
-    print(f"DEBUG - Organizations Count: {organizations.count()}")
-    print(f"DEBUG - Role Distribution: {role_distribution}")
-    
     context = {
         'organizations': organizations,
         'total_users': total_users,
@@ -585,56 +619,6 @@ def bulk_invite_confirm_view(request):
         return redirect('events:dashboard')
     
     return render(request, 'organizations/bulk_invite.html')
-
-@login_required
-def contact_messages_view(request):
-    """
-    View to display and manage contact messages for Super Admin
-    - Shows all contact messages with their status
-    - Allows Super Admin to update message status and add notes
-    - Only accessible for Super Admins
-    """
-    if not _is_super_admin(request.user):
-        messages.error(request, "Access denied. Super Admin privileges required.")
-        return redirect('events:dashboard')
-    
-    # Get all contact messages ordered by most recent first
-    from registration.models import ContactMessage
-    contact_messages = ContactMessage.objects.all().order_by('-created_at')
-    
-    # Handle status updates
-    if request.method == 'POST':
-        message_id = request.POST.get('message_id')
-        new_status = request.POST.get('status')
-        admin_notes = request.POST.get('admin_notes', '')
-        
-        if message_id and new_status:
-            try:
-                contact_message = ContactMessage.objects.get(id=message_id)
-                contact_message.status = new_status
-                if admin_notes:
-                    contact_message.admin_notes = admin_notes
-                contact_message.save()
-                messages.success(request, f"Contact message status updated to {new_status}.")
-            except ContactMessage.DoesNotExist:
-                messages.error(request, "Contact message not found.")
-    
-    # Get statistics
-    total_messages = contact_messages.count()
-    pending_messages = contact_messages.filter(status='pending').count()
-    in_progress_messages = contact_messages.filter(status='in_progress').count()
-    resolved_messages = contact_messages.filter(status='resolved').count()
-    
-    context = {
-        'contact_messages': contact_messages,
-        'total_messages': total_messages,
-        'pending_messages': pending_messages,
-        'in_progress_messages': in_progress_messages,
-        'resolved_messages': resolved_messages,
-        'status_choices': ContactMessage.STATUS_CHOICES,
-    }
-    
-    return render(request, 'organizations/contact_messages.html', context)
 
 
 @login_required
@@ -1055,6 +1039,7 @@ def contact_messages_view(request):
     View to display and manage contact messages for Super Admin
     - Shows all contact messages with their status
     - Allows Super Admin to update message status and add notes
+    - Allows Super Admin to delete messages
     - Only accessible for Super Admins
     """
     if not _is_super_admin(request.user):
@@ -1065,36 +1050,95 @@ def contact_messages_view(request):
     from registration.models import ContactMessage
     contact_messages = ContactMessage.objects.all().order_by('-created_at')
     
-    # Handle status updates
+    # Handle POST requests
     if request.method == 'POST':
+        action = request.POST.get('action')
         message_id = request.POST.get('message_id')
-        new_status = request.POST.get('status')
-        admin_notes = request.POST.get('admin_notes', '')
         
-        if message_id and new_status:
+        # Handle delete action
+        if action == 'delete' and message_id:
             try:
                 contact_message = ContactMessage.objects.get(id=message_id)
-                contact_message.status = new_status
-                if admin_notes:
-                    contact_message.admin_notes = admin_notes
-                contact_message.save()
-                messages.success(request, f"Contact message status updated to {new_status}.")
+                email = contact_message.email
+                contact_message.delete()
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'Message from {email} deleted successfully.'
+                    })
+                messages.success(request, f"Message from {email} deleted successfully.")
             except ContactMessage.DoesNotExist:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Contact message not found.'
+                    })
                 messages.error(request, "Contact message not found.")
+        
+        # Handle status update
+        elif message_id:
+            new_status = request.POST.get('status')
+            admin_notes = request.POST.get('admin_notes', '')
+            
+            if new_status:
+                try:
+                    contact_message = ContactMessage.objects.get(id=message_id)
+                    contact_message.status = new_status
+                    if admin_notes:
+                        contact_message.admin_notes = admin_notes
+                    contact_message.save()
+                    messages.success(request, f"Contact message status updated to {new_status}.")
+                except ContactMessage.DoesNotExist:
+                    messages.error(request, "Contact message not found.")
     
     # Get statistics
-    total_messages = contact_messages.count()
     pending_messages = contact_messages.filter(status='pending').count()
-    in_progress_messages = contact_messages.filter(status='in_progress').count()
-    resolved_messages = contact_messages.filter(status='resolved').count()
+    solved_messages = contact_messages.filter(status='solved').count()
     
     context = {
         'contact_messages': contact_messages,
-        'total_messages': total_messages,
         'pending_messages': pending_messages,
-        'in_progress_messages': in_progress_messages,
-        'resolved_messages': resolved_messages,
+        'solved_messages': solved_messages,
         'status_choices': ContactMessage.STATUS_CHOICES,
     }
     
     return render(request, 'organizations/contact_messages.html', context)
+
+
+@login_required
+def superadmin_dashboard(request):
+    """
+    Dashboard principal para Super Admin
+    Muestra organizaciones con búsqueda
+    """
+    if not _is_super_admin(request.user):
+        raise PermissionDenied("Access denied. Super Admin privileges required.")
+    
+    # Obtener todas las organizaciones
+    organizations = Organization.objects.all()
+    
+    # Búsqueda
+    search_query = request.GET.get('search', '')
+    if search_query:
+        organizations = organizations.filter(
+            Q(name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+    
+    # Anotar con conteo de usuarios activos
+    organizations = organizations.annotate(
+        active_user_count=Count('user_roles', filter=Q(user_roles__is_active=True))
+    ).order_by('-active_user_count')
+    
+    # Obtener estadísticas
+    total_organizations = organizations.count()
+    
+    context = {
+        'organizations': organizations,
+        'total_organizations': total_organizations,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'organizations/superadmin_dashboard.html', context)

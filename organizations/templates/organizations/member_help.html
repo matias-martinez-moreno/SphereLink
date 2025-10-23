@@ -8,79 +8,46 @@
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="text-dark mb-2">
-                <i class="fas fa-question-circle me-2"></i>Member Help Guide
+                <i class="fas fa-user me-2"></i>Member Help Guide
             </h2>
-            <p class="text-muted">Learn how to manage events as a community member</p>
+            <p class="text-muted">Quick guide for community members</p>
             <a href="{% url 'events:dashboard' %}" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
             </a>
         </div>
     </div>
 
-    <!-- Quick Start Guide -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-rocket me-2"></i>Quick Start Guide
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center mb-3">
-                            <div class="p-3 border rounded bg-light">
-                                <span class="badge bg-primary rounded-pill mb-2" style="font-size: 1.2rem; padding: 8px 12px;">1</span>
-                                <h6>Create Event</h6>
-                                <p class="small text-muted">Click "Create Event" in sidebar to start a new event</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-center mb-3">
-                            <div class="ch-3 border rounded bg-light">
-                                <span class="badge bg-success rounded-pill mb-2" style="font-size: 1.2rem; padding: 8px 12px;">2</span>
-                                <h6>Manage Events</h6>
-                                <p class="small text-muted">Use "My Events" to view, edit, or delete your events</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-center mb-3">
-                            <div class="p-3 border rounded bg-light">
-                                <span class="badge bg-warning rounded-pill mb-2" style="font-size: 1.2rem; padding: 8px 12px;">3</span>
-                                <h6>Organization</h6>
-                                <p class="small text-muted">Access "My Organization" to view your organization</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Member Powers -->
+    <!-- What You Can Do -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-star me-2"></i>Your Member Powers
+                        <i class="fas fa-check-circle me-2"></i>What You Can Do
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-primary">📅 Event Creation</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success me-2"></i><strong>Community Events:</strong> Create events for the entire community</li>
-                                <li><i class="fas fa-check text-success me-2"></i><strong>Organization Events:</strong> Private events for your organization only</li>
-                                <li><i class="fas fa-times text-danger me-2"></i><strong>Official Events:</strong> You cannot create these (staff only)</li>
-                            </ul>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-plus-circle fa-2x text-success mb-2"></i>
+                                <h6>Create Events</h6>
+                                <p class="small text-muted">Community & Organization events</p>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-primary">🏢 Organization Access</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success me-2"></i>View organization details and statistics</li>
-                                <li><i class="fas fa-check text-success me-2"></i>See organization members</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Manage only your own events</li>
-                            </ul>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-calendar-check fa-2x text-info mb-2"></i>
+                                <h6>Join Events</h6>
+                                <p class="small text-muted">Register for any available event</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-comments fa-2x text-warning mb-2"></i>
+                                <h6>Comment</h6>
+                                <p class="small text-muted">Leave comments on events</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -88,74 +55,79 @@
         </div>
     </div>
 
-    <!-- Dashboard Features -->
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">📅 Create Event</h6>
+                            <ol class="small">
+                                <li>Click "Create Event" in sidebar</li>
+                                <li>Fill title, description, date, location</li>
+                                <li>Choose type: Community or Organization</li>
+                                <li>Set capacity and click "Create"</li>
+                            </ol>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">👤 Manage Profile</h6>
+                            <ol class="small">
+                                <li>Click "My Profile" in sidebar</li>
+                                <li>Update your information</li>
+                                <li>Upload profile photo</li>
+                                <li>View your event statistics</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Guide -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard Features
+                        <i class="fas fa-compass me-2"></i>Navigation Guide
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4 text-center mb-3">
+                        <div class="col-md-3 text-center mb-3">
                             <div class="p-3 border rounded">
-                                <i class="fas fa-search fa-2x text-primary mb-2"></i>
-                                <h6>Search Events</h6>
-                                <p class="small text-muted">Search by event name or filter by type</p>
+                                <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                                <h6>Dashboard</h6>
+                                <p class="small text-muted">View all events, search, filter</p>
                             </div>
                         </div>
-                        <div class="col-md-4 text-center mb-3">
+                        <div class="col-md-3 text-center mb-3">
                             <div class="p-3 border rounded">
-                                <i class="fas fa-calendar-alt fa-2x text-info mb-2"></i>
-                                <h6>Events Counter</h6>
-                                <p class="small text-muted">See total events available at a glance</p>
+                                <i class="fas fa-calendar fa-2x text-info mb-2"></i>
+                                <h6>Calendar</h6>
+                                <p class="small text-muted">Monthly view of all events</p>
                             </div>
                         </div>
-                        <div class="col-md-4 text-center mb-3">
+                        <div class="col-md-3 text-center mb-3">
                             <div class="p-3 border rounded">
-                                <i class="fas fa-question-circle fa-2x text-warning mb-2"></i>
-                                <h6>Quick Help</h6>
-                                <p class="small text-muted">Access this help guide anytime</p>
+                                <i class="fas fa-list fa-2x text-warning mb-2"></i>
+                                <h6>My Events</h6>
+                                <p class="small text-muted">Events you created</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Common Tasks -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-warning text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-tasks me-2"></i>Common Tasks
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-primary">Creating Events</h6>
-                            <ol class="small">
-                                <li>Click "Create Event" in sidebar</li>
-                                <li>Fill in event details (title, description, date, location)</li>
-                                <li>Choose event type (Community or Organization)</li>
-                                <li>Set capacity and other options</li>
-                                <li>Click "Create Event"</li>
-                            </ol>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-primary">Managing Events</h6>
-                            <ol class="small">
-                                <li>Go to "My Events" to see all your events</li>
-                                <li>Click on an event to view details</li>
-                                <li>Edit event details or manage registrations</li>
-                                <li>Delete only your own events</li>
-                                <li><strong>Note:</strong> You can only manage events you created</li>
-                            </ol>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 border rounded">
+                                <i class="fas fa-user fa-2x text-success mb-2"></i>
+                                <h6>My Profile</h6>
+                                <p class="small text-muted">Your profile & settings</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -167,9 +139,9 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-secondary text-white">
+                <div class="card-header bg-warning text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-calendar-check me-2"></i>Event Types You Can Create
+                        <i class="fas fa-calendar-alt me-2"></i>Event Types You Can Create
                     </h5>
                 </div>
                 <div class="card-body">
@@ -178,22 +150,14 @@
                             <div class="text-center p-3 border rounded">
                                 <i class="fas fa-users fa-2x text-info mb-2"></i>
                                 <h6 class="text-info">Community Events</h6>
-                                <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-1"></i>Created by members</li>
-                                    <li><i class="fas fa-check text-success me-1"></i>Community-driven</li>
-                                    <li><i class="fas fa-check text-success me-1"></i><strong>You can create these!</strong></li>
-                                </ul>
+                                <p class="small text-muted">Open to all community members</p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="text-center p-3 border rounded">
                                 <i class="fas fa-building fa-2x text-warning mb-2"></i>
                                 <h6 class="text-warning">Organization Events</h6>
-                                <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-1"></i>Internal events</li>
-                                    <li><i class="fas fa-check text-success me-1"></i>Organization members only</li>
-                                    <li><i class="fas fa-check text-success me-1"></i><strong>You can create these!</strong></li>
-                                </ul>
+                                <p class="small text-muted">Private to your organization only</p>
                             </div>
                         </div>
                     </div>
@@ -202,29 +166,31 @@
         </div>
     </div>
 
-    <!-- Troubleshooting -->
+    <!-- Tips & Tricks -->
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-danger text-white">
+                <div class="card-header bg-dark text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-wrench me-2"></i>Troubleshooting
+                        <i class="fas fa-lightbulb me-2"></i>Tips & Tricks
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="text-primary">Event Creation Issues</h6>
+                            <h6 class="text-primary">💡 Pro Tips</h6>
                             <ul class="list-unstyled small">
-                                <li><i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>Missing Fields:</strong> Make sure all required fields are filled</li>
-                                <li><i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>Past Dates:</strong> Events cannot be created for past dates</li>
+                                <li><i class="fas fa-search text-info me-2"></i>Use search bar to find specific events</li>
+                                <li><i class="fas fa-filter text-info me-2"></i>Filter events by type (Community/Organization)</li>
+                                <li><i class="fas fa-calendar text-info me-2"></i>Check calendar view for monthly overview</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-primary">Access Issues</h6>
+                            <h6 class="text-primary">⚠️ Important Notes</h6>
                             <ul class="list-unstyled small">
-                                <li><i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>Cannot Create Official Events:</strong> This is normal - only staff can create them</li>
-                                <li><i class="fas fa-exclamation-triangle text-warning me-2"></i><strong>Organization Access:</strong> Contact admin if you can't access organization features</li>
+                                <li><i class="fas fa-times text-danger me-2"></i>Cannot create Official events (staff only)</li>
+                                <li><i class="fas fa-edit text-warning me-2"></i>Can only edit/delete your own events</li>
+                                <li><i class="fas fa-comment text-info me-2"></i>Comments are public on events</li>
                             </ul>
                         </div>
                     </div>
@@ -250,6 +216,11 @@
 .card-header {
     border-radius: 15px 15px 0 0 !important;
     border: none;
+}
+
+.border:hover {
+    border-color: #143c65 !important;
+    box-shadow: 0 2px 8px rgba(20, 60, 101, 0.1);
 }
 </style>
 {% endblock %}
