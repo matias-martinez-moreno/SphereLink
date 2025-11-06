@@ -155,6 +155,15 @@
         margin-left: -10px;
       }
       
+      .sidebar.collapsed .sidebar-toggle {
+        margin-left: 0;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+      }
+      
       .toggle-btn {
         background: #6c757d;
         border: 2px solid rgba(255,255,255,0.3);
@@ -169,6 +178,17 @@
         align-items: center;
         justify-content: center;
         position: relative;
+        box-sizing: border-box;
+        padding: 0;
+        min-width: 45px;
+        min-height: 45px;
+      }
+      
+      .sidebar.collapsed .toggle-btn {
+        border-radius: 50% !important;
+        width: 45px !important;
+        height: 45px !important;
+        aspect-ratio: 1 / 1;
       }
       
       .toggle-btn:hover {
@@ -231,6 +251,8 @@
         flex-direction: column;
         gap: 10px;
         padding: 20px 10px 15px 10px;
+        align-items: center;
+        justify-content: flex-start;
       }
       
       .sidebar.collapsed .user-info-content {
@@ -554,7 +576,7 @@
 <body>
      <div class="top-bar">
           <div class="logo-container">
-               <a href="{% url 'organizations:superadmin_dashboard' %}" class="logo-link">
+               <a href="{% url 'organizations:organization_list' %}" class="logo-link">
                  <img src="{% static 'events/logo 1.png' %}" alt="SphereLink Logo" height="50" style="width: auto; object-fit: contain;">
                </a>
           </div>
@@ -582,7 +604,16 @@
             {% endif %}
           </div>
           <div class="user-details">
-            <div class="user-name-small">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="user-name-small">
+              {% if request.user.first_name %}
+                {{ request.user.first_name }}
+                {% if request.user.last_name %}
+                  {{ request.user.last_name|first|upper }}.
+                {% endif %}
+              {% else %}
+                {{ request.user.username }}
+              {% endif %}
+            </div>
             <div class="user-role">Administrator</div>
           </div>
         </div>

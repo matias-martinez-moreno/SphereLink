@@ -145,6 +145,10 @@ class Notification(models.Model):
         ('comment_reply', 'Comment Reply'),
         ('event_update', 'Event Update'),
         ('registration_confirmed', 'Registration Confirmed'),
+        ('unregistration_confirmed', 'Unregistration Confirmed'),
+        ('event_registration', 'Event Registration'),
+        ('event_created', 'Event Created'),
+        ('event_deleted', 'Event Deleted'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')

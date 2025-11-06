@@ -1,0 +1,24 @@
+{% autoescape off %}
+Hello {{ user.first_name|default:user.username }},
+
+You have successfully registered for the following event:
+
+Event Details:
+- Title: {{ event.title }}
+- Date: {{ event.formatted_date }}
+- Time: {{ event.time }}
+- Location: {{ event.location }}
+{% if event.description %}
+- Description: {{ event.description|truncatewords:30 }}
+{% endif %}
+
+You can view the full event details and manage your registration by clicking the link below:
+
+{{ protocol }}://{{ domain }}{% url 'events:event_detail' event.id %}
+
+We look forward to seeing you there!
+
+Best regards,
+The SphereLink Team
+{% endautoescape %}
+

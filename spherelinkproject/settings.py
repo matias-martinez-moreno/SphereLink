@@ -154,13 +154,35 @@ SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
 # Email Configuration
 # Para desarrollo: usar console backend (muestra emails en consola)
 # Para producción: usar SMTP backend (envía emails reales)
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 
-# Configuración SMTP para Gmail
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@spherelink.com')
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@spherelink.com')
+# Obtener credenciales de email de variables de entorno
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'spherelinkevents@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'qbxajscgdzidajhb')
+
+# Si hay credenciales configuradas, usar SMTP. Si no, usar console backend
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    # Configuración SMTP para envío real de emails
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = True
+    print(f"\n{'='*60}")
+    print(f"✅ EMAIL CONFIGURADO: Usando SMTP Backend")
+    print(f"📧 Servidor: {EMAIL_HOST}:{EMAIL_PORT}")
+    print(f"📧 Usuario: {EMAIL_HOST_USER}")
+    print(f"{'='*60}\n")
+else:
+    # Configuración para desarrollo (muestra emails en consola)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = True
+    print(f"\n{'='*60}")
+    print(f"⚠️  EMAIL EN MODO DESARROLLO: Usando Console Backend")
+    print(f"📧 Los emails se mostrarán en la consola del servidor")
+    print(f"📧 Para enviar emails reales, configura EMAIL_HOST_USER y EMAIL_HOST_PASSWORD")
+    print(f"📧 Ver instrucciones en: EMAIL_SETUP.md o en la documentación")
+    print(f"{'='*60}\n")
+
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@spherelink.com')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'spherelinkevents@gmail.com')

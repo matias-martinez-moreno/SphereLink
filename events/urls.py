@@ -23,4 +23,7 @@ urlpatterns = [
     # Calendar URLs
     path('calendar/', views.calendar_view, name='calendar'),
     path('calendar/<int:year>/<int:month>/<int:day>/events/', views.calendar_day_events, name='calendar_day_events'),
+    # Notification URLs
+    path('notification/<int:notification_id>/mark_read/', views.mark_notification_read, name='mark_notification_read'),
+    path('notification/<int:notification_id>/delete/', views.delete_notification, name='delete_notification'),
 ]

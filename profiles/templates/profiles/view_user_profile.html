@@ -8,9 +8,15 @@
         <div class="col-12">
             <h2 class="text-dark mb-2">{{ viewed_user.get_full_name|default:viewed_user.username }}'s Profile</h2>
             <p class="text-muted">Viewing user profile</p>
-            <a href="{% url 'profiles:my_profile' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-2"></i>Back to My Profile
-            </a>
+            {% if from_event_registrations and event_id %}
+                <a href="{% url 'events:event_registrations' event_id %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Event Registrations
+                </a>
+            {% else %}
+                <a href="{% url 'profiles:my_profile' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-2"></i>Back to My Profile
+                </a>
+            {% endif %}
             {% if is_own_profile %}
                 <a href="{% url 'profiles:edit_profile' %}" class="btn btn-primary btn-sm">
                     <i class="fas fa-edit me-2"></i>Edit Profile
@@ -74,7 +80,7 @@
 
             <!-- Account & Role Information Card -->
             <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark">
+                <div class="card-header" style="background-color: #007bff; color: white;">
                     <h5 class="mb-0">
                         <i class="fas fa-user-shield me-2"></i>Account & Role Information
                     </h5>

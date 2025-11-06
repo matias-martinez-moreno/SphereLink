@@ -7,25 +7,28 @@
     <!-- Header Section -->
     <div class="row mb-3">
         <div class="col-12">
-            <h2 class="text-dark mb-2">My Events</h2>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="text-dark mb-0">My Events</h2>
+                <a href="{% url 'events:dashboard' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Dashboard
+                </a>
+            </div>
             <p class="text-muted">Manage your created events and registrations</p>
-            <a href="{% url 'events:dashboard' %}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>Back to Dashboard
-            </a>
         </div>
     </div>
 
     <!-- Events Created Section -->
-    <div class="row mb-4">
+    <div class="row mb-4" id="events-created">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleSection('created-events-content')">
                     <h5 class="mb-0">
-                        Events You Created
+                        <i class="fas fa-calendar-plus me-2"></i>Events You Created
                         <span class="badge bg-light text-dark ms-2">{{ created_events.count }}</span>
                     </h5>
+                    <i class="fas fa-chevron-down" id="created-events-icon"></i>
                 </div>
-                <div class="card-body">
+                <div class="card-body collapsible-content" id="created-events-content">
                     {% if created_events %}
                         <div class="row g-3">
                             {% for event in created_events %}
@@ -99,16 +102,17 @@
     </div>
 
     <!-- Events Registered Section -->
-    <div class="row">
+    <div class="row" id="events-registered">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleSection('registered-events-content')">
                     <h5 class="mb-0">
                         <i class="fas fa-users me-2"></i>Events You're Registered For
                         <span class="badge bg-light text-dark ms-2">{{ registered_events.count }}</span>
                     </h5>
+                    <i class="fas fa-chevron-down" id="registered-events-icon"></i>
                 </div>
-                <div class="card-body">
+                <div class="card-body collapsible-content" id="registered-events-content">
                     {% if registered_events %}
                         <div class="row g-4">
                             {% for event in registered_events %}
@@ -202,5 +206,82 @@
     font-weight: 400;
     color: #6c757d;
 }
+
+/* Collapsible sections */
+.card-header[onclick] {
+    transition: background-color 0.2s ease;
+}
+
+.card-header[onclick]:hover {
+    background-color: #004a8a !important;
+    opacity: 1 !important;
+}
+
+.card-header[onclick] i {
+    transition: transform 0.3s ease;
+}
+
+.card-header[onclick].collapsed i {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+    max-height: 5000px; /* Large enough for most content */
+}
+
+.collapsible-content.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
 </style>
+
+<script>
+function toggleSection(contentId) {
+    const content = document.getElementById(contentId);
+    const iconId = contentId === 'created-events-content' ? 'created-events-icon' : 'registered-events-icon';
+    const icon = document.getElementById(iconId);
+    const header = icon ? icon.closest('.card-header') : null;
+    
+    if (!content || !icon) return;
+    
+    // Check if currently collapsed
+    const isCollapsed = content.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+        // Expand - first remove collapsed class to measure height
+        content.classList.remove('collapsed');
+        if (header) header.classList.remove('collapsed');
+        icon.className = 'fas fa-chevron-down';
+        
+        // Get the actual scroll height
+        const scrollHeight = content.scrollHeight;
+        // Set max-height to actual content height for smooth animation
+        content.style.maxHeight = scrollHeight + 'px';
+        
+        // After animation, remove max-height constraint
+        setTimeout(() => {
+            if (!content.classList.contains('collapsed')) {
+                content.style.maxHeight = '';
+            }
+        }, 400);
+    } else {
+        // Collapse - first set max-height to current height
+        const currentHeight = content.scrollHeight;
+        content.style.maxHeight = currentHeight + 'px';
+        
+        // Force reflow
+        void content.offsetHeight;
+        
+        // Now collapse
+        content.classList.add('collapsed');
+        if (header) header.classList.add('collapsed');
+        icon.className = 'fas fa-chevron-right';
+        content.style.maxHeight = '0';
+    }
+}
+</script>
 {% endblock %}

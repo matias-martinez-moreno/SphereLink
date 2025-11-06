@@ -3,15 +3,17 @@
 {% block title %}{{ title }} - SphereLink{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container org-form-page">
     <!-- Header Section -->
     <div class="row mb-3">
         <div class="col-12">
-            <h2 class="text-dark mb-1">{{ title }}</h2>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="text-dark mb-0">{{ title }}</h2>
+                <a href="{% url 'organizations:organization_list' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Organizations
+                </a>
+            </div>
             <p class="text-muted mb-2">Set up your organization's basic information and contact details</p>
-            <a href="{% url 'organizations:superadmin_dashboard' %}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>Back to Organizations
-            </a>
         </div>
     </div>
 
@@ -257,37 +259,37 @@
 </div>
 
 <style>
-.text-primary {
+.org-form-page .text-primary {
     color: #143c65 !important;
 }
 
-.btn-primary {
+.org-form-page .btn-primary {
     background: #143c65;
     border-color: #143c65;
 }
 
-.btn-primary:hover {
+.org-form-page .btn-primary:hover {
     background: #46688c;
     border-color: #46688c;
 }
 
-.card {
+.org-form-page .card {
     border: none;
     border-radius: 15px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card:hover {
+.org-form-page .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
 }
 
-.card-header {
+.org-form-page .card-header {
     border-radius: 15px 15px 0 0 !important;
     border: none;
 }
 
-.form-control, .form-select {
+.org-form-page .form-control, .org-form-page .form-select {
     border-radius: 10px;
     border: 2px solid #e9ecef;
     padding: 12px 15px;
@@ -295,59 +297,59 @@
     transition: all 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.org-form-page .form-control:focus, .org-form-page .form-select:focus {
     border-color: #143c65;
     box-shadow: 0 0 0 0.2rem rgba(20, 60, 101, 0.25);
 }
 
-.form-check-input:checked {
+.org-form-page .form-check-input:checked {
     background-color: #143c65;
     border-color: #143c65;
 }
 
 /* Compact Form Styles */
-.form-label {
+.org-form-page .form-label {
     font-weight: 600;
     color: #495057;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
 }
 
-.form-control {
+.org-form-page .form-control {
     font-size: 0.9rem;
     padding: 8px 12px;
 }
 
-.form-control::placeholder {
+.org-form-page .form-control::placeholder {
     color: #6c757d;
     font-style: italic;
 }
 
-.card-body {
+.org-form-page .card-body {
     padding: 1.25rem;
 }
 
-.alert {
+.org-form-page .alert {
     border-radius: 8px;
     font-size: 0.85rem;
 }
 
-.btn {
+.org-form-page .btn {
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.3s ease;
 }
 
-.btn:hover {
+.org-form-page .btn:hover {
     transform: translateY(-1px);
 }
 
 /* Reduce spacing for compact layout */
-.mb-2 {
+.org-form-page .mb-2 {
     margin-bottom: 0.75rem !important;
 }
 
-.mb-3 {
+.org-form-page .mb-3 {
     margin-bottom: 1rem !important;
 }
 </style>

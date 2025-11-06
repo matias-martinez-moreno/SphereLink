@@ -197,11 +197,17 @@ def view_user_profile(request, user_id):
                 'is_superuser': False
             }
     
+    # Check if user came from event registrations
+    from_event_registrations = request.GET.get('from') == 'event_registrations'
+    event_id = request.GET.get('event_id')
+    
     context = {
         'profile': profile,
         'user_role_info': user_role_info,
         'viewed_user': user,
-        'is_own_profile': request.user == user
+        'is_own_profile': request.user == user,
+        'from_event_registrations': from_event_registrations,
+        'event_id': event_id
     }
     
     return render(request, 'profiles/view_user_profile.html', context)

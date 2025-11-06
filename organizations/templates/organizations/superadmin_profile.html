@@ -3,16 +3,18 @@
 {% block title %}Super Admin Profile - SphereLink{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container superadmin-profile-page">
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="text-dark mb-2">
-                <i class="fas fa-user-shield me-2"></i>Super Admin Profile
-            </h2>
-            <a href="{% url 'organizations:superadmin_dashboard' %}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>Back to Organizations
-            </a>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="text-dark mb-0">
+                    <i class="fas fa-user-shield me-2"></i>Super Admin Profile
+                </h2>
+                <a href="{% url 'organizations:organization_list' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Organizations
+                </a>
+            </div>
         </div>
     </div>
 
@@ -91,60 +93,60 @@
 </div>
 
 <style>
-.text-danger {
+.superadmin-profile-page .text-danger {
     color: #dc3545 !important;
 }
 
-.card {
+.superadmin-profile-page .card {
     border: none;
     border-radius: 15px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card:hover {
+.superadmin-profile-page .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
 }
 
-.card-header {
+.superadmin-profile-page .card-header {
     border-radius: 15px 15px 0 0 !important;
     border: none;
 }
 
-.btn {
+.superadmin-profile-page .btn {
     border-radius: 10px;
     font-weight: 500;
     transition: all 0.3s ease;
 }
 
-.btn:hover {
+.superadmin-profile-page .btn:hover {
     transform: translateY(-1px);
 }
 
 /* Colores serenos usando la paleta del logo */
-.bg-primary {
+.superadmin-profile-page .bg-primary {
     background-color: #143c65 !important;
 }
 
-.bg-info {
+.superadmin-profile-page .bg-info {
     background-color: #586884 !important;
 }
 
-.bg-warning {
+.superadmin-profile-page .bg-warning {
     background-color: #84a4b0 !important;
     color: #040e39 !important;
 }
 
-.text-primary {
+.superadmin-profile-page .text-primary {
     color: #143c65 !important;
 }
 
-.text-info {
+.superadmin-profile-page .text-info {
     color: #586884 !important;
 }
 
 /* Profile Photo Styles */
-.profile-photo-container {
+.superadmin-profile-page .profile-photo-container {
     width: 120px;
     height: 120px;
     margin: 0 auto;
@@ -154,13 +156,13 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.profile-photo {
+.superadmin-profile-page .profile-photo {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.profile-photo-placeholder {
+.superadmin-profile-page .profile-photo-placeholder {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, #143c65, #586884);

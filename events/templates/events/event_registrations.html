@@ -147,7 +147,7 @@
                                             </small>
                                         </td>
                                         <td>
-                                            <a href="{% url 'profiles:view_user_profile' registration.user.id %}" class="btn btn-outline-primary btn-sm">
+                                            <a href="{% url 'profiles:view_user_profile' registration.user.id %}?from=event_registrations&event_id={{ event.id }}" class="btn btn-outline-primary btn-sm">
                                                 <i class="fas fa-eye"></i> View Profile
                                             </a>
                                         </td>
@@ -246,9 +246,240 @@
 }
 </style>
 
+<style>
+@media print {
+    /* Hide everything except the registrations table */
+    body * {
+        visibility: hidden;
+    }
+    
+    /* Show only the registrations section */
+    .registrations-print-section,
+    .registrations-print-section * {
+        visibility: visible;
+    }
+    
+    /* Position the print section */
+    .registrations-print-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    
+    /* Hide buttons and navigation */
+    .btn,
+    .btn-back,
+    nav,
+    .top-bar,
+    .floating-help-button,
+    .card-header .badge {
+        display: none !important;
+    }
+    
+    /* Style the table for printing */
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    .table th,
+    .table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    
+    .table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    
+    /* Print header */
+    .print-header {
+        margin-bottom: 20px;
+    }
+    
+    .print-header h2 {
+        margin: 0;
+        color: #000;
+    }
+    
+    .print-header p {
+        margin: 5px 0;
+        color: #666;
+    }
+    
+    /* Remove card styling for print */
+    .card,
+    .card-body,
+    .card-header {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+    
+    /* Hide action buttons in table */
+    .table .btn {
+        display: none;
+    }
+    
+    /* Page break settings */
+    @page {
+        margin: 1cm;
+    }
+    
+    /* Avoid page breaks inside table rows */
+    tr {
+        page-break-inside: avoid;
+    }
+}
+</style>
+
 <script>
 function printRegistrations() {
-    window.print();
+    // Get event information from the page
+    const eventTitleEl = document.querySelector('.card-body h6.text-primary');
+    const eventTitle = eventTitleEl ? eventTitleEl.textContent.trim() : 'Event';
+    
+    const eventDateEl = document.querySelector('.card-body .text-muted');
+    const eventDate = eventDateEl ? eventDateEl.textContent.trim() : '';
+    
+    const eventLocationEl = document.querySelectorAll('.card-body .text-muted')[1];
+    const eventLocation = eventLocationEl ? eventLocationEl.textContent.trim() : '';
+    
+    // Get the table
+    const table = document.querySelector('.table');
+    if (!table) {
+        alert('No registrations table found');
+        return;
+    }
+    
+    // Clone the table
+    const tableClone = table.cloneNode(true);
+    
+    // Remove action column and avatar images from cloned table
+    const rows = tableClone.querySelectorAll('tr');
+    rows.forEach((row, index) => {
+        if (index === 0) {
+            // Header row - remove Actions column
+            const ths = row.querySelectorAll('th');
+            if (ths.length > 0) {
+                ths[ths.length - 1].remove(); // Remove last column (Actions)
+            }
+        } else {
+            // Data rows - remove Actions column and simplify participant info
+            const tds = row.querySelectorAll('td');
+            if (tds.length > 0) {
+                // Remove Actions column (last one)
+                tds[tds.length - 1].remove();
+                
+                // Simplify participant column - remove avatar and keep only name
+                const participantTd = tds[0];
+                if (participantTd) {
+                    const nameEl = participantTd.querySelector('strong');
+                    const usernameEl = participantTd.querySelector('small');
+                    if (nameEl) {
+                        const name = nameEl.textContent.trim();
+                        const username = usernameEl ? usernameEl.textContent.trim() : '';
+                        participantTd.innerHTML = `<strong>${name}</strong>${username ? '<br><small>' + username + '</small>' : ''}`;
+                    }
+                }
+            }
+        }
+    });
+    
+    // Get registration count
+    const registrationCount = rows.length - 1; // Subtract header row
+    
+    // Create print HTML
+    const printHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Event Registrations - ${eventTitle}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    color: #000;
+                }
+                h1 {
+                    color: #003364;
+                    margin-bottom: 10px;
+                    font-size: 24px;
+                }
+                .event-info {
+                    margin-bottom: 20px;
+                    color: #666;
+                    border-bottom: 2px solid #003364;
+                    padding-bottom: 15px;
+                }
+                .event-info p {
+                    margin: 5px 0;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #003364;
+                    color: white;
+                    font-weight: bold;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                .print-footer {
+                    margin-top: 30px;
+                    padding-top: 15px;
+                    border-top: 1px solid #ddd;
+                    font-size: 12px;
+                    color: #666;
+                }
+                .registration-count {
+                    font-weight: bold;
+                    color: #003364;
+                }
+                @media print {
+                    @page {
+                        margin: 1cm;
+                    }
+                    body {
+                        margin: 0;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Event Registrations</h1>
+            <div class="event-info">
+                <p><strong>Event:</strong> ${eventTitle}</p>
+                ${eventDate ? '<p><strong>Date:</strong> ' + eventDate + '</p>' : ''}
+                ${eventLocation ? '<p><strong>Location:</strong> ' + eventLocation + '</p>' : ''}
+            </div>
+            ${tableClone.outerHTML}
+            <div class="print-footer">
+                <p><span class="registration-count">Total Registrations: ${registrationCount}</span></p>
+                <p>Printed on: ${new Date().toLocaleString()}</p>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printHTML);
+    printWindow.document.close();
+    
+    // Wait for content to load, then print
+    setTimeout(function() {
+        printWindow.print();
+    }, 250);
 }
 </script>
 {% endblock %}

@@ -192,6 +192,15 @@
         margin-left: -10px;
       }
       
+      .sidebar.collapsed .sidebar-toggle {
+        margin-left: 0;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+      }
+      
       .toggle-btn {
         background: #6c757d;
         border: 2px solid rgba(255,255,255,0.3);
@@ -206,6 +215,17 @@
         align-items: center;
         justify-content: center;
         position: relative;
+        box-sizing: border-box;
+        padding: 0;
+        min-width: 45px;
+        min-height: 45px;
+      }
+      
+      .sidebar.collapsed .toggle-btn {
+        border-radius: 50% !important;
+        width: 45px !important;
+        height: 45px !important;
+        aspect-ratio: 1 / 1;
       }
       
       .toggle-btn:hover {
@@ -269,6 +289,8 @@
         flex-direction: column;
         gap: 10px;
         padding: 20px 10px 15px 10px;
+        align-items: center;
+        justify-content: flex-start;
       }
       
       .sidebar.collapsed .user-info-content {
@@ -675,7 +697,16 @@
             {% endif %}
           </div>
           <div class="user-details">
-            <div class="user-name-small">{{ user.get_full_name|default:user.username }}</div>
+            <div class="user-name-small">
+              {% if user.first_name %}
+                {{ user.first_name }}
+                {% if user.last_name %}
+                  {{ user.last_name|first|upper }}.
+                {% endif %}
+              {% else %}
+                {{ user.username }}
+              {% endif %}
+            </div>
             <div class="user-role">
               {% for role in user.organization_roles.all %}
                 {% if role.is_active %}
@@ -824,7 +855,7 @@
             <div style="color: #ff6b35; font-size: 4rem; margin-bottom: 20px;">⚠️</div>
             <h2 style="color: #333; margin-bottom: 15px;">¡Advertencia de Sesión!</h2>
             <p style="font-size: 1.2rem; margin-bottom: 20px;">
-              Tu sesión expirará en <strong id="timeoutCountdown" style="color: #ff6b35; font-size: 2rem;">0:05</strong>
+              Tu sesión expirará en <strong id="timeoutCountdown" style="color: #ff6b35; font-size: 2rem;">120</strong> segundos
             </p>
             <p style="margin-bottom: 30px; color: #666;">
               ¿Deseas continuar con tu sesión?
@@ -898,8 +929,7 @@
     function updateCountdownDisplay(seconds) {
       const countdownEl = document.getElementById('timeoutCountdown');
       if (countdownEl) {
-        const display = `0:${seconds.toString().padStart(2, '0')}`;
-        countdownEl.textContent = display;
+        countdownEl.textContent = seconds;
       }
     }
     

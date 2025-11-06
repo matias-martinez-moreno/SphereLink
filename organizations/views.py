@@ -210,33 +210,47 @@ def delete_organization(request, org_id):
     - Elimina la organización y todos sus datos asociados
     - Incluye: roles de usuario, invitaciones, eventos relacionados
     - Solo accesible para Super Admins
-    - Requiere confirmación del usuario
+    - Requiere confirmación del usuario y verificación de contraseña
     """
     if not _is_super_admin(request.user):
         messages.error(request, "Access denied. Super Admin privileges required.")
         return redirect('organizations:organization_list')
     
     organization = get_object_or_404(Organization, id=org_id)
+    password_error = None
     
     if request.method == 'POST':
-        try:
-            # Usar transacción para eliminar todos los datos relacionados
-            with transaction.atomic():
-                # Eliminar todos los roles de usuario
-                UserRole.objects.filter(organization=organization).delete()
-                
-                # Eliminar todas las invitaciones
-                OrganizationInvitation.objects.filter(organization=organization).delete()
-                
-                # Eliminar la organización
-                organization.delete()
-                
-                messages.success(request, f"Organization '{organization.name}' deleted successfully.")
-                return redirect('organizations:organization_list')
-        except Exception as e:
-            messages.error(request, f"Error deleting organization: {str(e)}")
+        password = request.POST.get('password', '').strip()
+        
+        # Verificar que se proporcionó la contraseña
+        if not password:
+            password_error = "Password is required to delete an organization."
+        # Verificar la contraseña del superadmin
+        elif not request.user.check_password(password):
+            password_error = "Incorrect password. Please enter your Super Admin password to confirm deletion."
+        else:
+            # Contraseña correcta, proceder con la eliminación
+            try:
+                # Usar transacción para eliminar todos los datos relacionados
+                with transaction.atomic():
+                    # Eliminar todos los roles de usuario
+                    UserRole.objects.filter(organization=organization).delete()
+                    
+                    # Eliminar todas las invitaciones
+                    OrganizationInvitation.objects.filter(organization=organization).delete()
+                    
+                    # Eliminar la organización
+                    organization.delete()
+                    
+                    messages.success(request, f"Organization '{organization.name}' deleted successfully.")
+                    return redirect('organizations:organization_list')
+            except Exception as e:
+                messages.error(request, f"Error deleting organization: {str(e)}")
     
-    context = {'organization': organization}
+    context = {
+        'organization': organization,
+        'password_error': password_error
+    }
     return render(request, 'organizations/delete_organization_confirm.html', context)
 
 

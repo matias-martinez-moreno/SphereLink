@@ -1,0 +1,73 @@
+<div class="replies-section ms-4 mt-3">
+    {% for reply in replies %}
+    <div class="reply-item mb-2 p-2 border-start border-3 border-primary bg-light rounded" data-comment-id="{{ reply.id }}">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+            <div>
+                <strong class="text-primary">{{ reply.author.username }}</strong>
+                {% if reply.is_event_owner_comment %}
+                    <span class="badge bg-primary ms-2">Owner of the event</span>
+                {% endif %}
+                <small class="text-muted ms-2">{{ reply.formatted_created_at }}</small>
+            </div>
+            {% if reply.can_delete %}
+            <button class="btn btn-sm btn-outline-danger delete-comment-btn" 
+                    data-comment-id="{{ reply.id }}" 
+                    title="Delete reply">
+                <i class="fas fa-trash"></i>
+            </button>
+            {% endif %}
+        </div>
+        <div class="reply-content">
+            {{ reply.content|linebreaks }}
+        </div>
+        
+        <!-- Reply Button for nested replies -->
+        {% if reply.can_reply %}
+        <div class="comment-actions mt-2">
+            <button class="btn btn-sm btn-outline-primary reply-btn" 
+                    data-comment-id="{{ reply.id }}">
+                <i class="fas fa-reply me-1"></i>Reply
+            </button>
+        </div>
+        
+        <!-- Reply Form for nested replies -->
+        <div class="reply-form-container mt-3" id="replyForm-{{ reply.id }}" style="display: none;">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-reply me-2"></i>Reply to {{ reply.author.username }}
+                    </h6>
+                    <form class="reply-form" data-comment-id="{{ reply.id }}">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent_comment_id" value="{{ reply.id }}">
+                        <div class="mb-3">
+                            <textarea class="form-control reply-content" name="content" 
+                                      rows="2" placeholder="Write your reply..." 
+                                      maxlength="1000"></textarea>
+                            <div class="form-text">
+                                <span class="reply-char-count">0</span>/1000 characters
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-paper-plane me-1"></i>Post Reply
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm cancel-reply-btn" 
+                                    data-comment-id="{{ reply.id }}">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Nested Replies (Recursive) -->
+        {% if reply.replies.all %}
+            {% include 'events/comment_replies.html' with replies=reply.replies.all user=user %}
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+

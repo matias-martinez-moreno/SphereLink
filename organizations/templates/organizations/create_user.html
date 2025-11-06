@@ -7,11 +7,13 @@
     <!-- Header Section -->
     <div class="row mb-3">
         <div class="col-12">
-            <h2 class="text-dark mb-2">Create New User</h2>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="text-dark mb-0">Create New User</h2>
+                <a href="{% url 'organizations:organization_list' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Organizations
+                </a>
+            </div>
             <p class="text-muted">Add a new user to {{ organization.name }}</p>
-            <a href="{% url 'organizations:organization_list' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-2"></i>Back to Organizations
-            </a>
         </div>
     </div>
 

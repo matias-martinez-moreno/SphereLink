@@ -6,14 +6,14 @@
     <!-- Header Section -->
     <div class="row mb-3">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-            <h2 class="text-dark mb-2">My Personal Profile</h2>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="text-dark mb-0">My Personal Profile</h2>
+                <a href="{% url 'events:dashboard' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Dashboard
+                </a>
+            </div>
             <a href="{% url 'profiles:edit_profile' %}" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Edit Profile
-            </a>
-            </div>
-            <a href="{% url 'events:dashboard' %}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>Back to Dashboard
             </a>
         </div>
     </div>
@@ -92,11 +92,34 @@
                                     {% if recent_notifications %}
                                     <div class="notifications-list">
                                         {% for notification in recent_notifications %}
-                                        <div class="notification-item {% if not notification.is_read %}unread{% endif %} mb-2 p-2 border rounded">
+                                        <div class="notification-item {% if not notification.is_read %}unread{% endif %} mb-2 p-2 border rounded" data-notification-id="{{ notification.id }}">
                                             <div class="d-flex justify-content-between align-items-start">
+                                                <div class="notification-delete-btn me-2">
+                                                    <button type="button" 
+                                                            class="btn-delete-notification" 
+                                                            data-notification-id="{{ notification.id }}"
+                                                            title="Click to delete this notification">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1 {% if not notification.is_read %}fw-bold{% endif %}">
-                                                        <i class="fas fa-reply me-2 text-primary"></i>{{ notification.title }}
+                                                        {% if notification.notification_type == 'registration_confirmed' %}
+                                                            <i class="fas fa-check-circle me-2 text-success"></i>
+                                                        {% elif notification.notification_type == 'unregistration_confirmed' %}
+                                                            <i class="fas fa-times-circle me-2 text-danger"></i>
+                                                        {% elif notification.notification_type == 'event_registration' %}
+                                                            <i class="fas fa-user-plus me-2 text-info"></i>
+                                                        {% elif notification.notification_type == 'event_created' %}
+                                                            <i class="fas fa-calendar-plus me-2 text-primary"></i>
+                                                        {% elif notification.notification_type == 'event_deleted' %}
+                                                            <i class="fas fa-trash me-2 text-danger"></i>
+                                                        {% elif notification.notification_type == 'comment_reply' %}
+                                                            <i class="fas fa-reply me-2 text-primary"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-info-circle me-2 text-info"></i>
+                                                        {% endif %}
+                                                        {{ notification.title }}
                                                     </h6>
                                                     <p class="mb-1 text-muted">{{ notification.message }}</p>
                                                     <small class="text-muted">
@@ -107,7 +130,8 @@
                                                     {% if notification.related_event %}
                                                     <a href="{% url 'events:event_detail' notification.related_event.id %}" 
                                                        class="btn btn-sm btn-outline-primary view-event-btn"
-                                                       data-event-id="{{ notification.related_event.id }}">
+                                                       data-event-id="{{ notification.related_event.id }}"
+                                                       data-notification-id="{{ notification.id }}">
                                                         <i class="fas fa-external-link-alt me-1"></i>View Event
                                                     </a>
                                                     {% endif %}
@@ -136,7 +160,7 @@
 
             <!-- Account & Role Information Card -->
             <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark">
+                <div class="card-header" style="background-color: #007bff; color: white;">
                     <h5 class="mb-0">
                         <i class="fas fa-user-shield me-2"></i>Account & Role Information
                     </h5>
@@ -273,6 +297,38 @@ hr {
 .notification-item {
     transition: all 0.3s ease;
     border-left: 4px solid #e9ecef !important;
+    position: relative;
+}
+
+.notification-delete-btn {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.btn-delete-notification {
+    background: transparent;
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.btn-delete-notification:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-delete-notification:active {
+    transform: scale(0.95);
 }
 
 .notification-item.unread {
@@ -368,9 +424,103 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle View Event button clicks
     document.querySelectorAll('.view-event-btn').forEach(function(button) {
         button.addEventListener('click', function(e) {
-            // Let the link work normally (go to event page)
-            // The event_detail_view will mark notifications as read
-            // When user comes back, the badge will be updated
+            const notificationId = this.getAttribute('data-notification-id');
+            const eventUrl = this.getAttribute('href');
+            
+            if (notificationId) {
+                // Prevent default navigation temporarily
+                e.preventDefault();
+                
+                // Mark notification as read via AJAX
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                 document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                fetch(`{% url "events:mark_notification_read" 0 %}`.replace('0', notificationId), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the notification item visually
+                        const notificationItem = this.closest('.notification-item');
+                        if (notificationItem) {
+                            notificationItem.classList.remove('unread');
+                            notificationItem.querySelector('h6').classList.remove('fw-bold');
+                        }
+                        
+                        // Navigate to event page
+                        window.location.href = eventUrl;
+                    } else {
+                        // If marking as read fails, still navigate
+                        window.location.href = eventUrl;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking notification as read:', error);
+                    // If there's an error, still navigate to the event
+                    window.location.href = eventUrl;
+                });
+            }
+        });
+    });
+    
+    // Handle delete notification button clicks
+    document.querySelectorAll('.btn-delete-notification').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const notificationId = this.getAttribute('data-notification-id');
+            const notificationItem = this.closest('.notification-item');
+            
+            if (notificationId && notificationItem) {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                 document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                
+                // Disable button during deletion
+                this.disabled = true;
+                this.style.opacity = '0.5';
+                
+                // Delete notification via AJAX
+                fetch(`{% url "events:delete_notification" 0 %}`.replace('0', notificationId), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Fade out and remove the notification item
+                        notificationItem.style.transition = 'opacity 0.3s ease';
+                        notificationItem.style.opacity = '0';
+                        setTimeout(() => {
+                            notificationItem.remove();
+                            
+                            // Check if there are no more notifications
+                            const notificationsList = document.querySelector('.notifications-list');
+                            if (notificationsList && notificationsList.children.length === 0) {
+                                // Reload page to show "No notifications" message
+                                window.location.reload();
+                            }
+                        }, 300);
+                    } else {
+                        // If deletion fails, re-enable button
+                        this.disabled = false;
+                        this.style.opacity = '1';
+                        alert('Error deleting notification. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting notification:', error);
+                    // Re-enable button on error
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                    alert('Error deleting notification. Please try again.');
+                });
+            }
         });
     });
 });

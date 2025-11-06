@@ -31,25 +31,25 @@
     <!-- Event Details -->
     <div class="row">
         <!-- Left Column - Image -->
-        <div class="col-lg-5 mb-4">
+        <div class="col-lg-5 mb-3">
             <div class="card shadow">
                 {% if event.image %}
                     <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" 
-                         style="height: 400px; object-fit: cover;">
+                         style="height: 300px; object-fit: cover;">
                 {% else %}
                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                         style="height: 400px;">
-                        <i class="fas fa-calendar-alt fa-4x text-muted"></i>
+                         style="height: 300px;">
+                        <i class="fas fa-calendar-alt fa-3x text-muted"></i>
                     </div>
                 {% endif %}
-                <div class="card-body">
+                <div class="card-body p-2">
                     <div class="d-flex justify-content-between align-items-center">
                         {% if event.is_official %}
-                            <span class="badge bg-success fs-6">
+                            <span class="badge bg-success">
                                 <i class="fas fa-check-circle me-1"></i>Official Event
                             </span>
                         {% endif %}
-                        <span class="badge event-type-badge fs-6">{{ event.get_event_type_display }}</span>
+                        <span class="badge event-type-badge">{{ event.get_event_type_display }}</span>
                     </div>
                 </div>
             </div>
@@ -58,9 +58,9 @@
         <!-- Right Column - Event Information -->
         <div class="col-lg-7">
             <div class="card shadow h-100">
-                <div class="card-body p-4">
+                <div class="card-body p-3">
                     <!-- Event Details Grid -->
-                    <div class="row g-3 mb-4">
+                    <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <div class="detail-item">
                                 <div class="detail-icon">
@@ -108,57 +108,65 @@
                     </div>
 
                     <!-- Description -->
-                    <div class="mb-4">
-                        <h5 class="text-primary mb-3">
-                            <i class="fas fa-info-circle me-2"></i>Event Description
-                        </h5>
+                    <div class="mb-2">
+                        <h6 class="text-primary mb-2">
+                            <i class="fas fa-info-circle me-1"></i>Event Description
+                        </h6>
                         <div class="content-box">
-                            <p class="mb-0">{{ event.description }}</p>
+                            <p class="mb-0 small">{{ event.description }}</p>
                         </div>
                     </div>
 
                     <!-- Requirements -->
                     {% if event.requirements %}
-                    <div class="mb-4">
-                        <h5 class="text-primary mb-3">
-                            <i class="fas fa-list-check me-2"></i>Requirements to Attend
-                        </h5>
+                    <div class="mb-2">
+                        <h6 class="text-primary mb-2">
+                            <i class="fas fa-list-check me-1"></i>Requirements to Attend
+                        </h6>
                         <div class="content-box">
-                            <p class="mb-0">{{ event.requirements }}</p>
+                            <p class="mb-0 small">{{ event.requirements }}</p>
                         </div>
                     </div>
                     {% endif %}
 
                     <!-- Event Creator Info -->
-                    <div class="mb-4">
-                        <h5 class="text-primary mb-3">
-                            <i class="fas fa-user me-2"></i>Organizer Information
-                        </h5>
+                    <div class="mb-2">
+                        <h6 class="text-primary mb-2">
+                            <i class="fas fa-user me-1"></i>Organizer Information
+                        </h6>
                         <div class="row">
                             <div class="col-md-6">
                                 <small class="text-muted">Organized by</small>
-                                <div class="fw-bold">{{ event.created_by.username }}</div>
+                                <div class="fw-bold small">{{ event.created_by.username }}</div>
                             </div>
                             <div class="col-md-6">
                                 <small class="text-muted">Created on</small>
-                                <div class="fw-bold">{{ event.created_at|date:"M d, Y" }}</div>
+                                <div class="fw-bold small">{{ event.created_at|date:"M d, Y" }}</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="d-grid gap-3 mt-5">
+                    <div class="mt-3">
                         {% if not user_registered %}
-                        <form method="POST" action="{% url 'events:register_event' event.id %}">
+                        <form method="POST" action="{% url 'events:register_event' event.id %}" class="mb-3">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-dark btn-lg">
+                            <button type="submit" class="btn btn-dark btn-lg w-100">
                                 <i class="fas fa-user-plus me-2"></i>Register for this Event
                             </button>
                         </form>
                         {% else %}
-                        <button type="button" class="btn btn-secondary btn-lg" disabled>
-                            <i class="fas fa-user-check me-2"></i>Already Registered
-                        </button>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <button type="button" class="btn btn-secondary btn-lg flex-grow-1" disabled>
+                                <i class="fas fa-user-check me-2"></i>Already Registered
+                            </button>
+                            <form method="POST" action="{% url 'events:unregister_event' event.id %}" class="mb-0" onsubmit="return confirm('Are you sure you want to unregister from this event?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-user-minus"></i> Unregister
+                                </button>
+                            </form>
+                        </div>
                         {% endif %}
                         
                         {% if user.is_authenticated %}
@@ -178,7 +186,7 @@
     </div>
 
     <!-- Comments Section -->
-    <div class="row mt-5">
+    <div class="row mt-3">
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
@@ -288,33 +296,9 @@
                                 </div>
                                 {% endif %}
                                 
-                                <!-- Replies Section -->
+                                <!-- Replies Section (Recursive) -->
                                 {% if comment.replies.all %}
-                                <div class="replies-section ms-4 mt-3">
-                                    {% for reply in comment.replies.all %}
-                                    <div class="reply-item mb-2 p-2 border-start border-3 border-primary bg-light rounded" data-comment-id="{{ reply.id }}">
-                                        <div class="d-flex justify-content-between align-items-start mb-1">
-                                            <div>
-                                                <strong class="text-primary">{{ reply.author.username }}</strong>
-                                                {% if reply.is_event_owner_comment %}
-                                                    <span class="badge bg-primary ms-2">Owner of the event</span>
-                                                {% endif %}
-                                                <small class="text-muted ms-2">{{ reply.formatted_created_at }}</small>
-                                            </div>
-                                            {% if reply.can_delete %}
-                                            <button class="btn btn-sm btn-outline-danger delete-comment-btn" 
-                                                    data-comment-id="{{ reply.id }}" 
-                                                    title="Delete reply">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            {% endif %}
-                                        </div>
-                                        <div class="reply-content">
-                                            {{ reply.content|linebreaks }}
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
+                                    {% include 'events/comment_replies.html' with replies=comment.replies.all user=user %}
                                 {% endif %}
                             </div>
                             {% endfor %}
@@ -345,12 +329,12 @@
  .detail-item {
      display: flex;
      align-items: center;
-     padding: 15px;
+     padding: 8px 12px;
      background: #f8f9fa;
-     border-radius: 10px;
+     border-radius: 8px;
      border-left: 3px solid #143c65;
      transition: transform 0.2s ease;
-     min-height: 70px;
+     min-height: 50px;
  }
 
 .detail-item:hover {
@@ -359,16 +343,16 @@
 }
 
  .detail-icon {
-     width: 40px;
-     height: 40px;
+     width: 32px;
+     height: 32px;
      background: #143c65;
      border-radius: 50%;
      display: flex;
      align-items: center;
      justify-content: center;
-     margin-right: 15px;
+     margin-right: 10px;
      color: white;
-     font-size: 1rem;
+     font-size: 0.85rem;
      flex-shrink: 0;
  }
 
@@ -377,9 +361,9 @@
 }
 
 .detail-content small {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #6c757d;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -387,16 +371,16 @@
 }
 
 .detail-content .fw-bold {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #212529;
-    line-height: 1.3;
+    line-height: 1.2;
     font-weight: 600;
 }
 
  .content-box {
      background: #f8f9fa;
-     padding: 20px;
-     border-radius: 10px;
+     padding: 10px 12px;
+     border-radius: 8px;
      border-left: 3px solid #143c65;
  }
 
@@ -773,7 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Helper function to add reply to the list
+    // Helper function to add reply to the list (supports nested replies)
     function addReplyToList(commentId, reply) {
         const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
         if (!commentItem) return;
@@ -786,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function() {
             commentItem.appendChild(repliesSection);
         }
         
-        // Create reply element
+        // Create reply element with support for nested replies
         const replyElement = document.createElement('div');
         replyElement.className = 'reply-item mb-2 p-2 border-start border-3 border-primary bg-light rounded';
         replyElement.setAttribute('data-comment-id', reply.id);
@@ -809,9 +793,99 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="reply-content">
                 ${reply.content.replace(/\n/g, '<br>')}
             </div>
+            ${reply.can_reply ? `
+            <div class="comment-actions mt-2">
+                <button class="btn btn-sm btn-outline-primary reply-btn" 
+                        data-comment-id="${reply.id}">
+                    <i class="fas fa-reply me-1"></i>Reply
+                </button>
+            </div>
+            <div class="reply-form-container mt-3" id="replyForm-${reply.id}" style="display: none;">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-reply me-2"></i>Reply to ${reply.author}
+                        </h6>
+                        <form class="reply-form" data-comment-id="${reply.id}">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('[name=csrfmiddlewaretoken]').value}">
+                            <input type="hidden" name="parent_comment_id" value="${reply.id}">
+                            <div class="mb-3">
+                                <textarea class="form-control reply-content" name="content" 
+                                          rows="2" placeholder="Write your reply..." 
+                                          maxlength="1000"></textarea>
+                                <div class="form-text">
+                                    <span class="reply-char-count">0</span>/1000 characters
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-paper-plane me-1"></i>Post Reply
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-sm cancel-reply-btn" 
+                                        data-comment-id="${reply.id}">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
         `;
         
         repliesSection.appendChild(replyElement);
+        
+        // Re-attach event listeners for the new reply button
+        attachReplyListeners(replyElement);
+    }
+    
+    // Function to attach reply form listeners to a specific element
+    function attachReplyListeners(element) {
+        // Reply button click
+        const replyBtn = element.querySelector('.reply-btn');
+        if (replyBtn) {
+            replyBtn.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+                const replyForm = document.getElementById(`replyForm-${commentId}`);
+                if (replyForm) {
+                    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+                }
+            });
+        }
+        
+        // Cancel reply button
+        const cancelBtn = element.querySelector('.cancel-reply-btn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+                const replyForm = document.getElementById(`replyForm-${commentId}`);
+                if (replyForm) {
+                    replyForm.style.display = 'none';
+                    replyForm.querySelector('.reply-content').value = '';
+                    replyForm.querySelector('.reply-char-count').textContent = '0';
+                }
+            });
+        }
+        
+        // Reply form submission
+        const replyForm = element.querySelector('.reply-form');
+        if (replyForm) {
+            replyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // This will be handled by the existing reply form handler
+            });
+        }
+        
+        // Character count for reply textarea
+        const replyTextarea = element.querySelector('.reply-content');
+        if (replyTextarea) {
+            const charCount = element.querySelector('.reply-char-count');
+            replyTextarea.addEventListener('input', function() {
+                if (charCount) {
+                    charCount.textContent = this.value.length;
+                }
+            });
+        }
     }
     
     // Handle comment deletion

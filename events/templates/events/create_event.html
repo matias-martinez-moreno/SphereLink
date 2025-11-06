@@ -7,11 +7,13 @@
     <!-- Header Section -->
     <div class="row mb-3">
         <div class="col-12">
-            <h2 class="text-dark mb-2">Create New Event</h2>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="text-dark mb-0">Create New Event</h2>
+                <a href="{% url 'events:dashboard' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Dashboard
+                </a>
+            </div>
             <p class="text-muted">Share your event with the community</p>
-            <a href="{% url 'events:dashboard' %}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>Back to Dashboard
-            </a>
         </div>
     </div>
 

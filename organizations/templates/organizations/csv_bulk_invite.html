@@ -18,56 +18,9 @@
                     </div>
                     {% endif %}
                 </div>
-                <a href="{% url 'organizations:organization_list' %}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Organizations
+                <a href="{% url 'organizations:organization_list' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Organizations
                 </a>
-            </div>
-
-            <!-- Instructions Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-info-circle me-2"></i>Instructions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h6>CSV File Requirements:</h6>
-                            <ul class="mb-3">
-                                <li>File must have a <code>.csv</code> extension</li>
-                                <li>Email addresses should be in the <strong>first column</strong></li>
-                                <li>One email address per row</li>
-                                <li>File size must be less than 5MB</li>
-                                <li>Empty rows will be skipped</li>
-                            </ul>
-                            
-                            <h6>What happens during processing:</h6>
-                            <ul class="mb-3">
-                                <li>✅ Valid emails will create new user accounts</li>
-                                <li>🔄 Existing users will be added to the selected organization</li>
-                                <li>❌ Invalid emails will be skipped and reported</li>
-                                <li>⚠️ Users already in the organization will be skipped</li>
-                            </ul>
-                            
-                            <div class="alert alert-info">
-                                <i class="fas fa-key me-2"></i>
-                                <strong>Passwords:</strong> New users get temporary passwords in format <code>Temp{username}123!</code> (must change on first login)
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <h6>Sample CSV Format:</h6>
-                            <div class="bg-light p-3 rounded">
-                                <code>
-                                    john.doe@eafit.edu.co<br>
-                                    maria.garcia@eafit.edu.co<br>
-                                    student123@eafit.edu.co<br>
-                                    professor.smith@eafit.edu.co
-                                </code>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Upload Form -->
@@ -139,6 +92,51 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Instructions Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Instructions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-2">CSV Format:</h6>
+                            <ul class="small mb-2">
+                                <li>File must have <code>.csv</code> extension</li>
+                                <li>Email addresses in the <strong>first column</strong></li>
+                                <li>One email per row</li>
+                                <li>Max file size: 5MB</li>
+                            </ul>
+                            
+                            <h6 class="mb-2">Sample Format:</h6>
+                            <div class="bg-light p-2 rounded mb-2">
+                                <code class="small">
+                                    john.doe@gmail.com<br>
+                                    maria.garcia@gmail.com<br>
+                                    carlos.rodriguez@gmail.com
+                                </code>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-2">Processing:</h6>
+                            <ul class="small mb-2">
+                                <li>✅ Valid emails create new accounts</li>
+                                <li>🔄 Existing users added to organization</li>
+                                <li>❌ Invalid emails skipped</li>
+                                <li>⚠️ Duplicates in organization skipped</li>
+                            </ul>
+                            
+                            <div class="alert alert-info py-2 mb-0 small">
+                                <i class="fas fa-key me-1"></i>
+                                <strong>Passwords:</strong> Format <code>Temp{username}123!</code> (change on first login)
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

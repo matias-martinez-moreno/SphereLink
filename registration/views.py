@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -37,11 +38,22 @@ def login_view(request):
             pass
     
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username_or_email = request.POST.get('username', '').strip()
         password = request.POST.get('password')
         
-        # Authenticate user with provided credentials
-        user = authenticate(request, username=username, password=password)
+        # Check if input is email or username
+        user = None
+        if '@' in username_or_email:
+            # Input is an email, try to find user by email
+            try:
+                user_obj = User.objects.get(email=username_or_email, is_active=True)
+                # Authenticate using the username found by email
+                user = authenticate(request, username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                user = None
+        else:
+            # Input is a username, authenticate normally
+            user = authenticate(request, username=username_or_email, password=password)
         
         if user is not None:
             # SPECIAL CASE: If superadmin, allow immediate access
@@ -94,7 +106,7 @@ def login_view(request):
                 messages.error(request, "Your account doesn't have access to any active organization. Contact the administrator.")
         else:
             # Invalid credentials
-            messages.error(request, "Invalid username or password. Please try again.")
+            messages.error(request, "Invalid username/email or password. Please try again.")
     
     # Render login form (GET) or with errors (POST)
     return render(request, 'registration/login.html')
@@ -175,7 +187,7 @@ def contact_admin(request):
                 contact_message = form.save()
                 
                 # Send email notification to administrators
-                admin_email = getattr(settings, 'ADMIN_EMAIL', 'admin@spherelink.com')
+                admin_email = settings.ADMIN_EMAIL
                 subject = f"SphereLink Contact Request: {contact_message.subject}"
                 
                 # Create email content
@@ -244,6 +256,62 @@ class CustomPasswordResetView(PasswordResetView):
     subject_template_name = 'registration/password_reset_subject.txt'
     success_url = reverse_lazy('registration:password_reset_done')
     form_class = CustomPasswordResetForm
+    from_email = settings.DEFAULT_FROM_EMAIL
+    
+    def form_valid(self, form):
+        """Override form_valid to ensure email is sent and add logging"""
+        email = form.cleaned_data['email']
+        from django.contrib.auth.models import User
+        
+        # Get user for better logging
+        try:
+            user = User.objects.get(email=email, is_active=True)
+            username = user.username
+        except User.DoesNotExist:
+            username = "Unknown"
+        
+        print(f"\n{'='*60}")
+        print(f"🔐 Password reset requested")
+        print(f"📧 Email: {email}")
+        print(f"👤 Username: {username}")
+        print(f"📧 Email backend: {settings.EMAIL_BACKEND}")
+        print(f"📧 From email: {self.from_email}")
+        
+        # Check if using console backend
+        is_console_backend = 'console' in settings.EMAIL_BACKEND.lower()
+        if is_console_backend:
+            print(f"⚠️  MODO DESARROLLO: Email se mostrará en consola")
+            print(f"📧 Para enviar emails reales, configura variables de entorno:")
+            print(f"   - EMAIL_HOST_USER")
+            print(f"   - EMAIL_HOST_PASSWORD")
+            print(f"   Ver EMAIL_SETUP.md para instrucciones")
+        else:
+            print(f"✅ MODO PRODUCCIÓN: Email se enviará por SMTP")
+        
+        print(f"{'='*60}\n")
+        
+        # Call parent form_valid which handles form.save() and email sending
+        try:
+            result = super().form_valid(form)
+            
+            if is_console_backend:
+                print(f"\n{'='*60}")
+                print(f"📧 EMAIL DE RESET DE CONTRASEÑA (mostrado en consola):")
+                print(f"{'='*60}")
+                # The email content will be printed by console backend
+            else:
+                print(f"✅ Password reset email sent successfully to: {email}")
+            
+            return result
+        except Exception as e:
+            print(f"\n{'='*60}")
+            print(f"❌ ERROR al enviar email de reset de contraseña")
+            print(f"📧 Error: {str(e)}")
+            print(f"{'='*60}\n")
+            import traceback
+            traceback.print_exc()
+            # Re-raise to show error to user
+            raise
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
     """Custom password reset done view"""

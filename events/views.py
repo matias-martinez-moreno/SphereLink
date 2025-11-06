@@ -114,23 +114,35 @@ def event_detail_view(request, event_id):
     if request.user.is_authenticated:
         user_registered = event.registrations.filter(user=request.user).exists()
         
-        # Mark notifications related to this event as read
+        # Mark notifications related to this event as read when user visits the event
+        # But NOT registration/unregistration/event_registration notifications - those should remain visible
         from .models import Notification
         Notification.objects.filter(
             user=request.user,
             related_event=event,
-            is_read=False
+            is_read=False,
+            notification_type__in=['comment_reply']
         ).update(is_read=True)
     
     # Get comments for this event (ordered by most recent first)
     # Get only top-level comments (not replies)
-    comments = event.comments.filter(parent_comment__isnull=True).select_related('author').prefetch_related('replies__author')
+    # Prefetch replies with multiple levels for nested replies
+    comments = event.comments.filter(parent_comment__isnull=True).select_related('author').prefetch_related(
+        'replies__author',
+        'replies__replies__author',
+        'replies__replies__replies__author'
+    )
     
-    # Add permission info to each comment
-    for comment in comments:
-        comment.can_delete = comment.can_be_deleted_by(request.user)
+    # Helper function to recursively set permissions for comments and all nested replies
+    def set_comment_permissions(comment, user):
+        comment.can_delete = comment.can_be_deleted_by(user)
+        comment.can_reply = user.is_authenticated
         for reply in comment.replies.all():
-            reply.can_delete = reply.can_be_deleted_by(request.user)
+            set_comment_permissions(reply, user)
+    
+    # Add permission info to each comment and all nested replies
+    for comment in comments:
+        set_comment_permissions(comment, request.user)
     
     context = {
         'event': event,
@@ -187,6 +199,65 @@ def register_event_view(request, event_id):
         # Create user registration for the event
         event.registrations.create(user=user)
         messages.success(request, "You have successfully registered for the event.")
+        
+        # Send email confirmation to user's Gmail
+        if user.email:
+            try:
+                from django.core.mail import send_mail
+                from django.template.loader import render_to_string
+                from django.conf import settings
+                
+                # Prepare email context
+                protocol = 'https' if not settings.DEBUG else 'http'
+                domain = settings.ALLOWED_HOSTS[0] if settings.ALLOWED_HOSTS else 'localhost:8000'
+                
+                context = {
+                    'user': user,
+                    'event': event,
+                    'protocol': protocol,
+                    'domain': domain,
+                }
+                
+                # Render email subject
+                subject = f'SphereLink - Registration Confirmed: {event.title}'
+                
+                # Render email body
+                message = render_to_string('events/registration_confirmation_email.html', context)
+                
+                # Send email
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                    html_message=message,  # Send as HTML email
+                )
+            except Exception as e:
+                # Log error but don't fail the registration
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f'Error sending registration email to {user.email}: {str(e)}')
+        
+        # Create notification for registration (in-app notification)
+        from .models import Notification
+        Notification.objects.create(
+            user=user,
+            notification_type='registration_confirmed',
+            title='Registration Confirmed',
+            message=f'You have successfully registered for the event "{event.title}"',
+            related_event=event
+        )
+        
+        # Notify event creator that someone registered to their event
+        if event.created_by != user and event.created_by.email:
+            Notification.objects.create(
+                user=event.created_by,
+                notification_type='event_registration',
+                title='New Registration',
+                message=f'{user.get_full_name() or user.username} has registered for your event "{event.title}"',
+                related_event=event
+            )
 
     return redirect('events:event_detail', event_id=event_id)
 
@@ -205,8 +276,19 @@ def unregister_event_view(request, event_id):
     try:
         # Find and delete the registration
         registration = EventRegistration.objects.get(event=event, user=user)
+        event_title = event.title
         registration.delete()
-        messages.success(request, f"You have successfully unregistered from the event '{event.title}'.")
+        messages.success(request, f"You have successfully unregistered from the event '{event_title}'.")
+        
+        # Create notification for unregistration
+        from .models import Notification
+        Notification.objects.create(
+            user=user,
+            notification_type='unregistration_confirmed',
+            title='Unregistration Confirmed',
+            message=f'You have successfully unregistered from the event "{event_title}"',
+            related_event=event
+        )
     except EventRegistration.DoesNotExist:
         messages.warning(request, "You were not registered for this event.")
 
@@ -246,6 +328,17 @@ def create_event_view(request):
                 new_event.is_official = False
             
             new_event.save()
+            
+            # Create notification for event creation
+            from .models import Notification
+            Notification.objects.create(
+                user=request.user,
+                notification_type='event_created',
+                title='Event Created',
+                message=f'You have successfully created the event "{new_event.title}"',
+                related_event=new_event
+            )
+            
             return redirect('events:my_events')
         # Form errors are automatically displayed in the template
         pass
@@ -337,6 +430,18 @@ def delete_event_view(request, event_id):
     if request.method == 'POST':
         try:
             event_title = event.title
+            event_creator = event.created_by
+            
+            # Create notification for event deletion before deleting
+            from .models import Notification
+            Notification.objects.create(
+                user=event_creator,
+                notification_type='event_deleted',
+                title='Event Deleted',
+                message=f'You have successfully deleted the event "{event_title}"',
+                related_event=None  # Event will be deleted, so we can't reference it
+            )
+            
             event.delete()
             messages.success(request, f"Event '{event_title}' deleted successfully.")
             return redirect('events:my_events')
@@ -380,7 +485,19 @@ def export_attendees_csv(request, event_id):
     Export a CSV file of all registered attendees for an event
     - Only accessible to the event creator or staff users
     - The CSV contains 'Name' and 'Email' of each registered user
+    - Normalizes accents for Excel compatibility
     """
+    import unicodedata
+    
+    def normalize_text(text):
+        """Remove accents and special characters for Excel compatibility"""
+        if not text:
+            return ''
+        # Normalize to NFD (decomposed form) and remove combining characters (accents)
+        text = unicodedata.normalize('NFD', str(text))
+        text = text.encode('ascii', 'ignore').decode('ascii')
+        return text
+    
     event = get_object_or_404(Event, id=event_id)
     user = request.user
 
@@ -389,9 +506,11 @@ def export_attendees_csv(request, event_id):
         messages.error(request, "You don't have permission to export attendees for this event.")
         return redirect('events:event_detail', event_id=event.id)
 
-    # Set up the HTTP response for CSV
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{event.title}_attendees.csv"'
+    # Set up the HTTP response for CSV with UTF-8 encoding and BOM for Excel
+    response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+    # Normalize filename too
+    filename = normalize_text(event.title).replace(' ', '_')
+    response['Content-Disposition'] = f'attachment; filename="{filename}_attendees.csv"'
 
     # Create a CSV writer
     writer = csv.writer(response)
@@ -399,10 +518,12 @@ def export_attendees_csv(request, event_id):
     # Write the header row
     writer.writerow(['Name', 'Email'])
 
-    # Write data rows
+    # Write data rows with normalized text
     registrations = event.registrations.select_related('user').all()
     for registration in registrations:
-        writer.writerow([registration.user.get_full_name(), registration.user.email])
+        name = normalize_text(registration.user.get_full_name() or registration.user.username)
+        email = normalize_text(registration.user.email or '')
+        writer.writerow([name, email])
 
     return response
 
@@ -507,7 +628,8 @@ def add_reply(request, event_id):
                 'author': reply.author.username,
                 'created_at': reply.formatted_created_at,
                 'can_delete': reply.can_be_deleted_by(request.user),
-                'is_event_owner': reply.is_event_owner_comment
+                'is_event_owner': reply.is_event_owner_comment,
+                'can_reply': request.user.is_authenticated
             }
         })
     except Exception as e:
@@ -708,3 +830,38 @@ def calendar_day_events(request, year, month, day):
             'success': False,
             'error': f'Error retrieving events: {str(e)}'
         })
+
+
+@login_required
+@require_POST
+def mark_notification_read(request, notification_id):
+    """
+    Mark a specific notification as read
+    """
+    from .models import Notification
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    
+    notification.is_read = True
+    notification.save()
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Notification marked as read'
+    })
+
+
+@login_required
+@require_POST
+def delete_notification(request, notification_id):
+    """
+    Delete a specific notification
+    """
+    from .models import Notification
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    
+    notification.delete()
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Notification deleted'
+    })

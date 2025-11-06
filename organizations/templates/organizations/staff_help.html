@@ -7,17 +7,19 @@
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="text-dark mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="text-dark mb-0">
                 <i class="fas fa-user-tie me-2"></i>Staff Help Guide
             </h2>
-            <p class="text-muted">Quick guide for staff members</p>
-            <a href="{% url 'events:dashboard' %}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                <a href="{% url 'events:dashboard' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>Back to Dashboard
             </a>
+            </div>
+            <p class="text-muted">Your guide to managing events and moderating content</p>
         </div>
     </div>
 
-    <!-- Staff Powers -->
+    <!-- Your Powers -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
@@ -32,21 +34,21 @@
                             <div class="p-3 border rounded bg-light">
                                 <i class="fas fa-star fa-2x text-warning mb-2"></i>
                                 <h6>Official Events</h6>
-                                <p class="small text-muted">Create official events with special badges</p>
+                                <p class="small text-muted mb-0">All your events are automatically marked as Official</p>
                             </div>
                         </div>
                         <div class="col-md-4 text-center mb-3">
                             <div class="p-3 border rounded bg-light">
                                 <i class="fas fa-trash fa-2x text-danger mb-2"></i>
                                 <h6>Moderate Content</h6>
-                                <p class="small text-muted">Delete any event or comment</p>
+                                <p class="small text-muted mb-0">Delete any event or comment in your organization</p>
                             </div>
                         </div>
                         <div class="col-md-4 text-center mb-3">
                             <div class="p-3 border rounded bg-light">
-                                <i class="fas fa-building fa-2x text-info mb-2"></i>
-                                <h6>Organization Access</h6>
-                                <p class="small text-muted">Full access to organization features</p>
+                                <i class="fas fa-edit fa-2x text-info mb-2"></i>
+                                <h6>Full Access</h6>
+                                <p class="small text-muted mb-0">Edit or delete any content you see</p>
                             </div>
                         </div>
                     </div>
@@ -66,22 +68,22 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-primary">📅 Create Official Event</h6>
-                            <ol class="small">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary mb-3"><i class="fas fa-calendar-plus me-2"></i>Create Event</h6>
+                            <ol class="small mb-0">
                                 <li>Click "Create Event" in sidebar</li>
-                                <li>Fill event details</li>
-                                <li>Choose "Official" type</li>
-                                <li>Event gets special badge automatically</li>
+                                <li>Fill event details (title, date, location, capacity)</li>
+                                <li>Choose event type (Sports, Wellness, Academic, Other)</li>
+                                <li>Your event is automatically marked as <strong>Official</strong></li>
                             </ol>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-primary">🛡️ Moderate Content</h6>
-                            <ol class="small">
-                                <li>View any event in dashboard</li>
-                                <li>Click trash icon to delete</li>
-                                <li>Delete inappropriate comments</li>
-                                <li>Keep community clean</li>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-primary mb-3"><i class="fas fa-shield-alt me-2"></i>Moderate Content</h6>
+                            <ol class="small mb-0">
+                                <li>View any event in your organization</li>
+                                <li>Click <i class="fas fa-trash text-danger"></i> to delete inappropriate content</li>
+                                <li>Delete comments that violate community guidelines</li>
+                                <li>Keep your organization's events clean and professional</li>
                             </ol>
                         </div>
                     </div>
@@ -90,44 +92,33 @@
         </div>
     </div>
 
-    <!-- Navigation Guide -->
+    <!-- Key Features -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-compass me-2"></i>Navigation Guide
+                        <i class="fas fa-info-circle me-2"></i>Key Features
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3 text-center mb-3">
-                            <div class="p-3 border rounded">
-                                <i class="fas fa-home fa-2x text-primary mb-2"></i>
-                                <h6>Dashboard</h6>
-                                <p class="small text-muted">View & manage all events</p>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-info"><i class="fas fa-check-circle me-2"></i>What You Can Do</h6>
+                            <ul class="list-unstyled small mb-0">
+                                <li><i class="fas fa-check text-success me-2"></i>Create any type of event (same as members)</li>
+                                <li><i class="fas fa-check text-success me-2"></i>All events automatically get "Official" badge</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Delete any event or comment</li>
+                                <li><i class="fas fa-check text-success me-2"></i>View and manage event registrations</li>
+                            </ul>
                         </div>
-                        <div class="col-md-3 text-center mb-3">
-                            <div class="p-3 border rounded">
-                                <i class="fas fa-calendar fa-2x text-info mb-2"></i>
-                                <h6>Calendar</h6>
-                                <p class="small text-muted">Monthly event overview</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 text-center mb-3">
-                            <div class="p-3 border rounded">
-                                <i class="fas fa-list fa-2x text-warning mb-2"></i>
-                                <h6>My Events</h6>
-                                <p class="small text-muted">Your created events</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 text-center mb-3">
-                            <div class="p-3 border rounded">
-                                <i class="fas fa-user fa-2x text-success mb-2"></i>
-                                <h6>My Profile</h6>
-                                <p class="small text-muted">Profile & settings</p>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-info"><i class="fas fa-exclamation-triangle me-2"></i>Important Notes</h6>
+                            <ul class="list-unstyled small mb-0">
+                                <li><i class="fas fa-star text-warning me-2"></i>Your events are always Official (no option to change)</li>
+                                <li><i class="fas fa-edit text-warning me-2"></i>You can edit/delete any content in your organization</li>
+                                <li><i class="fas fa-shield text-success me-2"></i>Use moderation powers responsibly</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -135,103 +126,36 @@
         </div>
     </div>
 
-    <!-- Event Types -->
-    <div class="row mb-4">
+    <!-- Navigation -->
+    <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-warning text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-calendar-alt me-2"></i>Event Types You Can Create
+                        <i class="fas fa-compass me-2"></i>Navigation
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="text-center p-3 border rounded">
-                                <i class="fas fa-star fa-2x text-warning mb-2"></i>
-                                <h6 class="text-warning">Official Events</h6>
-                                <p class="small text-muted">Special staff events with badges</p>
-                            </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                            <h6>Dashboard</h6>
+                            <p class="small text-muted mb-0">View all events in your organization</p>
                         </div>
-                        <div class="col-md-4">
-                            <div class="text-center p-3 border rounded">
-                                <i class="fas fa-building fa-2x text-info mb-2"></i>
-                                <h6 class="text-info">Organization Events</h6>
-                                <p class="small text-muted">Private organization events</p>
-                            </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-calendar fa-2x text-info mb-2"></i>
+                            <h6>Calendar</h6>
+                            <p class="small text-muted mb-0">Monthly view of registered events</p>
                         </div>
-                        <div class="col-md-4">
-                            <div class="text-center p-3 border rounded">
-                                <i class="fas fa-times fa-2x text-muted mb-2"></i>
-                                <h6 class="text-muted">Community Events</h6>
-                                <p class="small text-muted">Cannot create (members only)</p>
-                            </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-list fa-2x text-warning mb-2"></i>
+                            <h6>My Events</h6>
+                            <p class="small text-muted mb-0">Events you created and registered for</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Moderation Guide -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-shield-alt me-2"></i>Moderation Guide
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-danger">🗑️ Delete Events</h6>
-                            <ul class="list-unstyled small">
-                                <li><i class="fas fa-trash text-danger me-2"></i>Click trash icon on any event</li>
-                                <li><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm deletion</li>
-                                <li><i class="fas fa-info text-info me-2"></i>Event and all data will be removed</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-danger">💬 Delete Comments</h6>
-                            <ul class="list-unstyled small">
-                                <li><i class="fas fa-comment-slash text-danger me-2"></i>Find inappropriate comments</li>
-                                <li><i class="fas fa-trash text-danger me-2"></i>Click delete button</li>
-                                <li><i class="fas fa-shield text-success me-2"></i>Keep community clean</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tips & Best Practices -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-lightbulb me-2"></i>Tips & Best Practices
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-primary">💡 Pro Tips</h6>
-                            <ul class="list-unstyled small">
-                                <li><i class="fas fa-star text-warning me-2"></i>Use Official events for important announcements</li>
-                                <li><i class="fas fa-search text-info me-2"></i>Monitor events for inappropriate content</li>
-                                <li><i class="fas fa-comment text-info me-2"></i>Check comments regularly for spam</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-primary">⚠️ Important Notes</h6>
-                            <ul class="list-unstyled small">
-                                <li><i class="fas fa-times text-danger me-2"></i>Cannot create Community events</li>
-                                <li><i class="fas fa-edit text-warning me-2"></i>Can edit/delete any event or comment</li>
-                                <li><i class="fas fa-shield text-success me-2"></i>You are a moderator - use powers responsibly</li>
-                            </ul>
+                        <div class="col-md-3 text-center mb-3">
+                            <i class="fas fa-user fa-2x text-success mb-2"></i>
+                            <h6>My Profile</h6>
+                            <p class="small text-muted mb-0">Your profile and notifications</p>
                         </div>
                     </div>
                 </div>
