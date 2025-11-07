@@ -19,13 +19,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# Usar variable de entorno en producción, fallback a clave de desarrollo
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-!i1&mdr(_!kq^rkl*&i29_fzv+^h%7mkjtzu3a4ir=kli6@7-h')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG se configura desde variable de entorno, por defecto False en producción
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# Usar variable de entorno en producción, fallback a clave de desarrollo solo si DEBUG=True
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    # Solo para desarrollo local - NUNCA en producción
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-!i1&mdr(_!kq^rkl*&i29_fzv+^h%7mkjtzu3a4ir=kli6@7-h'
+    else:
+        raise ValueError("SECRET_KEY must be set as an environment variable in production")
 
 # ALLOWED_HOSTS - obtener desde variable de entorno o usar wildcard para desarrollo
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',') if os.environ.get('ALLOWED_HOSTS') else ['*']
@@ -178,8 +184,9 @@ SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
 # Para producción: usar SMTP backend (envía emails reales)
 
 # Obtener credenciales de email de variables de entorno
+# IMPORTANTE: En producción, estas deben configurarse como variables de entorno en AWS
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'spherelinkevents@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'qbxajscgdzidajhb')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Sin fallback - debe venir de variables de entorno
 
 # Si hay credenciales configuradas, usar SMTP. Si no, usar console backend
 if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
