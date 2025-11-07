@@ -37,4 +37,18 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Archivos de AWS/Elastic Beanstalk
+.elasticbeanstalk/
+*.zip
+.ebextensions/*.pyc
+
+# Archivos de configuración local
+SECRET_KEY.txt
+*.key
+*.pem
+
+# Archivos de configuración de email (temporal)
+email_config.txt
+er.email*
+er.name*
 
