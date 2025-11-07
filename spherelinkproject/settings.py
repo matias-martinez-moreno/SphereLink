@@ -20,20 +20,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG se configura desde variable de entorno, por defecto False en producción
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# DEBUG se configura desde variable de entorno, por defecto True para desarrollo/EC2
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# Usar variable de entorno en producción, fallback a clave de desarrollo solo si DEBUG=True
-SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY:
-    # Solo para desarrollo local - NUNCA en producción
-    if DEBUG:
-        SECRET_KEY = 'django-insecure-!i1&mdr(_!kq^rkl*&i29_fzv+^h%7mkjtzu3a4ir=kli6@7-h'
-    else:
-        raise ValueError("SECRET_KEY must be set as an environment variable in production")
+# Usar variable de entorno si está disponible, sino usar fallback para desarrollo/EC2
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-!i1&mdr(_!kq^rkl*&i29_fzv+^h%7mkjtzu3a4ir=kli6@7-h')
 
-# ALLOWED_HOSTS - obtener desde variable de entorno o usar wildcard para desarrollo
+# ALLOWED_HOSTS - obtener desde variable de entorno o usar wildcard para desarrollo/EC2
+# Para EC2: agregar la IP pública de la instancia, ej: ALLOWED_HOSTS = ['54.123.45.67', 'localhost']
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',') if os.environ.get('ALLOWED_HOSTS') else ['*']
 
 
@@ -184,9 +179,9 @@ SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
 # Para producción: usar SMTP backend (envía emails reales)
 
 # Obtener credenciales de email de variables de entorno
-# IMPORTANTE: En producción, estas deben configurarse como variables de entorno en AWS
+# Para desarrollo/EC2: usar valores por defecto si no hay variables de entorno
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'spherelinkevents@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Sin fallback - debe venir de variables de entorno
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'qbxajscgdzidajhb')  # Fallback para desarrollo/EC2
 
 # Si hay credenciales configuradas, usar SMTP. Si no, usar console backend
 if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:

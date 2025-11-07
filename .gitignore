@@ -37,10 +37,9 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Archivos de AWS/Elastic Beanstalk
+# Archivos de AWS
 .elasticbeanstalk/
 *.zip
-.ebextensions/*.pyc
 
 # Archivos de configuración local
 SECRET_KEY.txt
