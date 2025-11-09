@@ -187,9 +187,9 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
     EMAIL_USE_TLS = True
     print(f"\n{'='*60}")
-    print(f"✅ EMAIL CONFIGURADO: Usando SMTP Backend")
-    print(f"📧 Servidor: {EMAIL_HOST}:{EMAIL_PORT}")
-    print(f"📧 Usuario: {EMAIL_HOST_USER}")
+    print(f"EMAIL CONFIGURADO: Usando SMTP Backend")
+    print(f"Servidor: {EMAIL_HOST}:{EMAIL_PORT}")
+    print(f"Usuario: {EMAIL_HOST_USER}")
     print(f"{'='*60}\n")
 else:
     # Configuración para desarrollo (muestra emails en consola)
@@ -198,10 +198,9 @@ else:
     EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
     EMAIL_USE_TLS = True
     print(f"\n{'='*60}")
-    print(f"⚠️  EMAIL EN MODO DESARROLLO: Usando Console Backend")
-    print(f"📧 Los emails se mostrarán en la consola del servidor")
-    print(f"📧 Para enviar emails reales, configura EMAIL_HOST_USER y EMAIL_HOST_PASSWORD")
-    print(f"📧 Ver instrucciones en: EMAIL_SETUP.md o en la documentación")
+    print(f"EMAIL EN MODO DESARROLLO: Usando Console Backend")
+    print(f"Los emails se mostraran en la consola del servidor")
+    print(f"Para enviar emails reales, configura EMAIL_HOST_USER y EMAIL_HOST_PASSWORD")
     print(f"{'='*60}\n")
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@spherelink.com')
