@@ -22,7 +22,7 @@ staticfiles/
 event_images/  # Mantener ignorado (carpeta antigua)
 
 # Base de datos
-db.sqlite3
+# db.sqlite3 - Temporalmente fuera del ignore para subir al repo
 *.sqlite3
 *.db
 
