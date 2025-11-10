@@ -12,11 +12,8 @@ urlpatterns = [
     path('organizations/', include('organizations.urls')),  # Organizations en /organizations/
 ]
 
-# Configuración para servir archivos de medios (desarrollo y producción)
-# En producción, asegúrate de configurar el servidor web para servir /media/
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-else:
-    # En producción, el servidor web (nginx/apache) debe servir /media/
-    # Pero Django también puede servirlo si es necesario
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Configuración para servir archivos de medios
+# En desarrollo: Django sirve los archivos directamente
+# En producción: configurar el servidor web (nginx/apache) para servir /media/
+# O usar Django para servir si no hay servidor web configurado
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
