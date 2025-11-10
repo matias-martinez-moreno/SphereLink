@@ -13,7 +13,7 @@ class Event(models.Model):
     description = models.TextField()
     date = models.DateTimeField()
     location = models.CharField(max_length=200)
-    image = models.ImageField(upload_to='', null=True, blank=True)
+    image = models.ImageField(upload_to='event_images/', null=True, blank=True)
     duration = models.IntegerField(help_text='Duration in minutes', default=60)
     requirements = models.TextField(blank=True, null=True)
     event_type = models.CharField(max_length=20, choices=EVENT_TYPES, default='other')

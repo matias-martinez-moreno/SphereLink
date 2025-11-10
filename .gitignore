@@ -18,8 +18,8 @@ ENV/
 
 # Carpetas de archivos estáticos y medios
 staticfiles/
-media/
-event_images/
+# media/ - NO ignorar, las imágenes deben subirse a GitHub
+event_images/  # Mantener ignorado (carpeta antigua)
 
 # Base de datos
 db.sqlite3
