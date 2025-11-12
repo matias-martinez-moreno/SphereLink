@@ -6,7 +6,6 @@ A web application for managing organizational events. It allows members to creat
 - Matías Martínez
 - Tomás Giraldo
 - David Bermúdez
-- Jhon Anderson Marín
 
 ##  Initial Setup
 
